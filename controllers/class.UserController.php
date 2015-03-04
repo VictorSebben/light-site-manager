@@ -8,7 +8,7 @@ class UserController extends BaseController {
 
     public function index() {
         // load user-objects array for use in the view
-        $this->_view->objectList = $this->_model->index();
+        $this->_view->objectList = $this->_mapper->index();
         $this->_view->render( 'users/index' );
     }
 
@@ -20,7 +20,8 @@ class UserController extends BaseController {
         echo 'Edit';
     }
 
-    public function show( $cat, $id ) {
-        echo "Categoria $cat, ID $id";
+    public function show( $id ) {
+        $this->_view->user = $this->_mapper->show( $id );
+        $this->_view->render( 'users/show' );
     }
 }

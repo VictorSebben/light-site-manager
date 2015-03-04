@@ -9,7 +9,14 @@ abstract class Mapper {
      */
     protected static $_pdo;
 
-    function __construct() {
+    /**
+     * Prepared statement to be executed by PDO.
+     *
+     * @var PDOStatement
+     */
+    protected $_selectStmt;
+
+    public function __construct() {
 
         if ( !isset( self::$_pdo ) ) {
 
@@ -29,12 +36,19 @@ abstract class Mapper {
         }
     }
 
-    function find( $id ) {
+    public function find( $id ) {
         $this->selectStmt()->execute( array( $id ) );
+        $this->selectStmt()->setFetchMode( PDO::FETCH_CLASS, 'UserModel' );
         $object = $this->selectStmt()->fetch();
         $this->selectStmt()->closeCursor();
+
         if ( ! is_object( $object ) ) { return null; }
         if ( ! $object->getId() == null ) { return null; }
+
         return $object;
+    }
+
+    public function selectStmt() {
+        return $this->_selectStmt;
     }
 }

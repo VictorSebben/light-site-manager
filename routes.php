@@ -55,7 +55,7 @@ $app->map(
 );
 $app->map(
     '/users/\d+/?(view)?/?',
-    array( 'controller' => 'User', 'method' => 'view' ),
+    array( 'controller' => 'User', 'method' => 'show' ),
     array( 'args' => array( 'id' ) )
 );
 $app->map(

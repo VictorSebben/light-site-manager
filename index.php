@@ -7,7 +7,6 @@ $app = Router::getInstance();
 require_once 'routes.php';
 
 $app->start();
-H::ppr($app);
 ?>
 
 <p><a href=''>Home</a></p>
