@@ -5,7 +5,7 @@ class UserMapper extends Mapper {
     function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT id, name, email, cat_user AS cat_id FROM users WHERE id = ?"
+            "SELECT id, name, email, cat_id FROM users WHERE id = ?"
         );
     }
 
@@ -15,7 +15,7 @@ class UserMapper extends Mapper {
 
     public function index() {
         $selectStmt = self::$_pdo->prepare(
-            "SELECT id, name, email, cat_user AS cat_id FROM users"
+            "SELECT id, name, email, cat_id FROM users"
         );
 
         $selectStmt->execute();
