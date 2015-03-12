@@ -2,8 +2,11 @@
 
 class UserController extends BaseController {
 
-    public function __construct( $model_name ) {
-        parent::__construct( $model_name );
+    public function __construct( $model_base_name ) {
+        parent::__construct( $model_base_name );
+
+        $mapper_name = $model_base_name . 'Mapper';
+        $this->_mapper = new $mapper_name;
     }
 
     public function index() {
