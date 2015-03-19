@@ -1,3 +1,6 @@
 .htaccess
 .idea/
 include/inc.dbconfig.php
+
+# vim tags file
+tags

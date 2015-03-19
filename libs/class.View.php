@@ -37,7 +37,15 @@ class View extends stdClass {
      */
     public $mainContent;
 
+    /**
+     * Url helper class.
+     *
+     * @var Url
+     */
+    public $Url;
+
     public function __construct( $templateName = 'main.html.php' ) {
+        $this->Url = new Url();
         $this->_template = 'views/' . $templateName;
     }
 

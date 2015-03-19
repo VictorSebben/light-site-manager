@@ -7,7 +7,7 @@ class UserModel extends BaseModel {
     }
 
     public function show() {
-        H::ppr( $this );
+        //H::ppr( $this );
     }
 
 }

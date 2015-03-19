@@ -8,7 +8,7 @@ class HomeController extends BaseController {
     }
 
     public function index() {
-        echo "This is the index method!";
+        $this->_view->render( 'home/index' );
     }
 
     public function notFound() {
