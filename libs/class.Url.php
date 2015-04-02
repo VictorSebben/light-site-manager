@@ -10,7 +10,8 @@ class Url {
     public $base;
 
     public function __construct() {
-        $this->base = 'http://localhost/projs/ecommaster';
+        $arrAppConf = include 'conf/inc.appconfig.php';
+        $this->base = $arrAppConf[ 'base_url' ];
     }
 
     /**

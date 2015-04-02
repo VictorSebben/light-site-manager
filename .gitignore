@@ -1,6 +1,8 @@
 .htaccess
 .idea/
-include/inc.dbconfig.php
+conf/inc.dbconfig.php
+conf/inc.appconfig.php
+conf/class.Config.php
 
 # vim tags file
 tags
