@@ -20,7 +20,7 @@ abstract class Mapper {
 
         if ( !isset( self::$_pdo ) ) {
 
-            $db_config = include 'include/inc.dbconfig.php';
+            $db_config = include 'conf/inc.dbconfig.php';
             if ( is_null( $db_config ) ) {
                 throw new Exception( 'No data specified for configuring the Dababase.' );
             }
