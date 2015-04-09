@@ -6,4 +6,3 @@ if ( $this->user ) {
 }
 else
     echo "User not found :(";
-exit;

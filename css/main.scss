@@ -1,0 +1,95 @@
+/* ------------------------------------------------------- */
+/* ---- branding ----------------------------------------- */
+$color-brand1: #555;
+$color-bg1: #f9f9f9;
+$font-family1: Verdana, Helvetica;
+
+$width-max: 1024px;
+
+html body, body h1, body h2, h3, h4, p, ul, ol {
+    margin: 0;
+    padding: 0;
+    font-family: $font-family1;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.cf:before, .cf:after {
+    display: block;
+    content: '';
+    clear: both;
+}
+
+a {
+    color: $color-brand1;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.fit {
+    max-width: $width-max;
+    margin: 0 auto;
+}
+
+.main-header {
+    padding: 1px 0;
+    background-color: darken($color-bg1, 2%);
+    padding: 30px 0;
+}
+
+.menu h2, .main-container h2 {
+    font-size: 16px;
+}
+
+
+/* -------------------------------------------------------- */
+/* ---- Column -------------------------------------------- */
+.menu {
+    width: 21%;
+    float: left;
+    background-color: $color-bg1;
+    padding: 2% 0;
+    li {
+        margin: 2%;
+    }
+    a {
+        display: block;
+        padding: 1%;
+    }
+}
+
+/* -------------------------------------------------------- */
+/* ---- Content ------------------------------------------- */
+.content-wrapper {
+    width: 75%;
+    padding: 2%;
+    float: left;
+}
+
+/* -------------------------------------------------------- */
+/* ---- Content ------------------------------------------- */
+
+
+
+
+/* -------------------------------------------------------- */
+/* ---- Footer -------------------------------------------- */
+.main-footer {
+    padding: 3% 0;
+    background-color: darken($color-bg1, 2%);
+}
+
+
+
+
+
+

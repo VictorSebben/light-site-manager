@@ -7,33 +7,44 @@
 </head>
 <body>
 
-<div class='container'>
-
-    <header class='header'>
+<div class='main-header'>
+    <header class='fit'>
         <h1><a href='<?= $this->Url->make(); ?>'>EcomMaster</a></h1>
     </header>
+</div>
 
-    <nav class='menu'>
-        <ul>
-            <li><a href='<?= $this->Url->make( 'users/' ); ?>'>Usuários</a></li>
-            <li><a href='<?= $this->Url->make( 'banners/') ; ?>'>Banners</a></li>
-            <li><a href='<?= $this->Url->make( 'produtos/'); ?>'>Produtos</a></li>
-        </ul>
-    </nav>
+<div class='main-container'>
+    <div class='fit cf'>
+        <nav class='menu'>
+            <h2>Categorias</h2>
+            <ul>
+                <li>
+                    <a href='<?= $this->Url->make( 'users/' ); ?>'>Usuários</a>
+                </li>
+                <li>
+                    <a href='<?= $this->Url->make( 'banners/') ; ?>'>Banners</a>
+                </li>
+                <li>
+                    <a href='<?= $this->Url->make( 'produtos/'); ?>'>Produtos</a>
+                </li>
+            </ul>
+        </nav>
 
-    <div class='content-wrapper'>
+        <div class='content-wrapper'>
 
-    <?php
-    if ( isset( $this->file ) ) {
-        require $this->file;
-    } else {
-        throw new Exception( 'View file not provided.' );
-    }
-    ?>
-
+        <?php
+        if ( isset( $this->file ) ) {
+            require $this->file;
+        } else {
+            throw new Exception( 'View file not provided.' );
+        }
+        ?>
+        </div>
     </div>
+</div>
 
-    <footer class='footer'>
+<div class='main-footer'>
+    <footer class='fit'>
         <p>EcomMaster <?= date( 'Y', time() ); ?> &mdash; <code>(y)</code></p>
     </footer>
 </div>

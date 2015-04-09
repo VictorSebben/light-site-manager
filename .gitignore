@@ -1,3 +1,7 @@
+#
+# filename: .gitignore
+#
+
 .htaccess
 .idea/
 conf/inc.dbconfig.php
@@ -6,3 +10,10 @@ conf/class.Config.php
 
 # vim tags file
 tags
+
+# Ignore .css files since we'll only commit .scss ones.
+*.css
+
+# Sass stuff.
+.sass-cache/
+*.map
