@@ -4,7 +4,8 @@ $color-brand1: #555;
 $color-bg1: #f9f9f9;
 $font-family1: Verdana, Helvetica;
 
-$width-max: 1024px;
+$width-max: 1280px;
+$width-menu: 260px;
 
 html body, body h1, body h2, h3, h4, p, ul, ol {
     margin: 0;
@@ -41,7 +42,6 @@ a:hover {
 }
 
 .main-header {
-    padding: 1px 0;
     background-color: darken($color-bg1, 2%);
     padding: 30px 0;
 }
@@ -54,7 +54,7 @@ a:hover {
 /* -------------------------------------------------------- */
 /* ---- Column -------------------------------------------- */
 .menu {
-    width: 21%;
+    width: $width-menu;
     float: left;
     background-color: $color-bg1;
     padding: 2% 0;
@@ -70,7 +70,7 @@ a:hover {
 /* -------------------------------------------------------- */
 /* ---- Content ------------------------------------------- */
 .content-wrapper {
-    width: 75%;
+    width: $width-max - $width-menu;
     padding: 2%;
     float: left;
 }
@@ -87,9 +87,3 @@ a:hover {
     padding: 3% 0;
     background-color: darken($color-bg1, 2%);
 }
-
-
-
-
-
-
