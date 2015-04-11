@@ -123,7 +123,16 @@ class Router {
             if ( preg_match( ";^{$route}$;", $this->_uri ) ) {
                 $this->_mapped_route = $route;
                 $this->_key = $key;
-                $this->_run();
+                try {
+                    $this->_run();
+                } catch ( PDOException $e ) {
+                    if ( DEBUG )
+                        echo $e->getMessage();
+                    else
+                        echo "Ocorreu um erro na execução da aplicação. Contate o administrador do sistema.";
+                } catch ( Exception $e ) {
+                    echo $e->getMessage();
+                }
                 break;
             }
         }

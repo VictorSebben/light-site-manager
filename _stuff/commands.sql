@@ -23,6 +23,7 @@ CREATE TABLE users (
     FOREIGN KEY ( cat_id ) REFERENCES cat_users ( id )
 );
 
+ALTER TABLE users ADD COLUMN status SMALLINT DEFAULT 1;
 
 INSERT INTO users (name, email, password, cat_id) VALUES
 ( 'Yoda', 'yoda@jedi.net', '1234', 1 ),
@@ -34,5 +35,13 @@ CREATE ROLE ecommaster WITH
     CREATEDB REPLICATION
     VALID UNTIL 'infinity';
 
-
-
+-- populate users table with mocked users
+INSERT INTO users (name, email, password, cat_id)
+VALUES ('user1', 'user1@foo.com', '1234', 1),
+  ('user2', 'user2@foo.com', '1234', 1),
+  ('user3', 'user3@foo.com', '1234', 1),
+  ('user4', 'user4@foo.com', '1234', 1),
+  ('user5', 'user5@foo.com', '1234', 1),
+  ('user6', 'user6@foo.com', '1234', 1),
+  ('user7', 'user7@foo.com', '1234', 1),
+  ('user8', 'user8@foo.com', '1234', 1);

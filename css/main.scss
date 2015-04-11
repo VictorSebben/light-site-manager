@@ -3,6 +3,7 @@
 $color-brand1: #555;
 $color-bg1: #f9f9f9;
 $font-family1: Verdana, Helvetica;
+$font-size1: 15px;
 
 $width-max: 1280px;
 $width-menu: 260px;
@@ -11,6 +12,7 @@ html body, body h1, body h2, h3, h4, p, ul, ol {
     margin: 0;
     padding: 0;
     font-family: $font-family1;
+    font-size: $font-size1;
 }
 
 ol, ul {
@@ -47,7 +49,7 @@ a:hover {
 }
 
 .menu h2, .main-container h2 {
-    font-size: 16px;
+    font-size: $font-size1 + 2;
 }
 
 
@@ -77,9 +79,28 @@ a:hover {
 
 /* -------------------------------------------------------- */
 /* ---- Content ------------------------------------------- */
+table {
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+    width: 100%;
+}
 
+table thead {
+    font-size: $font-size1;
+    font-weight: bold;
+    text-align: left;
+}
 
+thead > tr > th, thead > tr > td {
+    border-bottom-width: 2px;
+}
 
+table th, table tr, table td {
+    line-height: 1.42857;
+    padding: 8px;
+    border: 1px solid #ddd;
+}
 
 /* -------------------------------------------------------- */
 /* ---- Footer -------------------------------------------- */

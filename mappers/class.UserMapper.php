@@ -15,11 +15,10 @@ class UserMapper extends Mapper {
 
     public function index() {
         $selectStmt = self::$_pdo->prepare(
-            "SELECT id, name, email, cat_id FROM users"
+            "SELECT id, name, email, cat_id, status FROM users"
         );
-
         $selectStmt->execute();
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UsersModel' );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UserModel' );
         $users = $selectStmt->fetchAll();
         $selectStmt->closeCursor();
 

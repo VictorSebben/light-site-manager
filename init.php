@@ -7,6 +7,8 @@ define( 'CONTROLLERS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'controllers' . DIREC
 define( 'MODELS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR );
 define( 'MAPPERS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'mappers' . DIRECTORY_SEPARATOR );
 
+define( 'DEBUG', true );
+
 spl_autoload_register( function ( $className ) {
     if ( is_readable( LIBS_DIR . 'class.' . $className . '.php' ) ) {
         require LIBS_DIR . 'class.' . $className . '.php';
