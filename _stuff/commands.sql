@@ -1,8 +1,17 @@
+CREATE ROLE ecommaster
+    WITH LOGIN PASSWORD '1234' REPLICATION
+    VALID UNTIL 'infinity';
+
 CREATE DATABASE ecommaster
   WITH OWNER=ecommaster
        ENCODING='UTF-8'
        LC_COLLATE='en_US.UTF-8'
-       LC_CTYPE='en_US.UTF-8';
+       LC_CTYPE='en_US.UTF-8'
+       TEMPLATE=template1
+       CONNECTION LIMIT=-1;
+
+-- Connect to the newly created database!!! Wow! Amazing.
+\c ecommaster;
 
 CREATE TABLE cat_users (
     id SERIAL NOT NULL PRIMARY KEY,
@@ -45,3 +54,7 @@ VALUES ('user1', 'user1@foo.com', '1234', 1),
   ('user6', 'user6@foo.com', '1234', 1),
   ('user7', 'user7@foo.com', '1234', 1),
   ('user8', 'user8@foo.com', '1234', 1);
+
+
+
+
