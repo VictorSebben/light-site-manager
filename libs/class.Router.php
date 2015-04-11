@@ -31,34 +31,12 @@ class Router {
     protected $_args;
 
     /**
-     * String containing the uri requested by the user.
-     *
-     * @var string
-     */
-    protected $_uri;
-
-    /**
-     * Array containing the parts of the original uri, after splitting it in the '/'.
-     *
-     * @var array
-     */
-    protected $_uri_parts;
-
-    /**
      * Position in the array where the route matches so that we can look in $_controllers
      * at the same position in order to decide what to do.
      *
      * @var int
      */
     protected $_key;
-
-    /**
-     * Route defined in routes.php that matches the uri entered
-     * by the user.
-     *
-     * @var string
-     */
-    protected $_mapped_route;
 
     /**
      * Request object that hold important information to be passed and searched.
@@ -110,18 +88,18 @@ class Router {
      */
     public function start() {
         // get URL accessed by the user
-        $this->_uri = filter_var( $_SERVER[ "REQUEST_URI" ], FILTER_SANITIZE_SPECIAL_CHARS );
+        $this->_request->uri = filter_var( $_SERVER[ "REQUEST_URI" ], FILTER_SANITIZE_SPECIAL_CHARS );
 
         // In order to make it work inside subdirectories on both Apache and NGINX, we have to
         // get the uri from $_SERVER (not as a $_GET param). As for Apache, we need to strip away
         // the root directory from the uri string, hence the preg_replace() functions.
-        $rootDirectory = preg_replace( '/index.php/', '', trim( $_SERVER[ "SCRIPT_NAME" ], '/') );
-        $this->_uri = preg_replace( ":$rootDirectory:", '', $this->_uri );
+        $this->_request->servRootDir = preg_replace( '/index.php/', '', trim( $_SERVER[ "SCRIPT_NAME" ], '/') );
+        $this->_request->uri = preg_replace( ":{$this->_request->servRootDir}:", '', $this->_request->uri );
 
         foreach ( $this->_routes as $key => $route ) {
 
-            if ( preg_match( ";^{$route}$;", $this->_uri ) ) {
-                $this->_mapped_route = $route;
+            if ( preg_match( ";^{$route}$;", $this->_request->uri ) ) {
+                $this->_request->mappedRoute = $route;
                 $this->_key = $key;
                 try {
                     $this->_run();
@@ -146,8 +124,8 @@ class Router {
     protected function _run() {
         // trim '/' so that /news/11/ gives us two pieces instead of four (one before
         // the first /, and one after the last /, which will be always empty.
-        $uri = trim( $this->_uri, '/' );
-        $this->_uri_parts = explode( '/', $uri );
+        $uri = trim( $this->_request->uri, '/' );
+        $this->_request->uriParts = explode( '/', $uri );
 
         $controller_name = $this->_controllers[ $this->_key ][ 'controller' ] . 'Controller';
         $model_base_name = $this->_controllers[ $this->_key ][ 'controller' ];
@@ -177,7 +155,7 @@ class Router {
 
             for ( $i = 1; $i <= count( $this->_params[ $this->_key ][ 'args' ] ); $i++ ) {
 
-                $args[] = $this->_uri_parts[ $i ];
+                $args[] = $this->_request->uriParts;
             }
         }
 
