@@ -136,6 +136,7 @@ class Router {
 
             $controller_obj = new $controller_name( $model_base_name );
 
+            // get arguments
             $this->_args = $this->_getRouteArgs();
 
             if ( count( $this->_args ) ) {
@@ -153,9 +154,27 @@ class Router {
 
         if ( count( $this->_params[ $this->_key ] ) ) {
 
-            for ( $i = 1; $i <= count( $this->_params[ $this->_key ][ 'args' ] ); $i++ ) {
+            $uriParts = $this->_request->uriParts;
+            // remove first element, that contains the module name (ex: users)
+            array_shift( $uriParts );
 
-                $args[] = $this->_request->uriParts;
+            $routeArgs = $this->_params[ $this->_key ][ 'args' ];
+            for ( $i = 0; $i < count( $routeArgs ); $i++ ) {
+
+                $uriArgVal = $uriParts[ $i ];
+
+                // store param value in array that's going to be passed when calling the
+                // method specified in the route
+                $args[] = $uriArgVal;
+
+                // store parameters in the request object
+                switch ( $routeArgs[ $i ] ) {
+                    case 'id':
+                        $this->_request->pk = $uriArgVal;
+                        break;
+                    case 'cat':
+                        $this->_request->category = $uriArgVal;
+                }
             }
         }
 
