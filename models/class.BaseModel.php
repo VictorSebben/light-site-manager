@@ -7,7 +7,7 @@ class BaseModel {
      *
      * @var integer
      */
-    protected $_id;
+    public $id;
 
     public function __construct( $id = null ) {
         $this->_id = $id;
