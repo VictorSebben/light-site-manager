@@ -26,10 +26,25 @@ abstract class Mapper {
             }
 
             try {
-                self::$_pdo = new PDO( "{$db_config['driver']}:host={$db_config['host']};dbname={$db_config['database']}",
-                    $db_config[ 'username' ], $db_config[ 'password' ] );
-                self::$_pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
-                self::$_pdo->setAttribute( PDO::ATTR_DEFAULT_FETCH_MODE, $db_config[ 'fetch' ] );
+                $arrAttrs = [
+                    PDO::ATTR_PERSISTENT => true,
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => $db_config[ 'fetch' ],
+                ];
+
+                $dsn = sprintf(
+                    "%s:host=%s;dbname=%s",
+                    $db_config['driver'],
+                    $db_config['host'],
+                    $db_config['database']
+                );
+
+                self::$_pdo = new PDO(
+                    $dsn,
+                    $db_config[ 'username' ],
+                    $db_config[ 'password' ],
+                    $arrAttrs
+                );
             } catch ( PDOException $e ) {
                 die( $e->getMessage() );
             }
