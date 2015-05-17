@@ -7,7 +7,14 @@ class View extends stdClass {
      *
      * @var string
      */
-    public $file;
+    protected $_file;
+
+    /**
+     * Pagination file path.
+     *
+     * @var string
+     */
+    protected $_pagFile;
 
     /**
      * Template name.
@@ -26,7 +33,7 @@ class View extends stdClass {
     /**
      * Object of the type Model (a class that extends Model), to be used in the view.
      *
-     * @var Model
+     * @var BaseModel
      */
     public $object;
 
@@ -68,8 +75,12 @@ class View extends stdClass {
     /**
      * Includes a view.
      */
-    public function render( $path, $load_pagination = false ) {
-        $this->file = "views/{$path}.html.php";
+    public function render( $path, $pathPaginationFile = null ) {
+        $this->_file = "views/{$path}.html.php";
+
+        if ( $pathPaginationFile ) {
+            $this->_pagFile = "views/{$pathPaginationFile}.html.php";
+        }
 
         require $this->_template;
     }

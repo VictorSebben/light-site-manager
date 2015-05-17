@@ -33,10 +33,14 @@
         <div class='content-wrapper'>
 
         <?php
-        if ( isset( $this->file ) ) {
-            require $this->file;
+        if ( isset( $this->_file ) ) {
+            require $this->_file;
         } else {
             throw new Exception( 'View file not provided.' );
+        }
+
+        if ( isset( $this->_pagFile ) ) {
+            require $this->_pagFile;
         }
         ?>
         </div>

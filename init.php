@@ -9,6 +9,10 @@ define( 'MAPPERS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'mappers' . DIRECTORY_SEP
 
 define( 'DEBUG', true );
 
+// require the Base class
+require_once( 'conf/class.Base.php' );
+
+// autoload classes
 spl_autoload_register( function ( $className ) {
     if ( is_readable( LIBS_DIR . 'class.' . $className . '.php' ) ) {
         require LIBS_DIR . 'class.' . $className . '.php';

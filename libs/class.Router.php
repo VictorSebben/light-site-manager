@@ -53,7 +53,7 @@ class Router {
     protected static $_instance;
 
     public function __construct() {
-        $this->_request = new Request();
+        $this->_request = Request::getInstance();
     }
 
     /**
@@ -125,7 +125,9 @@ class Router {
         // trim '/' so that /news/11/ gives us two pieces instead of four (one before
         // the first /, and one after the last /, which will be always empty.
         $uri = trim( $this->_request->uri, '/' );
-        $this->_request->uriParts = explode( '/', $uri );
+        // check the last position to be taken from th URI
+        $pos = strpos( $uri, '?' ) ?: ( strlen( $uri ) );
+        $this->_request->uriParts = explode( '/', substr( $uri, 0, $pos ) );
 
         $controller_name = $this->_controllers[ $this->_key ][ 'controller' ] . 'Controller';
         $model_base_name = $this->_controllers[ $this->_key ][ 'controller' ];

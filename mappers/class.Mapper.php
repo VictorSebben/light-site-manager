@@ -16,7 +16,23 @@ abstract class Mapper {
      */
     protected $_selectStmt;
 
+    /**
+     * An instance of the Pagination class.
+     *
+     * @var Pagination
+     */
+    public $pagination;
+
+    /**
+     * An instance of the Request class.
+     *
+     * @var Request
+     */
+    public $request;
+
     public function __construct() {
+
+        $this->request = Request::getInstance();
 
         if ( !isset( self::$_pdo ) ) {
 

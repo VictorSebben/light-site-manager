@@ -57,13 +57,6 @@ class Request {
     public $category;
 
     /**
-     * Current pagination page number.
-     *
-     * @var integer
-     */
-    public $pageNum;
-
-    /**
      * String containing the order options to be used on the query to the db.
      *
      * @var string
@@ -79,20 +72,52 @@ class Request {
      * Associative array containing pagination information.
      * @var Array
      */
-    public $pagn;
+    public $pagParams;
+
+    /**
+     * @var Request
+     */
+    private static $instance;
 
     /**
      * @var Array Contains the different parts of the route.
      */
     public $routeParts;
 
-    public function __construct() {
+    private function __construct() {
         $this->query = [
             'search' => NULL,
             'pag' => 1,
             'ord' => 'id',
             'dir' => 'DESC'
         ];
+    }
+
+    public static function getInstance() {
+        if ( !isset( self::$instance ) ) {
+            self::$instance = new self;
+        }
+
+        return self::$instance;
+    }
+
+    public function setPagParams() {
+
+        $this->pagParams = array(
+            'pag' => 1,
+            'ord' => 'id',
+            'dir' => 'ASC',
+            'search' => null
+        );
+
+        foreach ( $this->uriParts as $uriPart ) {
+            if ( strpos( $uriPart, ':' ) !== false ) {
+                list( $key, $val ) = explode( ':', $uriPart );
+                $this->pagParams[$key] = $val;
+            }
+        }
+
+        $this->pagParams[ 'search' ] = filter_input( INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS );
     }
 
 }

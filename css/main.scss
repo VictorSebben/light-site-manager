@@ -35,7 +35,11 @@ a {
 }
 
 a:hover {
-    text-decoration: underline;
+    text-decoration: none;
+}
+
+span {
+    color: $color-brand1;
 }
 
 .fit {
@@ -108,3 +112,42 @@ table th, table tr, table td {
     padding: 3% 0;
     background-color: darken($color-bg1, 2%);
 }
+
+/* -------------------------------------------------------- */
+/* ---- Pagination ---------------------------------------- */
+.pagination {
+    margin: 10px 0 0 0;
+}
+
+.pagination-num, .pagination-prev-next {
+    display: inline-block;
+    padding: 10px;
+    background: #ddd;
+    margin: 5px;
+}
+
+.pagination-num:not(.pagination-current-page), .pagination-prev-next:not(.pagination-disabled) {
+    -webkit-box-shadow: 1px 1px 3px 0 #aaa;
+    -moz-box-shadow:    1px 1px 3px 0 #aaa;
+    box-shadow:         1px 1px 3px 0 #aaa;
+}
+
+.pagination-num:hover:not(.pagination-current-page), .pagination-prev-next:hover:not(.pagination-disabled), .pagination-current-page {
+    -webkit-box-shadow: 0 0 5px 0 #aaa inset;
+    -moz-box-shadow:    0 0 5px 0 #aaa inset;
+    box-shadow:         0 0 5px 0 #aaa inset;
+    margin: 4px;
+    padding: 11px;
+    background: #eee;
+}
+
+.pagination-disabled {
+    padding: 11px;
+    margin: 4px;
+    color: #999;
+}
+
+.pagination-disabled:hover {
+    cursor: default;
+}
+

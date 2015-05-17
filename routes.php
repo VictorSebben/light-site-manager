@@ -61,7 +61,7 @@ $app->map(
 $app->map(
 // ?.* means that there may be more things in the url. Those will be
 // search and pagination stuff.
-    '/users/?',
+    '/users(/?|/.*)',
     array( 'controller' => 'User', 'method' => 'index' )
 );
 $app->map(

@@ -10,9 +10,16 @@ class UserController extends BaseController {
     }
 
     public function index() {
+
+        // instantiate Pagination object and
+        // pass it to the Mapper
+        $pagination = new Pagination();
+        $this->_mapper->pagination = $pagination;
+
         // load user-objects array for use in the view
+        $this->_view->pagination = $pagination;
         $this->_view->objectList = $this->_mapper->index();
-        $this->_view->render( 'users/index' );
+        $this->_view->render( 'users/index', 'pagination' );
     }
 
     public function delete( $id ) {
