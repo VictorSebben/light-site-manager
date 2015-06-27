@@ -53,7 +53,12 @@ class View extends stdClass {
 
     public function __construct( $templateName = 'main.html.php' ) {
         $this->Url = new Url();
-        $this->_template = 'views/' . $templateName;
+
+        if ( $templateName ) {
+            $this->_template = 'views/' . $templateName;
+        } else {
+            $this->_template = null;
+        }
     }
 
     /**
@@ -82,7 +87,11 @@ class View extends stdClass {
             $this->_pagFile = "views/{$pathPaginationFile}.html.php";
         }
 
-        require $this->_template;
+        if ( $this->_template ) {
+            require $this->_template;
+        } else {
+            require $this->_file;
+        }
     }
 
 }
