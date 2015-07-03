@@ -55,6 +55,18 @@ VALUES ('user1', 'user1@foo.com', '1234', 1),
   ('user7', 'user7@foo.com', '1234', 1),
   ('user8', 'user8@foo.com', '1234', 1);
 
+ALTER TABLE users ALTER COLUMN password TYPE VARCHAR(255);
 
+ALTER TABLE users ADD COLUMN created_at TIMESTAMP WITHOUT TIME ZONE;
+ALTER TABLE users ADD COLUMN updated_at TIMESTAMP WITHOUT TIME ZONE;
 
+-- TODO see if this is going to be used
+CREATE TABLE users_sessions (
+  id SERIAL NOT NULL PRIMARY KEY,
+  user_id INT NOT NULL,
+  hash VARCHAR(50) NOT NULL
+);
 
+ALTER TABLE users_sessions
+ADD CONSTRAINT users_session_user_fkey FOREIGN KEY (user_id)
+REFERENCES users (id) ON DELETE CASCADE;
