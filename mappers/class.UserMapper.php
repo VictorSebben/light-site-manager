@@ -9,6 +9,24 @@ class UserMapper extends Mapper {
         );
     }
 
+    public function findByEmail( $email ) {
+        $selectStmt = self::$_pdo->prepare(
+            "SELECT id, email, password FROM users WHERE email = :email"
+        );
+
+        $selectStmt->bindParam( ':email', $email, PDO::PARAM_STR, 64 );
+        $selectStmt->execute();
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UserModel' );
+        $users = $selectStmt->fetch();
+        $selectStmt->closeCursor();
+
+        if ( $selectStmt->rowCount() != 1 ) {
+            return false;
+        }
+
+        return $users;
+    }
+
     /**
      * @param $id
      * @return mixed|null
@@ -27,6 +45,20 @@ class UserMapper extends Mapper {
         $this->request->setPagParams();
         $params = $this->request->pagParams;
 
+        // validate $params[ 'dir' ] to make sure it contains a valid value
+        if ( $params[ 'dir' ] !== 'ASC' && $params[ 'dir' ] !== 'DESC' ) {
+            $params[ 'dir' ] = 'ASC';
+        }
+
+        $ord = 'id';
+        $rs = self::$_pdo->query( 'SELECT * FROM users LIMIT 0' );
+        for ( $i = 0; $i < $rs->columnCount(); $i++ ) {
+            if ( $rs->getColumnMeta( $i )[ 'name' ] == $params[ 'ord' ] ) {
+                $ord = $params[ 'ord' ];
+                break;
+            }
+        }
+
         // set number of records in the pagination object
         $this->_setNumRecordsPagn();
 
@@ -38,15 +70,16 @@ class UserMapper extends Mapper {
                         OR email ~* :search ';
         }
 
-        // TODO -> research on how to make order string and direction string safe
-        $sql .= " ORDER BY {$params[ 'ord' ]} {$params['dir']}
-                  LIMIT 2
+        $sql .= " ORDER BY {$ord} {$params['dir']}
+                  LIMIT :lim
                  OFFSET :offset ";
 
-        $selectStmt = self::$_pdo->prepare($sql);
+        $selectStmt = self::$_pdo->prepare( $sql );
         if ( $this->request->pagParams['search'] != null ) {
             $selectStmt->bindParam( ':search', $this->request->pagParams['search'] );
         }
+        $lim = 2;
+        $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
         $selectStmt->bindParam( ':offset', $this->pagination->getOffset(), PDO::PARAM_INT );
         $selectStmt->execute();
         $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UserModel' );
