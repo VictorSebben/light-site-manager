@@ -10,7 +10,7 @@ class Url {
     public $base;
 
     public function __construct() {
-        $arrAppConf = include 'conf/inc.appconfig.php';
+        $arrAppConf = include '../conf/inc.appconfig.php';
         $this->base = $arrAppConf[ 'base_url' ];
     }
 

@@ -1,9 +1,9 @@
 RewriteEngine ON
-RewriteBase http://phpstudies.home/ecommaster/
+RewriteBase http://phpstudies.home/light-site-manager/public/
 
 # If it is an actual directory of file, don't "rewrite"
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteCond %{REQUEST_FILENAME} !-d
 
 # GET will contain url with everything after the domain name.
 # QSA -> Query String Append

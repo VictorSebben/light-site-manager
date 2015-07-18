@@ -3,6 +3,13 @@
 class View extends stdClass {
 
     /**
+     * System configuration.
+     *
+     * @var array
+     */
+    protected $_config;
+
+    /**
      * File path.
      *
      * @var string
@@ -54,8 +61,10 @@ class View extends stdClass {
     public function __construct( $templateName = 'main.html.php' ) {
         $this->Url = new Url();
 
+        $this->_config = include CONF_DIR . 'inc.appconfig.php';
+
         if ( $templateName ) {
-            $this->_template = 'views/' . $templateName;
+            $this->_template = '../views/' . $templateName;
         } else {
             $this->_template = null;
         }
@@ -81,10 +90,10 @@ class View extends stdClass {
      * Includes a view.
      */
     public function render( $path, $pathPaginationFile = null ) {
-        $this->_file = "views/{$path}.html.php";
+        $this->_file = "../views/{$path}.html.php";
 
         if ( $pathPaginationFile ) {
-            $this->_pagFile = "views/{$pathPaginationFile}.html.php";
+            $this->_pagFile = "../views/{$pathPaginationFile}.html.php";
         }
 
         if ( $this->_template ) {
