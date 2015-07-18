@@ -16,3 +16,5 @@ tags
 # Sass stuff.
 .sass-cache/
 *.map
+
+/vendor/
