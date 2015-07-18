@@ -2,13 +2,17 @@
 
 class UserMapper extends Mapper {
 
-    function __construct() {
-        parent::__construct();
+    function __construct( UserModel $model ) {
+        parent::__construct( $model );
         $this->_selectStmt = self::$_pdo->prepare(
             "SELECT id, name, email, cat_id FROM users WHERE id = ?"
         );
     }
 
+    /**
+     * @param $email
+     * @return bool|UserModel
+     */
     public function findByEmail( $email ) {
         $selectStmt = self::$_pdo->prepare(
             "SELECT id, email, password FROM users WHERE email = :email"
