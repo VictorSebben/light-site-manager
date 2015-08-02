@@ -2,6 +2,10 @@
 
 class UserMapper extends Mapper {
 
+    /**
+     * @param UserModel $model
+     * @throws Exception
+     */
     function __construct( UserModel $model ) {
         parent::__construct( $model );
         $this->_selectStmt = self::$_pdo->prepare(
@@ -15,7 +19,7 @@ class UserMapper extends Mapper {
      */
     public function findByEmail( $email ) {
         $selectStmt = self::$_pdo->prepare(
-            "SELECT id, email, password FROM users WHERE email = :email"
+            "SELECT id, name, email, password FROM users WHERE email = :email"
         );
 
         $selectStmt->bindParam( ':email', $email, PDO::PARAM_STR, 64 );
