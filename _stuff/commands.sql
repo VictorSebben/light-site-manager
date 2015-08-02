@@ -70,3 +70,33 @@ CREATE TABLE users_sessions (
 ALTER TABLE users_sessions
 ADD CONSTRAINT users_session_user_fkey FOREIGN KEY (user_id)
 REFERENCES users (id) ON DELETE CASCADE;
+
+
+-- Authentication tables
+CREATE TABLE roles (
+  id   SERIAL      NOT NULL PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+);
+
+
+CREATE TABLE permissions (
+  id          SERIAL      NOT NULL PRIMARY KEY,
+  description VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE role_perm (
+  role_id INTEGER NOT NULL,
+  perm_id INTEGER NOT NULL,
+
+  FOREIGN KEY (role_id) REFERENCES roles (id),
+  FOREIGN KEY (perm_id) REFERENCES permissions (id)
+);
+
+CREATE TABLE user_role (
+  user_id INTEGER NOT NULL,
+  role_id INTEGER NOT NULL,
+
+  FOREIGN KEY (user_id) REFERENCES users (id),
+  FOREIGN KEY (role_id) REFERENCES roles (id)
+);
+
