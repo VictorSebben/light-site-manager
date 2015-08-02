@@ -4,6 +4,7 @@ $color-brand1: #555;
 $color-bg1: #f9f9f9;
 $font-family1: Verdana, Helvetica;
 $font-size1: 15px;
+$font-color1: #333;
 
 $width-max: 1280px;
 $width-menu: 260px;
@@ -13,6 +14,7 @@ html body, body h1, body h2, h3, h4, p, ul, ol {
     padding: 0;
     font-family: $font-family1;
     font-size: $font-size1;
+    color: $font-color1;
 }
 
 ol, ul {
@@ -56,18 +58,53 @@ span {
     }
 
     .btn-config {
+        font-size: $font-size1 + 1;
+        font-weight: 700;
         float: right;
+    }
+
+    .nav-config {
+        display: none;
+        position: absolute;
+        z-index: 10;
+        border: 2px solid #999;
+        border-radius: 5px;
+        background-color: #eee;
+        padding: 10px;
+        opacity: 0.7;
+        margin-left: -64px;
+
+        li {
+            display: block;
+            opacity: 1;
+
+            a {
+                color: #111;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+        }
     }
 }
 
 .menu h2, .main-container h2 {
+    font-size: $font-size1 + 4;
+}
+
+.main-container h3 {
     font-size: $font-size1 + 2;
+}
+
+.main-container h2, .main-container h3 {
+    margin-bottom: 10px;
 }
 
 
 /* -------------------------------------------------------- */
 /* ---- Column -------------------------------------------- */
 .menu {
+    height: auto;
     width: $width-menu;
     float: left;
     background-color: $color-bg1;
@@ -124,7 +161,7 @@ table th, table tr, table td {
     border-radius: 4px;
     color: #333;
     font-size: $font-size1 - 1;
-    padding: 6px 12px;
+    padding: 6px;
     transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
 }
 
@@ -135,15 +172,43 @@ table th, table tr, table td {
 
 .form-h {
     label {
+        color: #555;
         text-align: right;
-        width: 20%;
+        width: 16.33333%;
         float: left;
         padding: 5px 15px 0;
+        display: inline-block;
+        font-weight: 700;
     }
 
     .input-field {
-        width: 70%;
-        margin: 0 7% 0 3%;
+        width: 73.33333%;
+        display: inline;
+    }
+
+    input {
+        width: 50%;
+    }
+
+    .input-submit {
+        width: 10%;
+        margin-left: 16.33333%;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    .input-submit:hover {
+        background-color: #e6e6e6;
+    }
+
+    h3 {
+        color: #555;
+    }
+
+    p {
+        color: #555;
+        font-variant: small-caps;
+        font-size: $font-size1 + 1;
     }
 }
 
