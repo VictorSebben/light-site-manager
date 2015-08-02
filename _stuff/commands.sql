@@ -100,3 +100,6 @@ CREATE TABLE user_role (
   FOREIGN KEY (role_id) REFERENCES roles (id)
 );
 
+-- Adjust auth tables
+ALTER TABLE users DROP COLUMN cat_id;
+DROP TABLE cat_users;
