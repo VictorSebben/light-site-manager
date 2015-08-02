@@ -8,8 +8,17 @@
 <body>
 
 <div class='main-header'>
-    <header class='fit'>
+    <header class='fit cf'>
         <h1><a href='<?= $this->Url->make(); ?>'>EcomMaster</a></h1>
+        <div class="btn-config cf">
+            <a id="btn-open-config" href="#"><?= $_SESSION[ 'username' ] ?></a>
+            <div class="nav-config" id="nav-config">
+                <ul>
+                    <li><a href="<?= $this->Url->make( "users/{$_SESSION[ 'user' ]}/edit" ) ?>">Configuração</a></li>
+                    <li><a href="<?= $this->Url->make( '/?logout' ) ?>">Sair</a></li>
+                </ul>
+            </div>
+        </div>
     </header>
 </div>
 
@@ -53,5 +62,6 @@
     </footer>
 </div>
 
+<script src="<?= $this->Url->make( 'js/menu.js' ); ?>"></script>
 </body>
 </html>

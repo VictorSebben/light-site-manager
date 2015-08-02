@@ -3,7 +3,7 @@
 // LOGIN
 $app->map(
     '/login/run/?',
-    array( 'controller' => 'Login', 'method' => 'login' )
+    array( 'controller' => 'Login', 'method' => 'run' )
 );
 $app->map(
     '/login/?',
@@ -46,7 +46,7 @@ $app->map(
     array( 'controller' => 'User', 'method' => 'destroy' )
 );
 $app->map(
-    '/users/new',
+    '/users/create',
     array( 'controller' => 'User', 'method' => 'create' )
 );
 $app->map(

@@ -6,6 +6,7 @@ define( 'LIBS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR
 define( 'CONTROLLERS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR );
 define( 'MODELS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR );
 define( 'MAPPERS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'mappers' . DIRECTORY_SEPARATOR );
+define( 'CONF_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'conf' . DIRECTORY_SEPARATOR );
 
 define( 'DEBUG', true );
 
@@ -24,3 +25,10 @@ spl_autoload_register( function ( $className ) {
         require MAPPERS_DIR . 'class.' . $className . '.php';
     }
 });
+
+$loginHelper = new LoginHelper();
+$loginHelper->chkLogin();
+
+if ( isset( $_GET[ 'logout' ] ) ) {
+    $loginHelper->logout();
+}
