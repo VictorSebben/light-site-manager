@@ -120,4 +120,31 @@ class Request {
         $this->pagParams[ 'search' ] = filter_input( INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS );
     }
 
+    /**
+     * Retrieves data from $_POST (default) or $_GET (in case
+     * the $post parameter is set to false), using filter_input.
+     *
+     * @param $name
+     * @param bool|true $post
+     * @return string
+     */
+    public function getInput( $name, $post = true ) {
+        $input = '';
+
+        // post
+        if ( $post ) {
+            if ( isset( $_POST[ $name ] ) ) {
+                $input = filter_input( INPUT_POST, $name, FILTER_SANITIZE_SPECIAL_CHARS );
+            }
+        }
+        // get
+        else {
+            if ( isset( $_GET[ $name ] ) ) {
+                $input = filter_input( INPUT_GET, $name, FILTER_SANITIZE_SPECIAL_CHARS );
+            }
+        }
+
+        return $input;
+    }
+
 }
