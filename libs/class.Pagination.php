@@ -75,7 +75,7 @@ class Pagination extends Base {
     }
 
     public function getPagnLink( $pagNum = 1 ) {
-        $uri = $this->_config['base_url'] . $this->_request->uriParts[0] . '/';
+        $uri = $this->_config['base_url'] . '/' . $this->_request->uriParts[0] . '/';
 
         // assemble pagination link using the pagination params
         foreach( $this->_request->pagParams AS $key => $value ) {
