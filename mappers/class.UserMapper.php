@@ -9,7 +9,7 @@ class UserMapper extends Mapper {
     function __construct( UserModel $model ) {
         parent::__construct( $model );
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT id, name, email, cat_id FROM users WHERE id = ?"
+            "SELECT id, name, email FROM users WHERE id = ?"
         );
     }
 
@@ -70,7 +70,7 @@ class UserMapper extends Mapper {
         // set number of records in the pagination object
         $this->_setNumRecordsPagn();
 
-        $sql = "SELECT id, name, email, cat_id, status
+        $sql = "SELECT id, name, email, status
                   FROM users ";
 
         if ( $this->request->pagParams['search'] != null ) {

@@ -6,7 +6,6 @@
     <tr>
         <th>Name</th>
         <th>E-mail</th>
-        <th>Categoria</th>
         <th>Status</th>
     </tr>
     </thead>
@@ -15,7 +14,6 @@
         <tr>
             <td><?= $user->name; ?></td>
             <td><?= $user->email; ?></td>
-            <td><?= $user->getCategory( true ); ?></td>
             <td><?= $user->getStatus( true ); ?></td>
         </tr>
     <?php endforeach; ?>
