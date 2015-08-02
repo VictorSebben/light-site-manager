@@ -25,7 +25,7 @@ class UserModel extends BaseModel {
             return $this->cat_id;
         }
 
-        $catUser = (new CatUsersMapper())->find( $this->cat_id );
+        $catUser = ( new CatUsersMapper( new CatUsersModel() ) )->find( $this->cat_id );
         return $catUser->description;
     }
 

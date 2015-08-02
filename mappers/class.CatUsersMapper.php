@@ -2,8 +2,8 @@
 
 class CatUsersMapper extends Mapper {
 
-    function __construct() {
-        parent::__construct();
+    function __construct( CatUsersModel $model ) {
+        parent::__construct( $model );
         $this->_selectStmt = self::$_pdo->prepare(
             "SELECT id, description FROM cat_users WHERE id = :id"
         );
