@@ -40,12 +40,12 @@ class BaseModel {
     public $tableName;
 
     public function __construct( $id = null ) {
-        $this->_id = $id;
+        $this->id = $id;
         $this->setTableName();
     }
 
     public function getId() {
-        return $this->_id;
+        return $this->id;
     }
 
     protected function setTableName() {

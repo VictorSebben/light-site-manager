@@ -3,11 +3,10 @@
 class UserMapper extends Mapper {
 
     /**
-     * @param UserModel $model
      * @throws Exception
      */
-    function __construct( UserModel $model ) {
-        parent::__construct( $model );
+    function __construct() {
+        parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
             "SELECT id, name, email FROM users WHERE id = ?"
         );
@@ -115,5 +114,34 @@ class UserMapper extends Mapper {
         $selectStmt->execute();
         $this->pagination->numRecords = $selectStmt->fetch( PDO::FETCH_OBJ )->count;
         $selectStmt->closeCursor();
+    }
+
+    public function initRoles( UserModel $user ) {
+        $user->roles = array();
+
+        if ( ! $user->id ) {
+            throw new Exception( "Could not retrieve roles for user: user id not specified!" );
+        }
+
+        $sql = "SELECT role_id, name
+                  FROM user_role
+                  JOIN roles ON role_id = id
+                 WHERE user_id = :user_id";
+
+        $stmt = self::$_pdo->prepare( $sql );
+        $stmt->bindParam( ':user_id', $this->model->id, PDO::PARAM_INT );
+        $stmt->execute();
+        $stmt->setFetchMode( PDO::FETCH_CLASS, 'RoleModel' );
+
+        $user->roles = $stmt->fetchAll();
+        $stmt->closeCursor();
+    }
+
+    /**
+     * @param UserModel $model
+     * @param bool|false $overrideNullData
+     */
+    public function save( UserModel $model, $overrideNullData = false ) {
+        parent::save( $model, $overrideNullData );
     }
 }

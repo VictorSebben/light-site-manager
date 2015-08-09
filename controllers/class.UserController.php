@@ -6,7 +6,7 @@ class UserController extends BaseController {
         parent::__construct( $model_base_name );
 
         $mapper_name = $model_base_name . 'Mapper';
-        $this->_mapper = new $mapper_name;
+        $this->_mapper = new $mapper_name();
     }
 
     public function index() {

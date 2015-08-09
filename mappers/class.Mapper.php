@@ -30,15 +30,9 @@ abstract class Mapper {
      */
     public $request;
 
-    /**
-     * An instance of the Model class.
-     *
-     * @var BaseModel
-     */
-    public $model;
+    public $modelName;
 
-    public function __construct( BaseModel $model ) {
-
+    public function __construct() {
         $this->request = Request::getInstance();
 
         if ( !isset( self::$_pdo ) ) {
@@ -71,14 +65,14 @@ abstract class Mapper {
             } catch ( PDOException $e ) {
                 die( $e->getMessage() );
             }
-
-            $this->model = $model;
         }
+
+        $this->setModelName();
     }
 
     public function find( $id ) {
         $this->selectStmt()->execute( array( $id ) );
-        $this->selectStmt()->setFetchMode( PDO::FETCH_CLASS, 'UserModel' );
+        $this->selectStmt()->setFetchMode( PDO::FETCH_CLASS, $this->modelName );
         $object = $this->selectStmt()->fetch();
         $this->selectStmt()->closeCursor();
 
@@ -92,6 +86,10 @@ abstract class Mapper {
         return $this->_selectStmt;
     }
 
+    protected function setModelName() {
+        $this->modelName = str_replace( 'Mapper', 'Model', get_class( $this ) );
+    }
+
     /**
      * Mapper::save() will first look in the DB for an entry with the
      * primary key value of the object, if set. In case an entry is found,
@@ -102,21 +100,22 @@ abstract class Mapper {
      * UPDATE operations. If set to TRUE, null values in the object WILL
      * be used to update the corresponding columns.
      *
+     * @param BaseModel $obj
      * @param bool|false $overrideNullData
      */
-    public function save( $overrideNullData = false ) {
-        if ( !is_array( $this->model->primaryKey ) ) {
-            $arrPrimaryKey = array( $this->model->primaryKey );
+    public function save( BaseModel $obj, $overrideNullData = false ) {
+        if ( !is_array( $obj->primaryKey ) ) {
+            $arrPrimaryKey = array( $obj->primaryKey );
         } else {
-            $arrPrimaryKey = $this->model->primaryKey;
+            $arrPrimaryKey = $obj->primaryKey;
         }
 
         $hasPKValues = true;
 
-        $sql = "SELECT * FROM {$this->model->tableName} WHERE true ";
+        $sql = "SELECT * FROM {$obj->tableName} WHERE true ";
 
         foreach ( $arrPrimaryKey as $key ) {
-            if ( ! empty( $this->model->$key ) ) {
+            if ( ! empty( $obj->$key ) ) {
                 $sql .= " AND {$key} = :{$key} ";
             } else {
                 $hasPKValues = false;
@@ -131,7 +130,7 @@ abstract class Mapper {
 
         if ( $hasPKValues ) {
             foreach ( $arrPrimaryKey as $key ) {
-                $stmt->bindParam( ":{$key}", $this->model->$key );
+                $stmt->bindParam( ":{$key}", $obj->$key );
             }
         }
 
@@ -148,10 +147,10 @@ abstract class Mapper {
         // (set of) value(s) for the primary key
         // if there is, perform an update operation
         if ( $rowCount ) {
-            $this->performUpdate( $arrColMeta, $overrideNullData );
+            $this->performUpdate( $obj, $arrColMeta, $overrideNullData );
         } else {
             // perform insert operation
-            $this->performInsert( $arrColMeta );
+            $this->performInsert( $obj, $arrColMeta );
         }
     }
 
@@ -162,12 +161,13 @@ abstract class Mapper {
      * are in the database. If it is set to true, null values
      * will be inserted in the database.
      *
+     * @param BaseModel $obj
      * @param array $arrColMeta
      * @param $overrideNullData
      */
-    protected function performUpdate( array $arrColMeta, $overrideNullData = false ) {
-        if ( $this->model->updated_at === null ) {
-            $this->model->updated_at = date( 'Y-m-d G:i:s' );
+    protected function performUpdate( BaseModel $obj, array $arrColMeta, $overrideNullData = false ) {
+        if ( $obj->updated_at === null ) {
+            $obj->updated_at = date( 'Y-m-d G:i:s' );
         }
 
         // initialize array that will contain the column names to be updated.
@@ -175,7 +175,7 @@ abstract class Mapper {
         // parameters later
         $arrUpdatedCols = array();
 
-        $sql = "UPDATE {$this->model->tableName} SET ";
+        $sql = "UPDATE {$obj->tableName} SET ";
 
         // if $overrideNullData is set to true, update database according
         // to the current state of the object, including null data.
@@ -198,7 +198,7 @@ abstract class Mapper {
 
                 if ( $colName == 'created_at' ) continue;
 
-                if ( isset( $this->model->$colName ) ) {
+                if ( isset( $obj->$colName ) ) {
                     $arrUpdatedCols[] = array( 'name' => $colName,
                                                'type' => $arrColMeta[ 'pdo_type' ][ $i ] );
 
@@ -212,10 +212,10 @@ abstract class Mapper {
         $sql .= " WHERE TRUE";
 
         // build where clause using the PK values from the Model object
-        if ( !is_array( $this->model->primaryKey ) ) {
-            $primaryKeys = array( $this->model->primaryKey );
+        if ( !is_array( $obj->primaryKey ) ) {
+            $primaryKeys = array( $obj->primaryKey );
         } else {
-            $primaryKeys = $this->model->primaryKey;
+            $primaryKeys = $obj->primaryKey;
         }
 
         foreach ( $primaryKeys as $pk ) {
@@ -228,12 +228,12 @@ abstract class Mapper {
         // bind updated values
         for ($i = 0; $i < count( $arrUpdatedCols ); $i++ ) {
             $colName = $arrUpdatedCols[ $i ][ 'name' ];
-            $stmt->bindParam( $colName, $this->model->$colName, $arrUpdatedCols[ $i ][ 'type' ] );
+            $stmt->bindParam( $colName, $obj->$colName, $arrUpdatedCols[ $i ][ 'type' ] );
         }
 
         // bind where values
         foreach ( $primaryKeys as $pk ) {
-            $stmt->bindParam( $pk, $this->model->$pk );
+            $stmt->bindParam( $pk, $obj->$pk );
         }
 
         $stmt->execute();
@@ -243,26 +243,27 @@ abstract class Mapper {
     /**
      * Performs an insert DB operation for a Model object.
      *
+     * @param BaseModel $obj
      * @param array $arrColMeta
      * @throws Exception
      * @throws PDOException
      */
-    protected function performInsert( array $arrColMeta ) {
-        if ( $this->model->created_at === null ) {
-            $this->model->created_at = date( 'Y-m-d G:i:s' );
+    protected function performInsert( BaseModel $obj, array $arrColMeta ) {
+        if ( $obj->created_at === null ) {
+            $obj->created_at = date( 'Y-m-d G:i:s' );
         }
 
-        if ( $this->model->updated_at === null ) {
-            $this->model->updated_at = date( 'Y-m-d G:i:s' );
+        if ( $obj->updated_at === null ) {
+            $obj->updated_at = date( 'Y-m-d G:i:s' );
         }
 
-        $sql = "INSERT INTO {$this->model->tableName} (";
+        $sql = "INSERT INTO {$obj->tableName} (";
         $values = '';
 
         for ( $i = 0; $i < count( $arrColMeta[ 'names' ] ); $i++ ) {
             $colName = $arrColMeta[ 'names' ][ $i ];
 
-            if ( isset( $this->model->$colName ) ) {
+            if ( isset( $obj->$colName ) ) {
                 $sql .= "{$colName}, ";
                 $values .= ":{$colName}, ";
             }
@@ -280,8 +281,8 @@ abstract class Mapper {
         for ( $i = 0; $i < count( $arrColMeta[ 'names' ] ); $i++ ) {
             $colName = $arrColMeta[ 'names' ][ $i ];
 
-            if ( isset( $this->model->$colName ) ) {
-                $stmt->bindParam( ":{$colName}", $this->model->$colName, $arrColMeta[ 'pdo_type' ][ $i ] );
+            if ( isset( $obj->$colName ) ) {
+                $stmt->bindParam( ":{$colName}", $obj->$colName, $arrColMeta[ 'pdo_type' ][ $i ] );
             }
         }
 
