@@ -129,17 +129,29 @@ class Request {
      * @return string
      */
     public function getInput( $name, $post = true ) {
-        $input = '';
+        $input = null;
 
-        // post
+        // $_POST
         if ( $post ) {
             if ( isset( $_POST[ $name ] ) ) {
-                $input = filter_input( INPUT_POST, $name, FILTER_SANITIZE_SPECIAL_CHARS );
+                // if field was a checkbox, $input will be an array
+                if ( is_array( $_POST[ $name ] ) ) {
+                    $input = array_map( function ( $value ) {
+                        return filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
+                    }, $_POST[ $name ] );
+                } else {
+                    $input = filter_input( INPUT_POST, $name, FILTER_SANITIZE_SPECIAL_CHARS );
+                }
             }
         }
-        // get
-        else {
-            if ( isset( $_GET[ $name ] ) ) {
+
+        // $_GET
+        else if ( isset( $_GET[ $name ] ) ) {
+            if ( is_array( $_GET[ $name ] ) ) {
+                $input = array_map( function ( $value ) {
+                    return filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
+                }, $_GET[ $name ] );
+            } else {
                 $input = filter_input( INPUT_GET, $name, FILTER_SANITIZE_SPECIAL_CHARS );
             }
         }
