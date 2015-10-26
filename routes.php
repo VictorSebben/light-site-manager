@@ -10,6 +10,40 @@ $app->map(
     array( 'controller' => 'Login', 'method' => 'index' )
 );
 
+// CONFIG
+$app->map(
+    '/config/',
+    array( 'controller' => 'Config' , 'method' => 'index' )
+);
+
+// ROLES
+$app->map(
+    '/roles/?',
+    array( 'controller' => 'Role', 'method' => 'index' )
+);
+$app->map(
+    '/roles/insert/?',
+    array( 'controller' => 'Role', 'method' => 'insert' )
+);
+$app->map(
+    '/roles/\d+/edit/?',
+    array( 'controller' => 'Role', 'method' => 'edit' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/roles/update/?',
+    array( 'controller' => 'Role', 'method' => 'update' )
+);
+$app->map(
+    '/roles/\d+/delete/?',
+    array( 'controller' => 'Role', 'method' => 'delete' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/roles/destroy/?',
+    array( 'controller' => 'Role', 'method' => 'destroy' )
+);
+
 // HOME
 $app->map(
     '/',

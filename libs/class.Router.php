@@ -103,7 +103,10 @@ class Router {
                 $this->_key = $key;
                 try {
                     $this->_run();
-                } catch ( PDOException $e ) {
+                }  catch ( PermissionDeniedException $e ) {
+                    // TODO redirect to an error page
+                    echo $e->getMessage();
+                }  catch ( PDOException $e ) {
                     if ( DEBUG )
                         echo $e->getMessage();
                     else
