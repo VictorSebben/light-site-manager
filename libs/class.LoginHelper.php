@@ -88,7 +88,7 @@ class LoginHelper extends Base {
             return false;
         }
 
-        $userMapper = new UserMapper( new UserModel() );
+        $userMapper = new UserMapper();
 
         // UserMapper::findByEmail() will return a user in case
         // it finds 1 entry for the e-mail given, and false otherwise
@@ -102,8 +102,8 @@ class LoginHelper extends Base {
                 // test if password needs rehash (in case PHPs implementation
                 // of the hash function has changed the default algorithm)
                 if ( password_needs_rehash( $user->password, PASSWORD_DEFAULT ) ) {
-                    $userMapper->model->password = password_hash( $password, PASSWORD_DEFAULT );
-                    $userMapper->save();
+                    $user->password = password_hash( $password, PASSWORD_DEFAULT );
+                    $userMapper->save( $user );
                 }
 
                 $_SESSION[ 'user' ] = $user->id;
