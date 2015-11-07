@@ -2,10 +2,22 @@
 
 class RoleController extends BaseController {
 
+    /**
+     * The RoleMapper object, used to deal with database operations
+     *
+     * @var RoleMapper
+     */
+    protected $_mapper;
+
+    /**
+     * @var RoleModel
+     */
+    protected $_model;
+
     public function __construct( $model_base_name ) {
         parent::__construct( $model_base_name );
 
-        if ( ! $this->_user->hasPrivilege( 'edit_roles', $this->_permList ) ) {
+        if ( ! $this->_user->hasPrivilege( 'edit_roles' ) ) {
             throw new PermissionDeniedException();
         }
 
@@ -53,6 +65,15 @@ class RoleController extends BaseController {
     public function update() {
         // get id from $_POST
         $id = Request::getInstance()->getInput( 'id' );
+
+        // Since we have a select field in the edition
+        // form (to choose the permissions), let's create
+        // a new validation rule enforcing that the value be
+        // a valid permission (one that exists in the DB)
+        $this->_model->rules[ "perms" ] = array(
+            'fieldName' => 'permissão',
+            'valueIn' => $this->_mapper->getPermissionsArray()
+        );
 
         $validator = new Validator();
         if ( ! $validator->check( $_POST, $this->_model->rules ) ) {

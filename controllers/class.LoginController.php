@@ -1,6 +1,6 @@
 <?php
 
-class LoginController extends BaseController {
+class LoginController {
 
     /**
      * @var LoginHelper

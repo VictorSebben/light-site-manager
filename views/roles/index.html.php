@@ -46,7 +46,7 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     </tr>
     </thead>
     <tbody>
-    <?php foreach ( $this->objectList[ 'roles' ] as $role ): ?>
+    <?php foreach ( $this->objectList as $role ): ?>
         <tr>
             <td><?= $role->id ?></td>
             <td><?= $role->name ?></td>

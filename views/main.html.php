@@ -2,7 +2,7 @@
 <html>
 <head lang='pt-br'>
     <meta charset='UTF-8'>
-    <title>EcomMaster - Admin</title>
+    <title>LSM - Light Site Manager</title>
     <link rel='stylesheet' type='text/css' href='<?= $this->Url->make( 'css/main.css' ); ?>'>
 </head>
 <body>
@@ -14,8 +14,8 @@
             <a id="btn-open-config" href="#"><?= $_SESSION[ 'username' ] ?></a>
             <div class="nav-config" id="nav-config">
                 <ul>
-                    <li><a href="<?= $this->Url->make( "users/{$_SESSION[ 'user' ]}/edit" ) ?>">Configuração</a></li>
-                    <li><a href="<?= $this->Url->make( '/?logout' ) ?>">Sair</a></li>
+                    <li><a href="<?= $this->Url->make( "config/" ) ?>">Configuração</a></li>
+                    <li><a href="<?= $this->Url->make( '?logout' ) ?>">Sair</a></li>
                 </ul>
             </div>
         </div>

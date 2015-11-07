@@ -26,20 +26,11 @@ class RoleMapper extends Mapper {
             $this->populateRolePerms( $role );
         }
 
-        // select all permissions
-        $stmt = self::$_pdo->prepare(
-            "SELECT id, description FROM permissions ORDER BY id"
-        );
-
-        $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_ASSOC );
-        $arrPerm = $stmt->fetchAll();
-
-        return array( 'roles' => $roles, 'permissions' => $arrPerm );
+        return $roles;
     }
 
     /**
-     * Populates the array or permission IDs of a given Role object.
+     * Populates the array of permissions of a given Role object
      *
      * @param RoleModel $role
      * @return RoleModel
@@ -50,9 +41,9 @@ class RoleMapper extends Mapper {
             return;
 
         $stmt = self::$_pdo->prepare(
-            "SELECT p.id
+            "SELECT p.description
                FROM permissions p
-               JOIN role_perm rp ON rp.perm_id = p.id
+               JOIN role_perm rp ON rp.perm_desc = p.description
               WHERE rp.role_id = :role_id"
         );
 
@@ -60,35 +51,48 @@ class RoleMapper extends Mapper {
         $stmt->execute();
 
         while ( $row = $stmt->fetch( PDO::FETCH_ASSOC ) ) {
-            $role->setPermission( $row[ 'id' ] );
+            $role->setPermission( $row[ 'description' ] );
         }
     }
 
     public function getPermissionsArray() {
         // select all permissions
         $stmt = self::$_pdo->prepare(
-            "SELECT id, description FROM permissions ORDER BY id"
+            "SELECT description FROM permissions ORDER BY description"
         );
 
         $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_ASSOC );
-        return $stmt->fetchAll();
+        return $stmt->fetchAll( PDO::FETCH_COLUMN );
     }
 
     public function save( RoleModel $role, $overrideNullData = false ) {
-        self::$_pdo->prepare( "DELETE FROM role_perm WHERE role_id = ?" )->execute( array( $role->id ) );
+        // Start transaction: in case anything goes wrong when inserting,
+        // we cancel the deletion that precedes it
+        self::$_pdo->beginTransaction();
 
-        $stmt = self::$_pdo->prepare( "INSERT INTO role_perm (role_id, perm_id) VALUES (:role_id, :perm_id)" );
+        try {
+            self::$_pdo->prepare( "DELETE FROM role_perm WHERE role_id = ?" )->execute( array( $role->id ) );
 
-        // call parent method to save role
-        parent::save( $role, true );
+            $stmt = self::$_pdo->prepare( "INSERT INTO role_perm (role_id, perm_desc) VALUES (:role_id, :perm_desc)" );
 
-        // save role_perm entries
-        foreach ( $role->permissions as $permId ) {
-            $stmt->bindParam( ':role_id', $role->id, PDO::PARAM_INT );
-            $stmt->bindParam( ':perm_id', $permId, PDO::PARAM_INT );
-            $stmt->execute();
-            $stmt->closeCursor();
+            // call parent method to save role
+            parent::save( $role, true );
+
+            // save role_perm entries
+            foreach ( $role->permissions as $permDesc ) {
+                $stmt->bindParam( ':role_id', $role->id, PDO::PARAM_INT );
+                $stmt->bindParam( ':perm_desc', $permDesc, PDO::PARAM_STR );
+                $stmt->execute();
+                $stmt->closeCursor();
+            }
+
+            self::$_pdo->commit();
+        } catch ( PDOException $e ) {
+            // If something went wrong, rollback transaction
+            // and throw a new exception to be caught by the
+            // Router class
+            self::$_pdo->rollBack();
+            throw new Exception( $e->getMessage() );
         }
     }
 

@@ -4,7 +4,7 @@ $msgClass = false;
 if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     $msg = H::flash( 'success-msg' );
     $msgClass = 'success-msg';
-} else if ( isset( $_SESSION[ 'err-msg' ] ) && is_array( $_SESSION[ 'err-msg' ] ) ) {
+} else if ( isset( $_SESSION[ 'err-msg' ] ) ) {
     $msg = '<ul>';
 
     foreach ( json_decode( H::flash( 'err-msg' ) ) as $errMsg ) {
@@ -36,9 +36,9 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
             <ul>
                 <?php foreach ( $this->permArray as $perm ): ?>
                 <li>
-                    <label for="perms-<?= $this->object->id  . '-' . $perm[ 'id' ] ?>"><?= $perm[ 'description' ] ?></label>
-                    <input type="checkbox" id="perms-<?= $this->object->id . '-' . $perm[ 'id' ] ?>" name="perms[]" value="<?= $perm[ 'id' ] ?>"
-                        <?= ( $this->object->hasPerm( $perm[ 'id' ] ) ) ? 'checked' : '' ?>>
+                    <label for="perms-<?= $this->object->id  . '-' . $perm ?>"><?= $perm ?></label>
+                    <input type="checkbox" id="perms-<?= $this->object->id . '-' . $perm ?>" name="perms[]" value="<?= $perm ?>"
+                        <?= ( $this->object->hasPerm( $perm ) ) ? 'checked' : '' ?>>
                 </li>
                 <?php endforeach; ?>
             </ul>

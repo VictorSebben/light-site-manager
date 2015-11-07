@@ -1,6 +1,10 @@
 <?php
 
 class HomeController extends BaseController {
+    /**
+     * @var HomeModel
+     */
+    protected $_model;
 
     public function __construct( $model_name ) {
 
