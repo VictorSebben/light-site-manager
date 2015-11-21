@@ -94,9 +94,9 @@ class LoginHelper extends Base {
         // it finds 1 entry for the e-mail given, and false otherwise
         $user = $userMapper->findByEmail( $email );
 
-        // if user was not found, return false
-        if ( ! $user ) return false;
-        // else, check password
+        // If user was not found, or if it was found but is not active, return false
+        if ( ! $user || ( $user->status == 0 ) ) return false;
+        // Else, check password
         else {
             if ( password_verify( $password, $user->password ) ) {
                 // test if password needs rehash (in case PHPs implementation
