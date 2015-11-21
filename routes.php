@@ -56,36 +56,41 @@ $app->map(
 
 // USERS
 $app->map(
-    '/users/[[:alpha:]]+/\d+/show',
+    '/users/[[:alpha:]]+/\d+/show/?',
     array( 'controller' => 'User', 'method' => 'show' ),
     array( 'args' => array( 'cat', 'id' ) )
 );
 
 $app->map(
-    '/users/\d+/edit',
+    '/users/\d+/edit/?',
     array( 'controller' => 'User', 'method' => 'edit' ),
     array( 'args' => array( 'id' ) )
 );
 $app->map(
-    '/users/\d+/update',
+    '/users/\d+/update/?',
     array( 'controller' => 'User', 'method' => 'update' )
 );
 $app->map(
-    '/users/\d+/delete',
+    '/users/\d+/delete/?',
     array( 'controller' => 'User', 'method' => 'delete' ),
     array( 'args' => array( 'id' ) )
 );
 $app->map(
-    '/users/\d+/destroy',
+    '/users/\d+/destroy/?',
     array( 'controller' => 'User', 'method' => 'destroy' )
 );
 $app->map(
-    '/users/create',
+    '/users/create/?',
     array( 'controller' => 'User', 'method' => 'create' )
 );
 $app->map(
-    '/users/store',
+    '/users/store/?',
     array( 'controller' => 'User', 'method' => 'store' )
+);
+$app->map(
+    '/users/\d+/toggle-status/?',
+    array( 'controller' => 'User', 'method' => 'toggleStatus' ),
+    array( 'args' => array( 'id' ) )
 );
 $app->map(
     '/users/\d+/?(view)?/?',
