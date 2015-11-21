@@ -7,6 +7,7 @@ define( 'CONTROLLERS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'controllers' . DIREC
 define( 'MODELS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR );
 define( 'MAPPERS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'mappers' . DIRECTORY_SEPARATOR );
 define( 'CONF_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'conf' . DIRECTORY_SEPARATOR );
+define( 'EXCEPTIONS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'exceptions' . DIRECTORY_SEPARATOR );
 
 define( 'DEBUG', true );
 
@@ -23,6 +24,8 @@ spl_autoload_register( function ( $className ) {
         require MODELS_DIR . 'class.' . $className . '.php';
     } else if ( is_readable( MAPPERS_DIR . 'class.' . $className . '.php' ) ) {
         require MAPPERS_DIR . 'class.' . $className . '.php';
+    } else if ( is_readable( EXCEPTIONS_DIR . 'class.' . $className . '.php' ) ) {
+        require EXCEPTIONS_DIR . 'class.' . $className . '.php';
     }
 });
 
