@@ -37,6 +37,10 @@ class Validator {
         }
 
         foreach ( $items as $item => $rules ) {
+            if ( !isset( $source[ $item ] ) ) {
+                continue;
+            }
+
             if ( is_array( $source[ $item ] ) ) {
                 $this->checkArray( $item, $rules );
             } else {
@@ -59,10 +63,14 @@ class Validator {
         // validation of data type
         $type = isset( $rules[ 'type' ] ) ? $rules[ 'type' ] : null;
 
+        // validation to enforce that the value be one from a specific
+        // set of values
+        $valueIn = isset( $rules[ 'valueIn' ] ) ? $rules[ 'valueIn' ] : array();
+
         // other rules for data validation
         $validationRules = isset( $rules[ 'rules' ] ) ? explode( '|', $rules[ 'rules' ] ) : array();
 
-        $this->validate( $value, $fieldName, $validationRules, $type );
+        $this->validate( $value, $fieldName, $validationRules, $type, $valueIn );
     }
 
     protected function checkArray( $item, array $rules ) {
@@ -71,13 +79,17 @@ class Validator {
         // validation of data type
         $type = isset( $rules[ 'type' ] ) ? $rules[ 'type' ] : null;
 
+        // validation to enforce that the value be one from a specific
+        // set of values
+        $valueIn = isset( $rules[ 'valueIn' ] ) ? $rules[ 'valueIn' ] : array();
+
         // other rules for data validation
         $validationRules = isset( $rules[ 'rules' ] ) ? explode( '|', $rules[ 'rules' ] ) : array();
 
         foreach ( $this->_source[ $item ] as $value ) {
             $value = filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
 
-            $this->validate( $value, $fieldName, $validationRules, $type );
+            $this->validate( $value, $fieldName, $validationRules, $type, $valueIn );
         }
     }
 
@@ -88,8 +100,9 @@ class Validator {
      * @param $fieldName
      * @param $rules
      * @param $type
+     * @param $valueIn
      */
-    protected function validate( $value, $fieldName, $rules, $type ) {
+    protected function validate( $value, $fieldName, $rules, $type, $valueIn ) {
         // check data type
         if ( $type ) {
             if ( ( $type === self::NUMERIC_INT ) && ! ( is_numeric( $value ) && is_integer( (int) $value ) ) ) {
@@ -97,6 +110,11 @@ class Validator {
             } else if ( $type === self::NUMERIC && ! is_numeric( $value ) ) {
                 $this->addError( ucfirst( $fieldName ) . " deve ser um número." );
             }
+        }
+
+        // check accepted array of values
+        if ( count( $valueIn ) && !in_array( $value, $valueIn ) ) {
+            $this->addError( "Valor inválido para {$fieldName}." );
         }
 
         foreach ( $rules as $rule )
