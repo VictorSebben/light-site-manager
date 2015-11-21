@@ -1,6 +1,6 @@
 <?php
 
-abstract class Mapper {
+class Mapper {
 
     /**
      * PDO object for handling connections.
@@ -44,7 +44,6 @@ abstract class Mapper {
 
             try {
                 $arrAttrs = [
-                    PDO::ATTR_PERSISTENT => true,
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => $db_config[ 'fetch' ],
                 ];
@@ -70,6 +69,12 @@ abstract class Mapper {
         $this->setModelName();
     }
 
+    public function rawQuery( $query, array $params = array(), $fetchMode = PDO::FETCH_ASSOC ) {
+        $stmt = self::$_pdo->prepare( $query );
+        $stmt->execute( $params );
+        return $stmt->fetchAll( $fetchMode );
+    }
+
     public function find( $id ) {
         $this->selectStmt()->execute( array( $id ) );
         $this->selectStmt()->setFetchMode( PDO::FETCH_CLASS, $this->modelName );
@@ -77,13 +82,16 @@ abstract class Mapper {
         $this->selectStmt()->closeCursor();
 
         if ( ! is_object( $object ) ) { return null; }
-        if ( ! $object->getId() == null ) { return null; }
+        if ( $object->id == null ) { return null; }
 
         return $object;
     }
 
-    public function selectStmt() {
-        return $this->_selectStmt;
+    public function selectStmt( $stmt = null ) {
+        if ( ! $stmt )
+            return $this->_selectStmt;
+        else
+            $this->_selectStmt = self::$_pdo->prepare( $stmt );
     }
 
     protected function setModelName() {
@@ -96,7 +104,7 @@ abstract class Mapper {
      * it will be updated. In case the primary key is not set or an entry
      * is not found, and INSERT operation will be done.
      *
-     * The boolean parameter $overrideNullData will only be considered
+     * The boolean parameter $overrideNullData will only be considered in
      * UPDATE operations. If set to TRUE, null values in the object WILL
      * be used to update the corresponding columns.
      *
@@ -284,6 +292,44 @@ abstract class Mapper {
             if ( isset( $obj->$colName ) ) {
                 $stmt->bindParam( ":{$colName}", $obj->$colName, $arrColMeta[ 'pdo_type' ][ $i ] );
             }
+        }
+
+        $stmt->execute();
+        $stmt->closeCursor();
+    }
+
+    public function destroy( BaseModel $obj ) {
+        if ( !is_array( $obj->primaryKey ) ) {
+            $arrPrimaryKey = array( $obj->primaryKey );
+        } else {
+            $arrPrimaryKey = $obj->primaryKey;
+        }
+
+        foreach ( $arrPrimaryKey as $key ) {
+            if ( empty( $obj->$key ) ) {
+                throw new Exception( 'Não foi possível remover: chave primária sem valor!' );
+            }
+        }
+
+        // build where clause using the PK values from the Model object
+        if ( !is_array( $obj->primaryKey ) ) {
+            $primaryKeys = array( $obj->primaryKey );
+        } else {
+            $primaryKeys = $obj->primaryKey;
+        }
+
+        $where = "WHERE TRUE ";
+
+        foreach ( $primaryKeys as $pk ) {
+            $where .= " AND {$pk} = :{$pk}";
+        }
+
+        $stmt = self::$_pdo->prepare(
+            "DELETE FROM {$obj->tableName} {$where}"
+        );
+
+        foreach ( $primaryKeys as $pk ) {
+            $stmt->bindParam( $pk, $obj->$pk );
         }
 
         $stmt->execute();
