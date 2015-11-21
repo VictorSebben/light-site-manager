@@ -2,7 +2,7 @@
 # filename: .gitignore
 #
 
-.htaccess
+public/.htaccess
 .idea/
 conf/inc.dbconfig.php
 conf/inc.appconfig.php
