@@ -18,7 +18,7 @@ class UserMapper extends Mapper {
      */
     public function findByEmail( $email ) {
         $selectStmt = self::$_pdo->prepare(
-            "SELECT id, name, email, password FROM users WHERE email = :email"
+            "SELECT id, name, email, password, status FROM users WHERE email = :email"
         );
 
         $selectStmt->bindParam( ':email', $email, PDO::PARAM_STR, 64 );
@@ -123,18 +123,32 @@ class UserMapper extends Mapper {
             throw new Exception( "Could not retrieve roles for user: user id not specified!" );
         }
 
-        $sql = "SELECT role_id, name
+        $sql = "SELECT role_id AS id, name
                   FROM user_role
                   JOIN roles ON role_id = id
                  WHERE user_id = :user_id";
 
         $stmt = self::$_pdo->prepare( $sql );
-        $stmt->bindParam( ':user_id', $this->model->id, PDO::PARAM_INT );
+        $stmt->bindParam( ':user_id', $user->id, PDO::PARAM_INT );
         $stmt->execute();
         $stmt->setFetchMode( PDO::FETCH_CLASS, 'RoleModel' );
 
         $user->roles = $stmt->fetchAll();
         $stmt->closeCursor();
+
+        $this->initRolePermissions( $user );
+    }
+
+    protected function initRolePermissions( UserModel $user ) {
+        $roleMapper = new RoleMapper();
+
+        array_walk(
+            $user->roles,
+            function ( &$role, $key, $roleMapper ) {
+                $roleMapper->populateRolePerms( $role );
+            },
+            $roleMapper
+        );
     }
 
     /**
@@ -143,5 +157,41 @@ class UserMapper extends Mapper {
      */
     public function save( UserModel $model, $overrideNullData = false ) {
         parent::save( $model, $overrideNullData );
+    }
+
+    /***** Ajax Methods *****/
+    /**
+     * @ajax
+     * @param $userId
+     * @return bool
+     */
+    public static function toggleStatus( $userId ) {
+        if ( !is_numeric( $userId ) ) {
+            return false;
+        }
+
+        try {
+            $user = new UserModel();
+            $user->id = $_SESSION[ 'user' ];
+
+            $userMapper = new UserMapper();
+
+            $userMapper->_selectStmt = self::$_pdo->prepare(
+                "SELECT id, status FROM users WHERE id = ?"
+            );
+            $user = $userMapper->find( $userId );
+
+            if ( ! $user ) return false;
+
+            // toggle user's status
+            $user->status = ( $user->status == 0 ) ? 1 : 0;
+            $userMapper->save( $user );
+
+            // if everything worked out, return true
+            return true;
+        } catch ( PDOException $e ) {
+            echo $e->getMessage();
+            return false;
+        }
     }
 }

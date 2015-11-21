@@ -62,24 +62,39 @@ class UserController extends BaseController {
     }
 
     public function toggleStatus( $id ) {
+        // Initialize error message (to be used if update fails) and the $isOk flag
+        $errorMsg = '';
+        $isOk = false;
+
+        // Get token that came with the request
         $token = filter_input( INPUT_POST, 'token', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-        // Validate token
-        if ( ! H::checkToken( $token ) ) {
-            return json_encode( array( 'isOk' => false, 'error' => 'Não foi possível processar a requisição!' ) );
+        try {
+            // Validate token
+            if ( !H::checkToken( $token ) ) {
+                // If token fails to validate, let's send back an error message
+                $errorMsg = 'Não foi possível processar a requisição.';
+            } // Validate permission to edit all users
+            else if ( !$this->_user->hasPrivilege( 'edit_other_users' ) ) {
+                $errorMsg = 'Permissão negada.';
+            } // No problems occurred: we can carry through with the request
+            else {
+                if ( $this->_mapper->toggleStatus( $id ) ) {
+                    // At the end of the process, give back a new token
+                    // to the page
+                    $isOk = true;
+                } else {
+                    $errorMsg = 'Não foi possível atualizar o status do usuário. Contate o suporte.';
+                }
+            }
+
+            echo json_encode( array( 'isOk' => $isOk, 'token' => H::generateToken(), 'error' => $errorMsg ) );
+        } catch ( Exception $e ) {
+            // If any exceptions were thrown in the process, send an error message
+            if ( DEBUG )
+                echo json_encode( array( 'isOk' => false, 'error' => $e->getMessage() ) );
+            else
+                echo json_encode( array( 'isOk' => false, 'error' => $errorMsg ) );
         }
-
-        // Validate permission to edit all users
-        if ( ! $this->_user->hasPrivilege( 'edit_other_users', $this->_permList ) ) {
-            return json_encode( array( 'isOk' => false, 'error' => 'Permissão negada.' ) );
-        }
-
-        // TODO give back a new token to the page, and
-        // TODO insert new token in the session
-        // TODO ver com o Fernando se essa approach é legal
-
-        echo H::generateToken();
-
-        // $this->_mapper->toggleStatus( $id );
     }
 }

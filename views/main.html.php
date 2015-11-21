@@ -63,5 +63,6 @@
 </div>
 
 <script src="<?= $this->Url->make( 'js/menu.js' ); ?>"></script>
+<script src="<?= $this->Url->make( 'js/jquery-2.1.4.min.js' ); ?>"></script>
 </body>
 </html>
