@@ -3,13 +3,6 @@
 class BaseModel {
 
     /**
-     * The id that identifies the object (and the row in the database).
-     *
-     * @var integer
-     */
-    public $id;
-
-    /**
      * The date at which a particular object was inserted
      * in the DB.
      *
@@ -26,6 +19,15 @@ class BaseModel {
     public $updated_at;
 
     /**
+     * Array specifying the rules for form validation.
+     * This array will be passed to the Validator class
+     * upon performing a DB operation.
+     *
+     * @var array
+     */
+    public $rules;
+
+    /**
      * This property stores the name of the primary key column(s) of the Model.
      * It can be either a string or an array (in case it is a compound primary key).
      * It defaults to 'id'.
@@ -39,13 +41,8 @@ class BaseModel {
      */
     public $tableName;
 
-    public function __construct( $id = null ) {
-        $this->id = $id;
+    public function __construct() {
         $this->setTableName();
-    }
-
-    public function getId() {
-        return $this->id;
     }
 
     protected function setTableName() {

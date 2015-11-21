@@ -80,17 +80,15 @@ CREATE TABLE roles (
 
 
 CREATE TABLE permissions (
-  id          SERIAL      NOT NULL PRIMARY KEY,
-  description VARCHAR(50) NOT NULL
+  description VARCHAR(50) NOT NULL PRIMARY KEY
 );
-ALTER TABLE permissions ADD CONSTRAINT permissions_description_unique UNIQUE (description);
 
 CREATE TABLE role_perm (
   role_id INTEGER NOT NULL,
-  perm_id INTEGER NOT NULL,
+  perm_desc VARCHAR(50) NOT NULL,
 
   FOREIGN KEY (role_id) REFERENCES roles (id),
-  FOREIGN KEY (perm_id) REFERENCES permissions (id)
+  FOREIGN KEY (perm_desc) REFERENCES permissions (description)
 );
 
 CREATE TABLE user_role (
@@ -113,6 +111,6 @@ ALTER TABLE permissions ADD COLUMN updated_at TIMESTAMP WITHOUT TIME ZONE DEFAUL
 
 INSERT INTO roles (name) VALUES ('admin'), ('editor');
 
-INSERT INTO permissions (description) VALUES ('sysadm_access'), ('edit_other_users');
+INSERT INTO permissions (description) VALUES ('edit_other_users'), ('edit_roles');
 
-INSERT INTO role_perm (role_id, perm_id) VALUES (1, 1), (1, 2);
+INSERT INTO role_perm (role_id, perm_desc) VALUES (1, 'edit_other_users'), (1, 'edit_roles');

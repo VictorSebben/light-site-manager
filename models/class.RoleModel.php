@@ -13,15 +13,14 @@ class RoleModel extends BaseModel {
 
         $this->rules = array(
             "name" => array( 'fieldName' => 'nome', 'rules' => 'required|max:50' ),
-            "perms" => array( 'fieldName' => 'permissão', 'type' => Validator::NUMERIC_INT )
         );
     }
 
-    public function setPermission( $id ) {
-        $this->permissions[] = $id;
+    public function setPermission( $desc ) {
+        $this->permissions[] = $desc;
     }
 
-    public function hasPerm( $permId ) {
-        return in_array( $permId, $this->permissions );
+    public function hasPerm( $permDesc ) {
+        return in_array( $permDesc, $this->permissions );
     }
 }
