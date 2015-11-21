@@ -108,7 +108,7 @@ class Router {
                     echo $e->getMessage();
                 }  catch ( PDOException $e ) {
                     if ( DEBUG )
-                        echo $e->getMessage();
+                        echo "DebugError: " . $e->getMessage();
                     else
                         echo "Ocorreu um erro na execução da aplicação. Contate o administrador do sistema.";
                 } catch ( Exception $e ) {
