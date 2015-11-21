@@ -1,0 +1,15 @@
+{
+    "name": "superbits/light-site-manager",
+    "description": "Light-weight site and blog manager written in PHP.",
+    "require": {
+        "verot/class.upload.php": "dev-master"
+    },
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Victor Sebben",
+            "email": "victorhfsebben@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
