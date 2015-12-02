@@ -82,7 +82,6 @@ class Mapper {
         $this->selectStmt()->closeCursor();
 
         if ( ! is_object( $object ) ) { return null; }
-        if ( $object->id == null ) { return null; }
 
         return $object;
     }

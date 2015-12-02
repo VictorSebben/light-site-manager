@@ -66,15 +66,16 @@ class UserMapper extends Mapper {
             }
         }
 
-        // set number of records in the pagination object
+        // Set number of records in the pagination object
         $this->_setNumRecordsPagn();
 
         $sql = "SELECT id, name, email, status
-                  FROM users ";
+                  FROM users
+                 WHERE deleted = 0 ";
 
         if ( $this->request->pagParams['search'] != null ) {
-            $sql .= 'WHERE name ~* :search
-                        OR email ~* :search ';
+            $sql .= 'AND name ~* :search
+                      OR email ~* :search ';
         }
 
         $sql .= " ORDER BY {$ord} {$params['dir']}
@@ -100,7 +101,8 @@ class UserMapper extends Mapper {
 
     protected function _setNumRecordsPagn() {
         $sql = "SELECT count(*) AS count
-                  FROM users ";
+                  FROM users
+                 WHERE deleted = 0 ";
 
         if ( $this->request->pagParams['search'] != null ) {
             $sql .= 'WHERE name ~* :search
@@ -157,6 +159,39 @@ class UserMapper extends Mapper {
      */
     public function save( UserModel $model, $overrideNullData = false ) {
         parent::save( $model, $overrideNullData );
+    }
+
+    public function destroy( UserModel $user ) {
+        if ( ! is_numeric( $user->id ) ) {
+            throw new Exception( 'Não foi possível remover: chave primária sem valor!' );
+        }
+
+        self::$_pdo->beginTransaction();
+
+        try {
+            // Remove all user_role entries
+            $this->destroyUserRole( $user );
+
+            // Actually, we are not going to remove the user
+            // from the database. Instead, we will mark her
+            // as deleted, so that she can be audited later
+            // if necessary
+            $user->deleted = 1;
+            $this->save( $user );
+
+            self::$_pdo->commit();
+        } catch ( Exception $e ) {
+            // If something went wrong, rollback transaction
+            // and throw a new exception to be caught in the
+            // Router class
+            self::$_pdo->rollBack();
+            throw new Exception( $e->getMessage() );
+        }
+    }
+
+    protected function destroyUserRole( UserModel $user ) {
+        self::$_pdo->prepare( "DELETE FROM user_role WHERE user_id = ?" )
+            ->execute( array( $user->id ) );
     }
 
     /***** Ajax Methods *****/

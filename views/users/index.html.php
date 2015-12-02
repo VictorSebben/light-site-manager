@@ -24,8 +24,10 @@
         <th>Name</th>
         <th>E-mail</th>
         <th>Status</th>
+        <?php if ( $this->editOtherUsers ) : ?>
         <th>Editar</th>
         <th>Remover</th>
+        <?php endif; ?>
     </tr>
     </thead>
     <tbody>
@@ -45,12 +47,14 @@
                     </label>
                 </div>
             </td>
+            <?php if ( $this->editOtherUsers ) : ?>
             <td>
                 <a class="input-submit btn-edit" href="<?= $this->Url->make( "users/{$user->id}/edit" ) ?>">Editar</a>
             </td>
             <td>
                 <a class="input-submit btn-delete" href="<?= $this->Url->make( "users/{$user->id}/delete" ) ?>">Excluir</a>
             </td>
+            <?php endif; ?>
         </tr>
     <?php endforeach; ?>
     </tbody>

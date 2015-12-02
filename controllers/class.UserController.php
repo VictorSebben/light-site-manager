@@ -23,6 +23,8 @@ class UserController extends BaseController {
     }
 
     public function index() {
+        // Load result of edit_other_users permission test
+        $this->_view->editOtherUsers = $this->_user->hasPrivilege( 'edit_other_users' );
 
         // instantiate Pagination object and
         // pass it to the Mapper
@@ -35,15 +37,18 @@ class UserController extends BaseController {
         $this->_view->render( 'users/index', 'pagination' );
     }
 
-    public function delete( $id ) {
-        echo 'Delete object ' . $this->_model->name . ' with id = ' . $id;
-    }
-
     public function create() {
+        if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
+            throw new PermissionDeniedException();
+        }
+
         $this->_view->render( 'users/form' );
     }
 
     public function insert() {
+        if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
+            throw new PermissionDeniedException();
+        }
         echo "Let's insert, baby!";
     }
 
@@ -53,12 +58,55 @@ class UserController extends BaseController {
     }
 
     public function update( $id ) {
+        if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
+            throw new PermissionDeniedException();
+        }
         echo "Let's update, baby!";
     }
 
     public function show( $id ) {
         $this->_view->user = $this->_mapper->show( $id );
         $this->_view->render( 'users/show' );
+    }
+
+    public function delete() {
+        if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
+            throw new PermissionDeniedException();
+        }
+
+        $id = Request::getInstance()->pk;
+
+        // give the view the UserModel object
+        $this->_view->object = $this->_mapper->find( $id );
+        if ( ! ( $this->_view->object instanceof UserModel ) ) {
+            throw new Exception( 'Erro: Usuário não encontrado!' );
+        }
+
+        $this->_view->render( 'users/delete' );
+    }
+
+    public function destroy() {
+        if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
+            throw new PermissionDeniedException();
+        }
+
+        if ( ! H::checkToken( Request::getInstance()->getInput( 'token' ) ) ) {
+            H::flash( 'err-msg', "Não foi possível processar a requisição!" );
+            header( 'Location: ' . $this->_url->make( "users/" ) );
+        }
+
+        $user = new UserModel();
+        $user->id = Request::getInstance()->getInput( 'id' );
+
+        try {
+            $this->_mapper->destroy( $user );
+
+            H::flash( 'success-msg', 'Usuário removido com sucesso!' );
+            header( 'Location: ' . $this->_url->make( "users/" ) );
+        } catch ( PDOException $e ) {
+            H::flash( 'err-msg', "Não foi possível excluir o Usuário!" );
+            header( 'Location: ' . $this->_url->make( "users/" ) );
+        }
     }
 
     public function toggleStatus( $id ) {

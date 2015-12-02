@@ -7,6 +7,7 @@ class UserModel extends BaseModel {
     public $email;
     public $password;
     public $status;
+    public $deleted;
 
     /**
      * Array to hold RoleModel objects.

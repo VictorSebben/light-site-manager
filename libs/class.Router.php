@@ -73,8 +73,8 @@ class Router {
      * Maps, routes, controller options (controller name and mathod) and additional parameters.
      *
      * @param String $route      A string containing the route. It may contain regular expressions.
-     * @param Array  $controller An associative array containing controller name and method to be called.
-     * @param Array  $params     Optional parameters that will be passed to the model class.
+     * @param array  $controller An associative array containing controller name and method to be called.
+     * @param array  $params     Optional parameters that will be passed to the model class.
      * The first key must be called 'args'.
      */
     public function map( $route, $controller, $params = array() ) {

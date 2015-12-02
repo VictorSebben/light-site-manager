@@ -33,6 +33,7 @@ CREATE TABLE users (
 );
 
 ALTER TABLE users ADD COLUMN status SMALLINT DEFAULT 1;
+ALTER TABLE users ADD COLUMN deleted SMALLINT DEFAULT 0;
 
 INSERT INTO users (name, email, password, cat_id) VALUES
 ( 'Yoda', 'yoda@jedi.net', '1234', 1 ),
@@ -61,14 +62,14 @@ ALTER TABLE users ADD COLUMN created_at TIMESTAMP WITHOUT TIME ZONE;
 ALTER TABLE users ADD COLUMN updated_at TIMESTAMP WITHOUT TIME ZONE;
 
 -- TODO see if this is going to be used
-CREATE TABLE users_sessions (
+CREATE TABLE user_session (
   id SERIAL NOT NULL PRIMARY KEY,
   user_id INT NOT NULL,
   hash VARCHAR(50) NOT NULL
 );
 
-ALTER TABLE users_sessions
-ADD CONSTRAINT users_session_user_fkey FOREIGN KEY (user_id)
+ALTER TABLE user_session
+ADD CONSTRAINT user_session_user_fkey FOREIGN KEY (user_id)
 REFERENCES users (id) ON DELETE CASCADE;
 
 
@@ -87,6 +88,7 @@ CREATE TABLE role_perm (
   role_id INTEGER NOT NULL,
   perm_desc VARCHAR(50) NOT NULL,
 
+  PRIMARY KEY (role_id, perm_desc),
   FOREIGN KEY (role_id) REFERENCES roles (id),
   FOREIGN KEY (perm_desc) REFERENCES permissions (description)
 );
@@ -95,6 +97,7 @@ CREATE TABLE user_role (
   user_id INTEGER NOT NULL,
   role_id INTEGER NOT NULL,
 
+  PRIMARY KEY (user_id, role_id),
   FOREIGN KEY (user_id) REFERENCES users (id),
   FOREIGN KEY (role_id) REFERENCES roles (id)
 );
@@ -114,3 +117,4 @@ INSERT INTO roles (name) VALUES ('admin'), ('editor');
 INSERT INTO permissions (description) VALUES ('edit_other_users'), ('edit_roles');
 
 INSERT INTO role_perm (role_id, perm_desc) VALUES (1, 'edit_other_users'), (1, 'edit_roles');
+INSERT INTO user_role (role_id, user_id) VALUES (1, 1);

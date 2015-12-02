@@ -76,7 +76,7 @@ $app->map(
     array( 'args' => array( 'id' ) )
 );
 $app->map(
-    '/users/\d+/destroy/?',
+    '/users/destroy/?',
     array( 'controller' => 'User', 'method' => 'destroy' )
 );
 $app->map(
