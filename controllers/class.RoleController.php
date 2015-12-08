@@ -36,6 +36,11 @@ class RoleController extends BaseController {
         // give the view the RoleModel object
         $this->_view->object = $this->_mapper->find( $id );
 
+        $input = H::flashInput();
+        if ( $input ) {
+            $this->_view->object->name = $input[ 'name' ];
+        }
+
         // populate the permissions array of the Role object
         $this->_mapper->populateRolePerms( $this->_view->object );
 
@@ -77,7 +82,12 @@ class RoleController extends BaseController {
 
         $validator = new Validator();
         if ( ! $validator->check( $_POST, $this->_model->rules ) ) {
+            // Flash error message
             H::flash( 'err-msg', $validator->getErrorsJson() );
+
+            // Flash input data (the data the user had typed int he form)
+            H::flashInput( Request::getInstance()->getInput() );
+
             header( 'Location: ' . $this->_url->make( "roles/{$id}/edit/" ) );
         } else {
             $this->_model->id = $id;

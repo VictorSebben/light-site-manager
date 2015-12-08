@@ -29,7 +29,7 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     <form action="<?= $this->Url->make( 'roles/update' ) ?>" method="post">
         <div class="form-field">
             <label for="name">Nome:</label>
-            <div class="input-field"><input id="name" type="text" name="name" maxlength="50" required value="<?= $this->object->name ?: ''; ?>"></div>
+            <div class="input-field"><input id="name" type="text" name="name" maxlength="50"  value="<?= $this->object->name ?: ''; ?>"></div>
         </div>
         <div class="form-h-check">
             <h3>Selecionar Permissões</h3>
