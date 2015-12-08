@@ -82,4 +82,24 @@ class H {
             $_SESSION[ $name ] = $msg;
         }
     }
+
+    /**
+     * This method is similar to H::flash(), except that it handles a particular
+     * kind of flash information: it is used to flash input info to the session
+     * so that, when something goes wrong when the user uses a form, the information
+     * the use had typed is not lost (and can be loaded again in the form).
+     *
+     * @param array $input
+     * @return mixed
+     */
+    public static function flashInput( $input = array() ) {
+        if ( count( $input ) ) {
+            $_SESSION[ 'input' ] = json_encode( $input );
+        }
+        else {
+            $input = $_SESSION[ 'input' ];
+            unset( $_SESSION[ 'input' ] );
+            return json_decode( $input, true );
+        }
+    }
 }

@@ -23,6 +23,17 @@ class UserModel extends BaseModel {
         self::STATUS_INACTIVE => 'Inativo'
     ];
 
+    public function __construct() {
+        parent::__construct();
+
+        $this->rules = array(
+            'name' => array( 'fieldName' => 'nome', 'rules' => 'required|max:64|min:3' ),
+            'email' => array( 'fieldName' => 'e-mail', 'rules' => 'required|max:64|regex:email' ),
+            'password' => array( 'fieldName' => 'senha', 'rules' => 'password' ),
+            'password-confirm' => array( 'fieldName' => 'confirmar senha', 'rules' => 'matches:password' )
+        );
+    }
+
     public function getId() {
         return $this->id;
     }

@@ -84,8 +84,8 @@ $app->map(
     array( 'controller' => 'User', 'method' => 'create' )
 );
 $app->map(
-    '/users/store/?',
-    array( 'controller' => 'User', 'method' => 'store' )
+    '/users/insert/?',
+    array( 'controller' => 'User', 'method' => 'insert' )
 );
 $app->map(
     '/users/\d+/toggle-status/?',

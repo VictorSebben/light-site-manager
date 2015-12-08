@@ -1,6 +1,18 @@
+<?php
+$msgClass = false;
+
+if ( isset( $_SESSION[ 'success-msg' ] ) ) {
+    $msg = H::flash( 'success-msg' );
+    $msgClass = 'success-msg';
+} else if ( isset( $_SESSION[ 'err-msg' ] ) ) {
+    $msg = H::flash( 'err-msg' );
+    $msgClass = 'err-msg';
+}
+?>
+
 <div class="console">
     <!-- Adicionar -->
-    <button name="btn-add" class="input-submit btn-green">Adicionar</button>
+    <a href="<?= $this->Url->make( "users/create" ) ?>" class="input-submit btn-green">Adicionar</a>
 
     <div class="console-toggle">
         <!-- Ativar -->
@@ -15,6 +27,12 @@
 </div>
 
 <h2 id="area-header">Users</h2>
+
+<?php if ( isset( $msg ) ): ?>
+    <div class="flash <?= $msgClass ?>">
+        <?= $msg ?>
+    </div>
+<?php endif; ?>
 
 <?php if ( $this->objectList != null ): ?>
 <table>

@@ -143,17 +143,12 @@ span {
     padding: 10px;
     margin-bottom: 20px;
 
-    button {
-        padding: 5px;
+    button, a {
         margin: 0 10px 0;
     }
 
     .console-toggle {
         display: inline;
-    }
-
-    .btn-green {
-        min-width: 150px;
     }
 }
 
@@ -472,12 +467,20 @@ input {
     background-color: #f2dede;
     border-color: #ebccd1;
     color: #a94442;
-    text-align: center;
 
     li {
-        list-style: none;
         display: block;
         color: #f00;
+        margin: 5px 0;
+
+        ul {
+            list-style: disc inside;
+
+            li {
+                display: list-item;
+                margin-left: 20px;
+            }
+        }
     }
 }
 

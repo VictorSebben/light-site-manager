@@ -42,6 +42,18 @@ class UserController extends BaseController {
             throw new PermissionDeniedException();
         }
 
+        // Check if there is input data (we are redirecting the user back to the form
+        // with an error message after he tried to submit it), in which case we will
+        // give back the input data to the form
+        $inputData = H::flashInput();
+        if ( $inputData ) {
+            $user = new UserModel();
+            $user->name = $inputData[ 'name' ];
+            $user->email = $inputData[ 'email' ];
+
+            $this->_view->object = $user;
+        }
+
         $this->_view->render( 'users/form' );
     }
 
@@ -49,10 +61,35 @@ class UserController extends BaseController {
         if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
             throw new PermissionDeniedException();
         }
-        echo "Let's insert, baby!";
+
+        $validator = new Validator();
+        if ( ! $validator->check( $_POST, $this->_model->rules ) ) {
+            // Flash error messages
+            H::flash( 'err-msg', $validator->getErrorsJson() );
+
+            // Flash input data (data the user had typed in) so that we can
+            // put it back in the form fields
+            unset( $_POST[ 'password' ] );
+            unset( $_POST[ 'password-confirm' ] );
+            H::flashInput( Request::getInstance()->getInput() );
+
+            header( 'Location: ' . $this->_url->make( 'users/create/' ) );
+        } else {
+            $this->_model->name = Request::getInstance()->getInput( 'name' );
+            $this->_model->email = Request::getInstance()->getInput( 'email' );
+            $this->_model->password = password_hash( $_POST[ 'password' ], PASSWORD_DEFAULT );
+
+            $this->_mapper->save( $this->_model );
+            H::flash( 'success-msg', 'Usuário criado com sucesso!' );
+            header( 'Location: ' . $this->_url->make( 'users/' ) );
+        }
     }
 
     public function edit( $id ) {
+        if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
+            throw new PermissionDeniedException();
+        }
+
         $this->_view->user = $this->_mapper->find( $id );
         $this->_view->render( 'users/form' );
     }

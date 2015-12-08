@@ -124,35 +124,41 @@ class Request {
      * Retrieves data from $_POST (default) or $_GET (in case
      * the $post parameter is set to false), using filter_input.
      *
-     * @param $name
+     * @param string $name
      * @param bool|true $post
      * @return string
      */
-    public function getInput( $name, $post = true ) {
+    public function getInput( $name = "", $post = true ) {
         $input = null;
 
-        // $_POST
-        if ( $post ) {
-            if ( isset( $_POST[ $name ] ) ) {
-                // if field was a checkbox, $input will be an array
-                if ( is_array( $_POST[ $name ] ) ) {
+        if ( $name != "" ) {
+            // $_POST
+            if ( $post ) {
+                if ( isset( $_POST[ $name ] ) ) {
+                    // if field was a checkbox, $input will be an array
+                    if ( is_array( $_POST[ $name ] ) ) {
+                        $input = array_map( function ( $value ) {
+                            return filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
+                        }, $_POST[ $name ] );
+                    } else {
+                        $input = filter_input( INPUT_POST, $name, FILTER_SANITIZE_SPECIAL_CHARS );
+                    }
+                }
+            } // $_GET
+            else if ( isset( $_GET[ $name ] ) ) {
+                if ( is_array( $_GET[ $name ] ) ) {
                     $input = array_map( function ( $value ) {
                         return filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
-                    }, $_POST[ $name ] );
+                    }, $_GET[ $name ] );
                 } else {
-                    $input = filter_input( INPUT_POST, $name, FILTER_SANITIZE_SPECIAL_CHARS );
+                    $input = filter_input( INPUT_GET, $name, FILTER_SANITIZE_SPECIAL_CHARS );
                 }
             }
-        }
-
-        // $_GET
-        else if ( isset( $_GET[ $name ] ) ) {
-            if ( is_array( $_GET[ $name ] ) ) {
-                $input = array_map( function ( $value ) {
-                    return filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
-                }, $_GET[ $name ] );
+        } else {
+            if ( $post ) {
+                $input = filter_var_array( $_POST, FILTER_SANITIZE_SPECIAL_CHARS );
             } else {
-                $input = filter_input( INPUT_GET, $name, FILTER_SANITIZE_SPECIAL_CHARS );
+                $input = filter_var_array( $_GET, FILTER_SANITIZE_SPECIAL_CHARS );
             }
         }
 
