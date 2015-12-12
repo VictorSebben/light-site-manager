@@ -516,9 +516,9 @@ input {
 
 /* -------------------------------------------------------- */
 /* ---- Go Back Link -------------------------------------- */
-.go-back {
+div.go-back {
     display: block;
-    text-align: center;
+    text-align: left;
     border-top: 3px outset #ccc;
     margin-top: 20px;
     padding-top: 10px;
@@ -529,6 +529,20 @@ input {
     }
 
     a:hover {
-        text-decoration: underline;
+        text-decoration: none;
     }
+}
+
+a.go-back {
+    background-color: #eee;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+a.go-back:hover {
+    background-color: #ddd;
+}
+
+a.go-back::before {
+    content: "<< ";
 }

@@ -52,7 +52,8 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
         <div class="form-field"><input type="submit" class="input-submit" name="submit" value="Enviar"></div>
     </form>
 </div>
-
 <div class="go-back">
-    <a href="<?= $this->Url->make( 'roles/' ) ?>">Voltar</a>
+    <a id="go-back" class="go-back" onclick="H.goBack()" href="#">Voltar</a>
 </div>
+
+<script src="<?= $this->Url->make( 'js/lsmhelper.js' ); ?>" type="text/javascript"></script>
