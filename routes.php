@@ -67,7 +67,7 @@ $app->map(
     array( 'args' => array( 'id' ) )
 );
 $app->map(
-    '/users/\d+/update/?',
+    '/users/update/?',
     array( 'controller' => 'User', 'method' => 'update' )
 );
 $app->map(

@@ -50,6 +50,7 @@ class UserController extends BaseController {
             $user = new UserModel();
             $user->name = $inputData[ 'name' ];
             $user->email = $inputData[ 'email' ];
+            $user->status = $inputData[ 'status' ];
 
             $this->_view->object = $user;
         }
@@ -78,6 +79,7 @@ class UserController extends BaseController {
             $this->_model->name = Request::getInstance()->getInput( 'name' );
             $this->_model->email = Request::getInstance()->getInput( 'email' );
             $this->_model->password = password_hash( $_POST[ 'password' ], PASSWORD_DEFAULT );
+            $this->_model->status = Request::getInstance()->getInput( 'status' );
 
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Usuário criado com sucesso!' );
@@ -85,20 +87,72 @@ class UserController extends BaseController {
         }
     }
 
-    public function edit( $id ) {
+    public function edit() {
         if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
             throw new PermissionDeniedException();
         }
 
-        $this->_view->user = $this->_mapper->find( $id );
+        $id = Request::getInstance()->pk;
+
+        $this->_view->object = $this->_mapper->find( $id );
+
+        // Try to get input data from session (data that the user had typed
+        // in the form before). There will be input data if the validation
+        // failed, and we want to redirect the user to the form with an
+        // error message, putting back the data she had typed
+        $inputData = H::flashInput();
+        if ( $inputData ) {
+            $this->_view->object->name = $inputData[ 'name' ];
+            $this->_view->object->email = $inputData[ 'email' ];
+            $this->_view->object->status = $inputData[ 'status' ];
+        }
+
+        if ( ! ( $this->_view->object instanceof UserModel ) ) {
+            throw new Exception( 'Erro: Usuário não encontrado!' );
+        }
+
         $this->_view->render( 'users/form' );
     }
 
-    public function update( $id ) {
+    public function update() {
         if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
             throw new PermissionDeniedException();
         }
-        echo "Let's update, baby!";
+
+        // Get id from $_POST
+        $id = Request::getInstance()->getInput( 'id' );
+
+        // Check if the user wants to create a new password:
+        // if she doesn't (there is no value for the password field),
+        // we will not validate password and password-confirm
+        if ( ! Request::getInstance()->getInput( 'password' ) ) {
+            unset( $this->_model->rules[ 'password' ] );
+            unset( $this->_model->rules[ 'password-confirm' ] );
+        }
+
+        $validator = new Validator();
+        if ( ! $validator->check( $_POST, $this->_model->rules ) ) {
+            // Flash error message
+            H::flash( 'err-msg', $validator->getErrorsJson() );
+
+            // Flash input data (the data the user had typed int he form)
+            H::flashInput( Request::getInstance()->getInput() );
+
+            header( 'Location: ' . $this->_url->make( "users/{$id}/edit/" ) );
+        } else {
+            $this->_model->id = $id;
+            $this->_model->name = Request::getInstance()->getInput( 'name' );
+            $this->_model->email = Request::getInstance()->getInput( 'email' );
+            $this->_model->status = Request::getInstance()->getInput( 'status' );
+
+            if ( Request::getInstance()->getInput( 'password' ) ) {
+                $this->_model->password = password_hash( $_POST[ 'password' ], PASSWORD_DEFAULT );
+            }
+
+            $this->_mapper->save( $this->_model );
+            H::flash( 'success-msg', 'Usuário atualizado com sucesso!' );
+            header( 'Location: ' . $this->_url->make( 'users/' ) );
+        }
     }
 
     public function show( $id ) {

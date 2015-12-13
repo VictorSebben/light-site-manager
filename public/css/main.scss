@@ -183,6 +183,25 @@ table th, table tr, table td {
     transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
 }
 
+.form-field-radio {
+    padding: 20px 0;
+    border-top: 1px dotted #777;
+    border-bottom: 1px dotted #777;
+
+    h3 {
+        margin: 0;
+    }
+}
+
+.form-h .form-field-radio label {
+    padding: 0 15px;
+}
+
+.form-field input[type="radio"] {
+    width: auto;
+    vertical-align: middle;
+}
+
 .input-submit {
     border: 1px solid #ccc;
     border-radius: 4px;

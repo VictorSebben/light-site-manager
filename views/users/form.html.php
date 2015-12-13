@@ -23,7 +23,7 @@ if ( isset( $_SESSION[ 'err-msg' ] ) ) {
 <?php endif; ?>
 
 <div class="form-h">
-    <form action="<?= $this->Url->make( 'users/insert' ) ?>" method="post">
+    <form action="<?= ( $isUpdate ) ? $this->Url->make( 'users/update' ) : $this->Url->make( 'users/insert' ) ?>" method="post">
         <div class="form-field">
             <label for="name">Nome</label>
             <div class="input-field">
@@ -36,6 +36,23 @@ if ( isset( $_SESSION[ 'err-msg' ] ) ) {
             <div class="input-field">
                 <input id="email" type="text" name="email" maxlength="64" required
                        value="<?= ( isset ( $this->object->email ) ) ? $this->object->email : ''; ?>">
+            </div>
+        </div>
+        <div class="form-field-radio">
+            <h3>Status</h3>
+            <div class="form-field">
+                <label for="status-active">Ativo</label>
+                <div class="input-field">
+                    <input id="status-active" type="radio" name="status" value="<?= UserModel::STATUS_ACTIVE ?>"
+                        <?= ( isset ( $this->object->status ) && $this->object->status ) ? 'checked' : '' ?>>
+                </div>
+            </div>
+            <div class="form-field">
+                <label for="status-inactive">Inativo</label>
+                <div class="input-field">
+                    <input id="status-inactive" type="radio" name="status" value="<?= UserModel::STATUS_INACTIVE ?>"
+                        <?= ( isset ( $this->object->status ) && ( ! $this->object->status ) ) ? 'checked' : '' ?>>
+                </div>
             </div>
         </div>
 
@@ -60,6 +77,8 @@ if ( isset( $_SESSION[ 'err-msg' ] ) ) {
 
         <!-- Token field -->
         <input type="hidden" name="token" value="<?= H::generateToken() ?>">
+        <!-- Id field -->
+        <input type="hidden" name="id" value="<?= $this->object->id ?>">
 
         <div class="form-field"><input type="submit" class="input-submit" name="submit" value="Enviar"></div>
     </form>

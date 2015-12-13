@@ -29,6 +29,7 @@ class UserModel extends BaseModel {
         $this->rules = array(
             'name' => array( 'fieldName' => 'nome', 'rules' => 'required|max:64|min:3' ),
             'email' => array( 'fieldName' => 'e-mail', 'rules' => 'required|max:64|regex:email' ),
+            'status' => array( 'fieldName' => 'status', 'valueIn' => array( self::STATUS_INACTIVE, self::STATUS_ACTIVE ) ),
             'password' => array( 'fieldName' => 'senha', 'rules' => 'password' ),
             'password-confirm' => array( 'fieldName' => 'confirmar senha', 'rules' => 'matches:password' )
         );
