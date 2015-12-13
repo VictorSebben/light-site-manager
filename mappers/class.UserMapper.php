@@ -73,7 +73,7 @@ class UserMapper extends Mapper {
                   FROM users
                  WHERE deleted = 0 ";
 
-        if ( $this->request->pagParams['search'] != null ) {
+        if ( $this->request->pagParams[ 'search' ] != null ) {
             $sql .= 'AND name ~* :search
                       OR email ~* :search ';
         }
@@ -83,8 +83,8 @@ class UserMapper extends Mapper {
                  OFFSET :offset ";
 
         $selectStmt = self::$_pdo->prepare( $sql );
-        if ( $this->request->pagParams['search'] != null ) {
-            $selectStmt->bindParam( ':search', $this->request->pagParams['search'] );
+        if ( $this->request->pagParams[ 'search' ] != null ) {
+            $selectStmt->bindParam( ':search', $this->request->pagParams[ 'search' ] );
         }
         $lim = 2;
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
@@ -105,8 +105,8 @@ class UserMapper extends Mapper {
                  WHERE deleted = 0 ";
 
         if ( $this->request->pagParams['search'] != null ) {
-            $sql .= 'WHERE name ~* :search
-                        OR email ~* :search ';
+            $sql .= 'AND name ~* :search
+                      OR email ~* :search ';
         }
 
         $selectStmt = self::$_pdo->prepare($sql);

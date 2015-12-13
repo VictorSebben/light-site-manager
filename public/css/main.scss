@@ -150,6 +150,16 @@ span {
     .console-toggle {
         display: inline;
     }
+
+    .search {
+        float: right;
+        border-left: 1px dotted #aaa;
+        padding-left: 10px;
+    }
+
+    .form-field {
+        display: inline;
+    }
 }
 
 table {

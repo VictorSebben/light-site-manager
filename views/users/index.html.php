@@ -24,6 +24,17 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
 
     <!-- Excluir -->
     <button name="btn-delete" class="input-submit btn-red">Excluir</button>
+
+    <div class="search" title="Pode usar parte do nome ou email">
+        <form id="users-search-form" class="search-form" action="<?= $this->Url->make( 'users/' ) ?>">
+            <div class="form-field">
+                <input placeholder="Pesquisar Usuários" title="Pode-se pesquisar por nome ou e-mail"
+                       id="search" type="text" name="search" value="<?= Request::getInstance()->getInput( 'search', false ); ?>">
+            </div>
+            <input class="input-submit" type="submit" value="Buscar">
+            <a href="<?= $this->Url->make( 'users/' ) ?>">Limpar pesquisa</a>
+        </form>
+    </div>
 </div>
 
 <h2 id="area-header">Users</h2>
