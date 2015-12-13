@@ -19,6 +19,9 @@ class LoginHelper extends Base {
             $user = $userMapper->find( $_SESSION[ 'user' ] );
             if ( ( $user->status == 0 ) || ( $user->deleted == 1 ) ) {
                 echo "Usuário inexistente ou inativo";
+                unset( $_SESSION[ 'userid' ] );
+                unset( $_SESSION[ 'username' ] );
+                session_destroy();
                 exit;
             }
         }
