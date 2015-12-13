@@ -113,7 +113,7 @@ class Request {
         foreach ( $this->uriParts as $uriPart ) {
             if ( strpos( $uriPart, ':' ) !== false ) {
                 list( $key, $val ) = explode( ':', $uriPart );
-                $this->pagParams[$key] = $val;
+                $this->pagParams[ $key ] = $val;
             }
         }
 

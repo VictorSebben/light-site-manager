@@ -36,6 +36,10 @@ class RoleController extends BaseController {
         // give the view the RoleModel object
         $this->_view->object = $this->_mapper->find( $id );
 
+        // Try to get input data from session (data that the user had typed
+        // in the form before). There will be input data if the validation
+        // failed, and we want to redirect the user to the form with an
+        // error message, putting back the data she had typed
         $input = H::flashInput();
         if ( $input ) {
             $this->_view->object->name = $input[ 'name' ];

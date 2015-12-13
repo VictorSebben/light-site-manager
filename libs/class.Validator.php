@@ -326,7 +326,7 @@ class Validator {
         // Check if there are three identical characters in a row:
         $arrRules[ 'trow' ] = false;
 
-        for ( $i = 0, $count = 1; $i < strlen( $password ); $i++ ) {
+        for ( $i = 0, $count = 0; $i < strlen( $password ); $i++ ) {
             $char = $password[ $i ];
 
             if ( ctype_upper( $char ) ) {
