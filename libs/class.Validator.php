@@ -311,6 +311,7 @@ class Validator {
      * if 3 identical characters in a row
      * were found.
      *
+     * @param $password
      * @return array
      */
     protected function checkPassComplexity( $password ) {
