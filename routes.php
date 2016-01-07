@@ -103,6 +103,47 @@ $app->map(
     '/users(/?|/.*)',
     array( 'controller' => 'User', 'method' => 'index' )
 );
+
+// CATEGORIES
+$app->map(
+    '/categories/\d+/edit/?',
+    array( 'controller' => 'Category', 'method' => 'edit' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/categories/update/?',
+    array( 'controller' => 'Category', 'method' => 'update' )
+);
+$app->map(
+    '/categories/\d+/delete/?',
+    array( 'controller' => 'Category', 'method' => 'delete' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/categories/destroy/?',
+    array( 'controller' => 'Category', 'method' => 'destroy' )
+);
+$app->map(
+    '/categories/create/?',
+    array( 'controller' => 'Category', 'method' => 'create' )
+);
+$app->map(
+    '/categories/insert/?',
+    array( 'controller' => 'Category', 'method' => 'insert' )
+);
+$app->map(
+    '/categories/\d+/?(view)?/?',
+    array( 'controller' => 'Category', 'method' => 'show' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+// ?.* means that there may be more things in the url. Those will be
+// search and pagination stuff.
+    '/categories(/?|/.*)',
+    array( 'controller' => 'Category', 'method' => 'index' )
+);
+
+// GENERIC
 $app->map(
     '.*',
     array( 'controller' => 'Home', 'method' => 'notFound' )

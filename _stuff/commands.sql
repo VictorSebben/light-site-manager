@@ -118,3 +118,63 @@ INSERT INTO permissions (description) VALUES ('edit_other_users'), ('edit_roles'
 
 INSERT INTO role_perm (role_id, perm_desc) VALUES (1, 'edit_other_users'), (1, 'edit_roles');
 INSERT INTO user_role (role_id, user_id) VALUES (1, 1);
+
+CREATE TABLE IF NOT EXISTS categories (
+  id SERIAL NOT NULL,
+  name VARCHAR(40) NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP WITHOUT TIME ZONE,
+  updated_at TIMESTAMP WITHOUT TIME ZONE,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+  id SERIAL NOT NULL,
+  category_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  intro TEXT,
+  post_text TEXT,
+  image VARCHAR(80),
+  image_caption VARCHAR(100),
+  status SMALLINT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITHOUT TIME ZONE,
+  updated_at TIMESTAMP WITHOUT TIME ZONE,
+  PRIMARY KEY (id),
+  FOREIGN KEY (category_id) REFERENCES categories(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS department (
+  id SERIAL NOT NULL,
+  description VARCHAR(64) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS contact (
+  id SERIAL NOT NULL,
+  name VARCHAR(64) NOT NULL,
+  email VARCHAR(64) NOT NULL,
+  phone VARCHAR(18) NOT NULL,
+  message TEXT NOT NULL,
+  status SMALLINT NOT NULL,
+  department_id INTEGER,
+  created_at TIMESTAMP WITHOUT TIME ZONE,
+  updated_at TIMESTAMP WITHOUT TIME ZONE,
+  PRIMARY KEY (id),
+  FOREIGN KEY (department_id) REFERENCES departments(id)
+);
+
+-- If the post_id is null, then the
+-- gallery will be treated as an entity
+-- in itself, and not a part of another
+-- content's page
+CREATE TABLE IF NOT EXISTS galleries (
+  id SERIAL NOT NULL,
+  post_id INTEGER,
+  image VARCHAR(35) NOT NULL,
+  created_at TIMESTAMP WITHOUT TIME ZONE,
+  updated_at TIMESTAMP WITHOUT TIME ZONE,
+  PRIMARY KEY (id),
+  FOREIGN KEY (post_id) REFERENCES posts(id)
+);

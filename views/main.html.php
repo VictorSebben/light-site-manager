@@ -25,16 +25,15 @@
 <div class='main-container'>
     <div class='fit cf'>
         <nav class='menu'>
-            <h2>Categorias</h2>
             <ul>
                 <li>
                     <a href='<?= $this->Url->make( 'users/' ); ?>'>Usuários</a>
                 </li>
                 <li>
-                    <a href='<?= $this->Url->make( 'banners/') ; ?>'>Banners</a>
+                    <a href='<?= $this->Url->make( 'categories/' ); ?>'>Categorias</a>
                 </li>
                 <li>
-                    <a href='<?= $this->Url->make( 'produtos/'); ?>'>Produtos</a>
+                    <a href='<?= $this->Url->make( 'galleries/') ; ?>'>Galerias</a>
                 </li>
             </ul>
         </nav>
