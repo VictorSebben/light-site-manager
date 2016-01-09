@@ -50,8 +50,6 @@ class CategoryController extends BaseController {
             $category = new CategoryModel();
             $category->name = $inputData[ 'name' ];
             $category->description = $inputData[ 'description' ];
-            $category->image_w = $inputData[ 'image_w' ];
-            $category->image_h = $inputData[ 'image_h' ];
 
             $this->_view->object = $category;
         }
@@ -77,8 +75,6 @@ class CategoryController extends BaseController {
         } else {
             $this->_model->name = Request::getInstance()->getInput( 'name' );
             $this->_model->description = Request::getInstance()->getInput( 'description' );
-            $this->_model->image_w = Request::getInstance()->getInput( 'image_w' );
-            $this->_model->image_h = Request::getInstance()->getInput( 'image_h' );
 
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Categoria criada com sucesso!' );
@@ -103,8 +99,6 @@ class CategoryController extends BaseController {
         if ( $inputData ) {
             $this->_view->object->name = $inputData[ 'name' ];
             $this->_view->object->description = $inputData[ 'description' ];
-            $this->_view->object->image_w = $inputData[ 'image_w' ];
-            $this->_view->object->image_h = $inputData[ 'image_h' ];
         }
 
         if ( ! ( $this->_view->object instanceof CategoryModel ) ) {
@@ -135,8 +129,6 @@ class CategoryController extends BaseController {
             $this->_model->id = $id;
             $this->_model->name = Request::getInstance()->getInput( 'name' );
             $this->_model->description = Request::getInstance()->getInput( 'description' );
-            $this->_model->image_w = Request::getInstance()->getInput( 'image_w' );
-            $this->_model->image_h = Request::getInstance()->getInput( 'image_h' );
 
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Categoria atualizada com sucesso!' );

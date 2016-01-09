@@ -167,6 +167,14 @@ table {
     border: 1px solid #ddd;
     border-collapse: collapse;
     width: 100%;
+
+    a {
+        color: #2f6beb;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
 }
 
 table thead {

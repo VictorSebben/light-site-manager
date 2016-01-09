@@ -47,8 +47,9 @@ class CategoryMapper extends Mapper {
         // Set number of records in the pagination object
         $this->_setNumRecordsPagn();
 
-        $sql = "SELECT id, name, description
-                  FROM categories
+        $sql = "SELECT c.id, name, description, count(p.*) AS posts_count
+                  FROM categories c
+                  LEFT JOIN posts p ON c.id = p.category_id
                  WHERE TRUE ";
 
         // Search category by either name or description
@@ -56,6 +57,8 @@ class CategoryMapper extends Mapper {
             $sql .= 'AND name ~* :search
                       OR description ~* :search ';
         }
+
+        $sql .= "GROUP BY c.id, name, description";
 
         $sql .= " ORDER BY {$ord} {$params['dir']}
                   LIMIT :lim
@@ -69,13 +72,13 @@ class CategoryMapper extends Mapper {
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
         $selectStmt->bindParam( ':offset', $this->pagination->getOffset(), PDO::PARAM_INT );
         $selectStmt->execute();
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'CategoryModel' );
-        $users = $selectStmt->fetchAll();
+        $selectStmt->setFetchMode( PDO::FETCH_OBJ );
+        $categories = $selectStmt->fetchAll();
         $selectStmt->closeCursor();
 
-        if ( !is_array( $users ) ) return null;
+        if ( !is_array( $categories ) ) return null;
 
-        return $users;
+        return $categories;
     }
 
     protected function _setNumRecordsPagn() {

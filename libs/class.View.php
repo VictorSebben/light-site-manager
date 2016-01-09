@@ -40,7 +40,7 @@ class View extends stdClass {
     /**
      * Object of the type Model (a class that extends Model), to be used in the view.
      *
-     * @var BaseModel
+     * @var mixed
      */
     public $object;
 

@@ -44,6 +44,7 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
             <th><input id="toggle-all" type="checkbox" name="toggle-all" title="Selecionar todas"></th>
             <th>Nome</th>
             <th>Descrição</th>
+            <th>Núm. de Posts</th>
             <?php if ( $this->editContents ) : ?>
                 <th>Editar</th>
                 <th>Remover</th>
@@ -56,6 +57,11 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
                 <td><input type="checkbox" class="list-item" name="li[]" value="<?= $category->id ?>"></td>
                 <td><?= $category->name; ?></td>
                 <td><?= $category->description; ?></td>
+                <td>
+                    <a href="<?= $this->Url->make( "posts/{$category->id}/list" ) ?>">
+                        <?= $category->posts_count; ?> - Visualizar
+                    </a>
+                </td>
                 <?php if ( $this->editContents ) : ?>
                     <td>
                         <a class="input-submit btn-edit" href="<?= $this->Url->make( "categories/{$category->id}/edit" ) ?>">Editar</a>
