@@ -3,7 +3,7 @@
 class H {
 
     /**
-     * Helper funcion to help debugging objects or arrays
+     * Helper function to help debugging objects or arrays
      */
     public static function ppr( $obj ) {
         echo '<pre>';
@@ -101,5 +101,15 @@ class H {
             unset( $_SESSION[ 'input' ] );
             return json_decode( $input, true );
         }
+    }
+
+    public static function ifnull() {
+        foreach ( func_get_args() as $val ) {
+            if ( $val || ( $val === 0 ) ) {
+                return $val;
+            }
+        }
+
+        return null;
     }
 }
