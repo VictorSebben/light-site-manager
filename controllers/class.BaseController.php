@@ -56,5 +56,19 @@ class BaseController {
         $this->_user = new UserModel();
         $this->_user->id = $_SESSION[ 'user' ];
         $userMapper->initRoles( $this->_user );
+
+        // If it is the edit method, set last URL in the session so we can
+        // redirect the user to the same route, with the same parameters
+        if ( Request::getInstance()->method === 'edit' ) {
+            $this->flashRedirectTo( $_SERVER[ 'HTTP_REFERER' ] );
+        }
+    }
+
+    public function flashRedirectTo( $url = '' ) {
+        if ( $url ) {
+            H::flash( 'redirect_to', $url );
+        } else {
+            return H::flash( 'redirect_to' );
+        }
     }
 }

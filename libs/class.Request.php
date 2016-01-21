@@ -12,7 +12,7 @@ class Request {
     /**
      * Array containing the uri parts after exploding the string.
      *
-     * @var Array
+     * @var array
      */
     public $uriParts;
 
@@ -64,15 +64,27 @@ class Request {
     public $ordBy;
 
     /**
-     * @var Array Associative array containing key/values after the ?.
+     * @var array Associative array containing key/values after the ?.
      */
     public $query;
 
     /**
      * Associative array containing pagination information.
-     * @var Array
+     * @var array
      */
     public $pagParams;
+
+    /**
+     * The name of the controller the user has accessed
+     * @var string
+     */
+    public $controller;
+
+    /**
+     * The name of the method the user has accessed
+     * @var string
+     */
+    public $method;
 
     /**
      * @var Request
@@ -80,17 +92,12 @@ class Request {
     private static $instance;
 
     /**
-     * @var Array Contains the different parts of the route.
+     * @var array Contains the different parts of the route.
      */
     public $routeParts;
 
     private function __construct() {
-        $this->query = [
-            'search' => NULL,
-            'pag' => 1,
-            'ord' => 'id',
-            'dir' => 'DESC'
-        ];
+        $this->query = "";
     }
 
     public static function getInstance() {
@@ -117,6 +124,7 @@ class Request {
             }
         }
 
+        // TODO Refactor here and Mappers: search should be kept in $this->query
         $this->pagParams[ 'search' ] = filter_input( INPUT_GET, 'search', FILTER_SANITIZE_SPECIAL_CHARS );
     }
 
@@ -165,4 +173,14 @@ class Request {
         return $input;
     }
 
+    public function redirect( $url, $preferSession = false ) {
+        if ( $preferSession && isset( $_SESSION[ 'redirect_to' ] ) ) {
+            $redirTo = $_SESSION[ 'redirect_to' ];
+            unset( $_SESSION[ 'redirect_to' ] );
+            header( "Location: {$redirTo}" );
+        }
+        else {
+            header( "Location: {$url}" );
+        }
+    }
 }

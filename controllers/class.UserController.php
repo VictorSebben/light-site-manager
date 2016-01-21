@@ -150,8 +150,9 @@ class UserController extends BaseController {
             }
 
             $this->_mapper->save( $this->_model );
+
             H::flash( 'success-msg', 'Usuário atualizado com sucesso!' );
-            header( 'Location: ' . $this->_url->make( 'users/' ) );
+            Request::getInstance()->redirect( $this->_url->make( 'users/' ), true );
         }
     }
 
