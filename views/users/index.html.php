@@ -16,14 +16,14 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
 
     <div class="console-toggle">
         <!-- Ativar -->
-        <button name="btn-activate" class="input-submit">Ativar</button>
+        <button id="btn-activate" name="btn-activate" class="input-submit">Ativar</button>
 
         <!-- Desativar -->
-        <button name="btn-deactivate" class="input-submit">Desativar</button>
+        <button id="btn-deactivate" name="btn-deactivate" class="input-submit">Desativar</button>
     </div>
 
     <!-- Excluir -->
-    <button name="btn-delete" class="input-submit btn-red">Excluir</button>
+    <button id="btn-delete" name="btn-delete" class="input-submit btn-red">Excluir</button>
 
     <div class="search" title="Pode usar parte do nome ou email">
         <form id="users-search-form" class="search-form" action="<?= $this->Url->make( 'users/' ) ?>">
@@ -50,7 +50,7 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     <thead>
     <tr>
         <th><input id="toggle-all" type="checkbox" name="toggle-all" title="Selecionar todos"></th>
-        <th>Name</th>
+        <th>Nome</th>
         <th>E-mail</th>
         <th>Status</th>
         <?php if ( $this->editOtherUsers ) : ?>
@@ -89,6 +89,7 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     </tbody>
 </table>
 
+<script src="<?= $this->Url->make( 'js/jquery-2.1.4.min.js' ); ?>"></script>
 <script src="<?= $this->Url->make( 'js/form.js' ); ?>" type="text/javascript"></script>
 <script src="<?= $this->Url->make( 'js/user.js' ); ?>" type="text/javascript"></script>
 
@@ -98,3 +99,4 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
 
 <!-- Token field -->
 <input id="token" type="hidden" name="token" value="<?= H::generateToken() ?>">
+<input id="me-myself-and-i" type="hidden" name="me-myself-and-i" value="<?= $_SESSION[ 'user' ] ?>">

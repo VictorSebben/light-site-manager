@@ -1,5 +1,5 @@
 <?php
-// Check if it is and update operation (this will affect the page's heading)
+// Check if it is an update operation (this will affect the page's heading)
 $isUpdate = ( isset( $this->object ) && is_numeric( $this->object->id ) );
 
 if ( isset( $_SESSION[ 'err-msg' ] ) ) {

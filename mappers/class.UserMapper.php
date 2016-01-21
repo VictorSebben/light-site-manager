@@ -206,9 +206,6 @@ class UserMapper extends Mapper {
         }
 
         try {
-            $user = new UserModel();
-            $user->id = $_SESSION[ 'user' ];
-
             $userMapper = new UserMapper();
 
             $userMapper->_selectStmt = self::$_pdo->prepare(
