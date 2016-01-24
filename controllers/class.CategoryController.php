@@ -21,10 +21,11 @@ class CategoryController extends BaseController {
         $mapper_name = $model_base_name . 'Mapper';
         $this->_mapper = new $mapper_name();
     }
-
+// TODO CREATE EDIT_CATEGORIES PERMISSION, THAT ONLY THE SUPERUSER WILL HAVE.
+// TODO TEST IT TO MANAGE CATEGORIES AND SHOW LINKS ON VIEWS
     public function index() {
-        // Load result of edit_contents permission test
-        $this->_view->editContents = $this->_user->hasPrivilege( 'edit_contents' );
+        // Load result of edit_categories permission test
+        $this->_view->editCat = $this->_user->hasPrivilege( 'edit_categories' );
 
         // instantiate Pagination object and
         // pass it to the Mapper
@@ -38,7 +39,7 @@ class CategoryController extends BaseController {
     }
 
     public function create() {
-        if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
+        if ( ! $this->_user->hasPrivilege( 'edit_categories' ) ) {
             throw new PermissionDeniedException();
         }
 
@@ -58,7 +59,7 @@ class CategoryController extends BaseController {
     }
 
     public function insert() {
-        if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
+        if ( ! $this->_user->hasPrivilege( 'edit_categories' ) ) {
             throw new PermissionDeniedException();
         }
 
@@ -83,7 +84,7 @@ class CategoryController extends BaseController {
     }
 
     public function edit() {
-        if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
+        if ( ! $this->_user->hasPrivilege( 'edit_categories' ) ) {
             throw new PermissionDeniedException();
         }
 
@@ -109,7 +110,7 @@ class CategoryController extends BaseController {
     }
 
     public function update() {
-        if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
+        if ( ! $this->_user->hasPrivilege( 'edit_categories' ) ) {
             throw new PermissionDeniedException();
         }
 
@@ -142,7 +143,7 @@ class CategoryController extends BaseController {
     }
 
     public function delete() {
-        if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
+        if ( ! $this->_user->hasPrivilege( 'edit_categories' ) ) {
             throw new PermissionDeniedException();
         }
 
@@ -158,7 +159,7 @@ class CategoryController extends BaseController {
     }
 
     public function destroy() {
-        if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
+        if ( ! $this->_user->hasPrivilege( 'edit_categories' ) ) {
             throw new PermissionDeniedException();
         }
 

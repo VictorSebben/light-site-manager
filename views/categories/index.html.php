@@ -11,11 +11,18 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
 ?>
 
 <div class="console">
+    <?php
+    if ( $this->editCat ):
+    ?>
     <!-- Adicionar -->
     <a href="<?= $this->Url->make( "categories/create" ) ?>" class="input-submit btn-green">Adicionar</a>
 
     <!-- Excluir -->
     <button id="btn-delete" name="btn-delete" class="input-submit btn-red">Excluir</button>
+
+    <?php
+    endif;
+    ?>
 
     <div class="search" title="Pode usar parte do nome ou email">
         <form id="users-search-form" class="search-form" action="<?= $this->Url->make( 'categories/' ) ?>">
@@ -45,7 +52,7 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
             <th>Nome</th>
             <th>Descrição</th>
             <th>Núm. de Posts</th>
-            <?php if ( $this->editContents ) : ?>
+            <?php if ( $this->editCat ) : ?>
                 <th>Editar</th>
                 <th>Remover</th>
             <?php endif; ?>
@@ -62,7 +69,7 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
                         <?= $category->posts_count; ?> - Visualizar
                     </a>
                 </td>
-                <?php if ( $this->editContents ) : ?>
+                <?php if ( $this->editCat ) : ?>
                     <td>
                         <a class="input-submit btn-edit" href="<?= $this->Url->make( "categories/{$category->id}/edit" ) ?>">Editar</a>
                     </td>
