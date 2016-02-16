@@ -84,7 +84,5 @@ if ( isset( $_SESSION[ 'err-msg' ] ) ) {
     </form>
 </div>
 <div class="go-back">
-    <a id="go-back" class="go-back" onclick="H.goBack()" href="#">Voltar</a>
+    <a id="go-back" class="go-back" href="">Voltar</a>
 </div>
-
-<script src="<?= $this->Url->make( 'js/lsmhelper.js' ); ?>" type="text/javascript"></script>

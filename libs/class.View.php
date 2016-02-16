@@ -84,7 +84,10 @@ class View extends stdClass {
         }
 
         $this->extraLink = array();
-        $this->extraScript = array( 'js/jquery-2.1.4.min.js' );
+        $this->extraScript = array(
+            'js/jquery-2.1.4.min.js',
+            'js/lsmhelper.js'
+        );
     }
 
     public function addExtraLink( $href ) {
@@ -128,4 +131,15 @@ class View extends stdClass {
         }
     }
 
+    public function getExtraLinkTags() {
+        return array_reduce( $this->extraLink, function ( $tags, $href ) {
+            return $tags . "<link rel='stylesheet' type='text/css' href='{$this->Url->make( $href )}'>\n";
+        });
+    }
+
+    public function getExtraScriptTags() {
+        return array_reduce( $this->extraScript, function ( $tags, $src ) {
+            return $tags . "<script src='{$this->Url->make( $src )}'></script>\n";
+        });
+    }
 }

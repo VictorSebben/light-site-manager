@@ -6,9 +6,7 @@
     <title>LSM - Light Site Manager</title>
     <link rel='stylesheet' type='text/css' href='<?= $this->Url->make( 'css/main.css' ); ?>'>
 
-    <?php foreach ( $this->extraLink as $extraLink ) : ?>
-    <link rel="stylesheet" type="text/css" href="<?= $extraLink ?>">
-    <?php endforeach; ?>
+    <?= $this->getExtraLinkTags(); ?>
 </head>
 <body>
 
@@ -61,8 +59,6 @@
 </div>
 
 <script src="<?= $this->Url->make( 'js/menu.js' ); ?>"></script>
-<?php foreach ( $this->extraScript as $src )  : ?>
-<script src="<?= $src ?>"></script>
-<?php endforeach; ?>
+<?= $this->getExtraScriptTags(); ?>
 </body>
 </html>

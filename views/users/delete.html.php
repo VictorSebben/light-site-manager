@@ -12,6 +12,6 @@
         <!-- Id field -->
         <input type="hidden" name="id" value="<?= $this->object->id ?>">
     </form>
-    <a id="go-back" onclick="H.goBack()" class="input-submit" href="#">Voltar</a>
+    <a id="go-back" class="go-back input-submit" href="#">Voltar</a>
 </div>
 <script src="<?= $this->Url->make( 'js/lsmhelper.js' ); ?>" type="text/javascript"></script>

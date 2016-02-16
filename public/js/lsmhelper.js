@@ -1,6 +1,5 @@
 // Light Site Manager JS Helper Library
-var H = {
-    goBack: function goBack() {
-        window.history.back();
-    }
-};
+$( '.go-back' ).click( function () {
+    window.history.go( -1 );
+    return false;
+} );
