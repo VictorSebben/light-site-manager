@@ -36,8 +36,12 @@ class PostController extends BaseController {
         $this->_view->pagination = $pagination;
         $this->_view->objectList = $this->_mapper->index( Request::getInstance()->category );
 
-        $this->_view->addExtraLink( $this->_url->make( 'css/colorbox.css' ) );
-        $this->_view->addExtraLink( $this->_url->make( 'font-awesome/css/font-awesome.min.css' ) );
+        $this->_view->addExtraLink( 'css/colorbox.css' );
+        $this->_view->addExtraLink( 'font-awesome/css/font-awesome.min.css' );
+
+        $this->_view->addExtraScript( 'js/list.js' );
+        $this->_view->addExtraScript( 'js/post.js' );
+        $this->_view->addExtraScript( 'js/jquery.colorbox-min.js' );
 
         $this->_view->render( 'posts/index', 'pagination' );
     }
@@ -268,8 +272,11 @@ class PostController extends BaseController {
         $this->_view->w = H::ifnull( $category->img_w, CategoryModel::IMG_WIDTH );
         $this->_view->h = H::ifnull( $category->img_h, CategoryModel::IMG_HEIGHT );
 
-        $this->_view->addExtraLink( $this->_url->make( 'font-awesome/css/font-awesome.min.css' ) );
-        $this->_view->addExtraLink( $this->_url->make( 'imgup/css/imgareaselect-default.css' ) );
+        $this->_view->addExtraLink( 'font-awesome/css/font-awesome.min.css' );
+        $this->_view->addExtraLink( 'imgup/css/imgareaselect-default.css' );
+
+        $this->_view->addExtraScript( 'imgup/js/jquery.imgareaselect.min.js' );
+        $this->_view->addExtraScript( 'js/up-script.js' );
 
         $this->_view->render( 'posts/form-crop' );
     }

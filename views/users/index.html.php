@@ -89,10 +89,6 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     </tbody>
 </table>
 
-<script src="<?= $this->Url->make( 'js/jquery-2.1.4.min.js' ); ?>"></script>
-<script src="<?= $this->Url->make( 'js/form.js' ); ?>" type="text/javascript"></script>
-<script src="<?= $this->Url->make( 'js/user.js' ); ?>" type="text/javascript"></script>
-
 <?php else: ?>
 <p class="msg-notice">Não há usuários cadastrados.</p>
 <?php endif; ?>

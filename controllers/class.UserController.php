@@ -34,6 +34,10 @@ class UserController extends BaseController {
         // load user-objects array for use in the view
         $this->_view->pagination = $pagination;
         $this->_view->objectList = $this->_mapper->index();
+
+        $this->_view->addExtraScript( 'js/list.js' );
+        $this->_view->addExtraScript( 'js/user.js' );
+
         $this->_view->render( 'users/index', 'pagination' );
     }
 

@@ -61,5 +61,8 @@
 </div>
 
 <script src="<?= $this->Url->make( 'js/menu.js' ); ?>"></script>
+<?php foreach ( $this->extraScript as $src )  : ?>
+<script src="<?= $src ?>"></script>
+<?php endforeach; ?>
 </body>
 </html>

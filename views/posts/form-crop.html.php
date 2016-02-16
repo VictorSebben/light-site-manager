@@ -31,7 +31,3 @@
         </div>
     </form>
 </div>
-
-<script src="<?= $this->Url->make( 'js/jquery-2.1.4.min.js' ); ?>"></script>
-<script src="<?= $this->Url->make( 'imgup/js/jquery.imgareaselect.min.js' ); ?>"></script>
-<script type="text/javascript" src="<?= $this->Url->make( 'js/up-script.js' ); ?>"></script>

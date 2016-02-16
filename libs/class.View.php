@@ -65,6 +65,13 @@ class View extends stdClass {
      */
     public $extraLink;
 
+    /**
+     * Array with extra script tags to set on the template
+     *
+     * @var array
+     */
+    public $extraScript;
+
     public function __construct( $templateName = 'main.html.php' ) {
         $this->Url = new Url();
 
@@ -77,10 +84,15 @@ class View extends stdClass {
         }
 
         $this->extraLink = array();
+        $this->extraScript = array( 'js/jquery-2.1.4.min.js' );
     }
 
     public function addExtraLink( $href ) {
         $this->extraLink[] = $href;
+    }
+
+    public function addExtraScript( $src ) {
+        $this->extraScript[] = $src;
     }
 
     /**

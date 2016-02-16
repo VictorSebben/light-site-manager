@@ -10,20 +10,31 @@ if ( toggleAll) {
         }
     }, false );
 }
-// TODO REFACTOR THIS SHOULD BE A list.js, NOT form.js
+
 var formConsole = {
-    btnActivate: document.getElementById( 'btn-activate' ),
-    btnDeactivate: document.getElementById( 'btn-deactivate' ),
-    btnRemove: document.getElementById( 'btn-delete' ),
+    btnActivate: $( '#btn-activate' ),
+    btnDeactivate: $( '#btn-deactivate' ),
+    btnRemove: $( '#btn-delete' ),
 
     // TODO METHODS/FUNCTIONALITY OF THE CONSOLE
     removeItems: function removeItems() {
         console.log( 'Removing items' );
+    },
+    activateItems: function activateItems() {
+
+    },
+    deactivateItems: function deactivateItems() {
+
     }
 };
 
 window.onload = function () {
-    formConsole.btnRemove.addEventListener( 'click', formConsole.removeItems, false );
+    formConsole.btnRemove.click( formConsole.removeItems );
+
+    if ( formConsole.btnActivate.length ) {
+        formConsole.btnActivate.click( formConsole.activateItems() );
+        formConsole.btnDeactivate.click( formConsole.deactivateItems() );
+    }
 };
 
 // Define base URL for Ajax requests
