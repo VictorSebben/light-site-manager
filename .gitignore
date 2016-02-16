@@ -18,3 +18,8 @@ tags
 *.map
 
 /vendor/
+
+/public/_tmp/*
+!/public/_tmp/.gitignore
+/public/vendor/
+/public/composer.lock

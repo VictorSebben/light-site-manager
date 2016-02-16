@@ -1,7 +1,9 @@
 <?php
-header( 'Content-Type: text/html; Charset=UTF-8' );
 session_start();
 
+header( 'Content-Type: text/html; Charset=UTF-8' );
+
+define( 'ROOT_DIR', __DIR__ );
 define( 'LIBS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'libs' . DIRECTORY_SEPARATOR );
 define( 'CONTROLLERS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'controllers' . DIRECTORY_SEPARATOR );
 define( 'MODELS_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR );
@@ -28,6 +30,8 @@ spl_autoload_register( function ( $className ) {
         require EXCEPTIONS_DIR . 'class.' . $className . '.php';
     }
 });
+
+require __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
 $loginHelper = new LoginHelper();
 $loginHelper->chkLogin();

@@ -2,8 +2,13 @@
 <html>
 <head lang='pt-br'>
     <meta charset='UTF-8'>
+    <base href="<?= $this->Url->make(); ?>">
     <title>LSM - Light Site Manager</title>
     <link rel='stylesheet' type='text/css' href='<?= $this->Url->make( 'css/main.css' ); ?>'>
+
+    <?php foreach ( $this->extraLink as $extraLink ) : ?>
+    <link rel="stylesheet" type="text/css" href="<?= $extraLink ?>">
+    <?php endforeach; ?>
 </head>
 <body>
 
@@ -26,15 +31,9 @@
     <div class='fit cf'>
         <nav class='menu'>
             <ul>
-                <li>
-                    <a href='<?= $this->Url->make( 'users/' ); ?>'>Usuários</a>
-                </li>
-                <li>
-                    <a href='<?= $this->Url->make( 'categories/' ); ?>'>Categorias</a>
-                </li>
-                <li>
-                    <a href='<?= $this->Url->make( 'galleries/') ; ?>'>Galerias</a>
-                </li>
+                <li><a href='<?= $this->Url->make( 'users/' ); ?>'>Usuários</a>
+                <li><a href='<?= $this->Url->make( 'categories/' ); ?>'>Categorias</a></li>
+                <li><a href='<?= $this->Url->make( 'posts/') ; ?>'>Posts</a></li>
             </ul>
         </nav>
 
@@ -62,6 +61,5 @@
 </div>
 
 <script src="<?= $this->Url->make( 'js/menu.js' ); ?>"></script>
-<script src="<?= $this->Url->make( 'js/jquery-2.1.4.min.js' ); ?>"></script>
 </body>
 </html>

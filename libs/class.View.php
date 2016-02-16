@@ -58,6 +58,13 @@ class View extends stdClass {
      */
     public $Url;
 
+    /**
+     * Array with extra link tags to set on the template
+     *
+     * @var array
+     */
+    public $extraLink;
+
     public function __construct( $templateName = 'main.html.php' ) {
         $this->Url = new Url();
 
@@ -68,6 +75,12 @@ class View extends stdClass {
         } else {
             $this->_template = null;
         }
+
+        $this->extraLink = array();
+    }
+
+    public function addExtraLink( $href ) {
+        $this->extraLink[] = $href;
     }
 
     /**

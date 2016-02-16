@@ -20,7 +20,7 @@ class Url {
      * @param string $path The path the link leads to.
      * @return string The path.
      */
-    public function make( $path = '' ) {
-        return "{$this->base}/{$path}";
+    public function make( $path = null ) {
+        return ( $path ) ? "{$this->base}/{$path}" : $this->base;
     }
 }

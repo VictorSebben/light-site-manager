@@ -21,8 +21,7 @@ class CategoryController extends BaseController {
         $mapper_name = $model_base_name . 'Mapper';
         $this->_mapper = new $mapper_name();
     }
-// TODO CREATE EDIT_CATEGORIES PERMISSION, THAT ONLY THE SUPERUSER WILL HAVE.
-// TODO TEST IT TO MANAGE CATEGORIES AND SHOW LINKS ON VIEWS
+
     public function index() {
         // Load result of edit_categories permission test
         $this->_view->editCat = $this->_user->hasPrivilege( 'edit_categories' );

@@ -119,10 +119,14 @@ INSERT INTO permissions (description) VALUES ('edit_other_users'), ('edit_roles'
 INSERT INTO role_perm (role_id, perm_desc) VALUES (1, 'edit_other_users'), (1, 'edit_roles');
 INSERT INTO user_role (role_id, user_id) VALUES (1, 1);
 
+INSERT INTO permissions (description) VALUES ('edit_categories');
+
 CREATE TABLE IF NOT EXISTS categories (
   id SERIAL NOT NULL,
   name VARCHAR(40) NOT NULL,
   description TEXT,
+  img_w SMALLINT,
+  img_h SMALLINT,
   created_at TIMESTAMP WITHOUT TIME ZONE,
   updated_at TIMESTAMP WITHOUT TIME ZONE,
   PRIMARY KEY (id)
@@ -137,6 +141,7 @@ CREATE TABLE IF NOT EXISTS posts (
   post_text TEXT,
   image VARCHAR(80),
   image_caption VARCHAR(100),
+  image_ext VARCHAR(10),
   status SMALLINT NOT NULL DEFAULT 0,
   created_at TIMESTAMP WITHOUT TIME ZONE,
   updated_at TIMESTAMP WITHOUT TIME ZONE,

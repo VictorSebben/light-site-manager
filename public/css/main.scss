@@ -142,6 +142,7 @@ span {
     border-radius: 5px;
     padding: 10px;
     margin-bottom: 20px;
+    min-height: 52px;
 
     button, a {
         margin: 0 10px 0;
@@ -191,6 +192,23 @@ table th, table tr, table td {
     line-height: 1.42857;
     padding: 8px;
     border: 1px solid #ddd;
+}
+
+/* Colorbox preview icon */
+table td .icon img, table td .icon span {
+    display: block;
+    margin: 0 auto;
+    width: 20px;
+}
+
+table td .icon span {
+    font-size: $font-size1 + 1px;
+}
+
+.editor-field {
+    width: 85%;
+    padding: 20px;
+    margin-left: 47px;
 }
 
 .form-field input {

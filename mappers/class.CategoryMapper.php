@@ -8,7 +8,7 @@ class CategoryMapper extends Mapper {
     function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT id, name, description FROM categories WHERE id = ?"
+            "SELECT id, name, description, img_w, img_h FROM categories WHERE id = ?"
         );
     }
 

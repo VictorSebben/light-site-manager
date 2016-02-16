@@ -136,6 +136,9 @@ class Router {
         $model_base_name = $this->_controllers[ $this->_key ][ 'controller' ];
         $method_name = $this->_controllers[ $this->_key ][ 'method' ];
 
+        $this->_request->controller = $this->_controllers[ $this->_key ][ 'controller' ];
+        $this->_request->method = $this->_controllers[ $this->_key ][ 'method' ];
+
         $controller_class = new ReflectionClass( $controller_name );
         if ( $controller_class->isInstantiable() ) {
 

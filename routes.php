@@ -143,6 +143,70 @@ $app->map(
     array( 'controller' => 'Category', 'method' => 'index' )
 );
 
+// POSTS
+$app->map(
+    '/posts/\d+/edit/?',
+    array( 'controller' => 'Post', 'method' => 'edit' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/posts/update/?',
+    array( 'controller' => 'Post', 'method' => 'update' )
+);
+$app->map(
+    '/posts/\d+/delete/?',
+    array( 'controller' => 'Post', 'method' => 'delete' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/posts/destroy/?',
+    array( 'controller' => 'Post', 'method' => 'destroy' )
+);
+$app->map(
+    '/posts/create/?',
+    array( 'controller' => 'Post', 'method' => 'create' )
+);
+$app->map(
+    '/posts/\d+/create/?',
+    array( 'controller' => 'Post', 'method' => 'create' ),
+    array( 'args' => array( 'cat' ) )
+);
+$app->map(
+    '/posts/insert/?',
+    array( 'controller' => 'Post', 'method' => 'insert' )
+);
+$app->map(
+    '/posts/\d+/?(view)?/?',
+    array( 'controller' => 'Post', 'method' => 'show' ),
+    array( 'args' => array( 'id' ) )
+);
+// list posts by category
+$app->map(
+    '/posts/\d+/list/?',
+    array( 'controller' => 'Post', 'method' => 'index' ),
+    array( 'args' => array( 'cat' ) )
+);
+$app->map(
+    '/posts/\d+/toggle-status/?',
+    array( 'controller' => 'Post', 'method' => 'toggleStatus' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/posts/\d+/upload/?',
+    array( 'controller' => 'Post', 'method' => 'uploadOneImg' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/posts/saveImg/?',
+    array( 'controller' => 'Post', 'method' => 'saveImg' )
+);
+$app->map(
+// ?.* means that there may be more things in the url. Those will be
+// search and pagination stuff.
+    '/posts(/?|/.*)',
+    array( 'controller' => 'Post', 'method' => 'index' )
+);
+
 // GENERIC
 $app->map(
     '.*',
