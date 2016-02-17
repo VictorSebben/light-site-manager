@@ -174,9 +174,10 @@ class CategoryController extends BaseController {
 
         // Validate if there are posts associated to this category,
         // in which case deletion will not be allowed
-        if ( ! $this->_mapper->getPostsByCategory( $id, true ) ) {
+        if ( $this->_mapper->getPostsByCategory( $id, true ) ) {
             H::flash( 'err-msg', "Não foi possível excluir a categoria, pois ela possui Posts associados!" );
             header( 'Location: ' . $this->_url->make( "categories/" ) );
+            exit;
         }
 
         $category = new CategoryModel();
