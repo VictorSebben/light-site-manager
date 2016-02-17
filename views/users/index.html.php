@@ -62,10 +62,15 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     <tbody>
     <?php foreach ( $this->objectList as $user ) : ?>
         <tr>
-            <td><input type="checkbox" class="list-item" name="li[]" value="<?= $user->id ?>"></td>
+            <td>
+                <?php if ( $this->disableOwnUser || ( $user->id != $_SESSION[ 'user' ] ) ) : ?>
+                <input type="checkbox" class="list-item" name="li[]" value="<?= $user->id ?>">
+                <?php endif; ?>
+            </td>
             <td><?= $user->name; ?></td>
             <td><?= $user->email; ?></td>
             <td>
+                <?php if ( $this->disableOwnUser || ( $user->id != $_SESSION[ 'user' ] ) ) : ?>
                 <div class="onoffswitch" title="<?= $user->getStatus( true ); ?>">
                     <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox"
                            value="<?= $user->id ?>"
@@ -75,13 +80,20 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
                         <span class="onoffswitch-switch"></span>
                     </label>
                 </div>
+                <?php
+                else :
+                    echo "<span class='status'>{$user->getStatus( true )}</span>";
+                endif;
+                ?>
             </td>
             <?php if ( $this->editOtherUsers ) : ?>
             <td>
                 <a class="input-submit btn-edit" href="<?= $this->Url->make( "users/{$user->id}/edit" ) ?>">Editar</a>
             </td>
             <td>
+                <?php if ( $this->disableOwnUser || ( $user->id != $_SESSION[ 'user' ] ) ) : ?>
                 <a class="input-submit btn-delete" href="<?= $this->Url->make( "users/{$user->id}/delete" ) ?>">Excluir</a>
+                <?php endif; ?>
             </td>
             <?php endif; ?>
         </tr>

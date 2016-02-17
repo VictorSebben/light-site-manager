@@ -38,6 +38,7 @@ if ( isset( $_SESSION[ 'err-msg' ] ) ) {
                        value="<?= ( isset ( $this->object->email ) ) ? $this->object->email : ''; ?>">
             </div>
         </div>
+        <?php if ( $this->disableOwnUser || ( $this->object->id != $_SESSION[ 'user' ] ) ) : ?>
         <div class="form-field-radio">
             <h3>Status</h3>
             <div class="form-field">
@@ -55,6 +56,7 @@ if ( isset( $_SESSION[ 'err-msg' ] ) ) {
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
         <div class="alt-password-form">
             <?php

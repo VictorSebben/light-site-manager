@@ -44,7 +44,15 @@ var baseUrl = window.location.origin;
 var toggleSuccess = function toggleSuccess( result ) {
     if ( ! result.isOk ) {
         // Show the user the error message that came back
+        // Remove old error message if exists
+        $( '.err-msg' ).remove();
 
+        // Show the user a failure message
+        $( '<div class="flash err-msg">' +
+                result.error +
+           '</div>' ).insertAfter( '#area-header' );
+
+        this.checked = ( this.checked ) ? false : true;
     }
 
     // Update token on the page
@@ -74,7 +82,7 @@ function sendToggleStatusRequest( baseRoute ) {
                 data: { token: document.getElementById( 'token' ).value },
                 dataType: 'json'
             } )
-            .done( toggleSuccess )
+            .done( toggleSuccess.bind( this ) )
             .fail( toggleFail.bind( this ) );
     } catch ( e ) {
         toggleFail.bind( this );

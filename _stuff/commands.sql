@@ -183,3 +183,5 @@ CREATE TABLE IF NOT EXISTS galleries (
   PRIMARY KEY (id),
   FOREIGN KEY (post_id) REFERENCES posts(id)
 );
+
+INSERT INTO permissions (description, created_at, updated_at) VALUES ('disable_own_user', now(), now());

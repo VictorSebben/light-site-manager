@@ -25,6 +25,7 @@ class UserController extends BaseController {
     public function index() {
         // Load result of edit_other_users permission test
         $this->_view->editOtherUsers = $this->_user->hasPrivilege( 'edit_other_users' );
+        $this->_view->disableOwnUser = $this->_user->hasPrivilege( 'disable_own_user' );
 
         // instantiate Pagination object and
         // pass it to the Mapper
@@ -96,6 +97,8 @@ class UserController extends BaseController {
             throw new PermissionDeniedException();
         }
 
+        $this->_view->disableOwnUser = $this->_user->hasPrivilege( 'disable_own_user' );
+
         $id = Request::getInstance()->pk;
 
         $this->_view->object = $this->_mapper->find( $id );
@@ -125,6 +128,12 @@ class UserController extends BaseController {
 
         // Get id from $_POST
         $id = Request::getInstance()->getInput( 'id' );
+
+        if ( ! $this->_user->hasPrivilege( 'disable_own_user' )
+             && ( $this->_user->id == $id )
+             && ( Request::getInstance()->getInput( 'status' ) == 0 ) ) {
+            throw new PermissionDeniedException( 'Você não pode desativar seu próprio usuário!' );
+        }
 
         // Check if the user wants to create a new password:
         // if she doesn't (there is no value for the password field),
@@ -194,6 +203,11 @@ class UserController extends BaseController {
         $user = new UserModel();
         $user->id = Request::getInstance()->getInput( 'id' );
 
+        if ( ! $this->_user->hasPrivilege( 'disable_own_user' )
+             && $this->_user->id == $user->id  ) {
+            throw new PermissionDeniedException( 'Você não pode desativar seu próprio usuário!' );
+        }
+
         try {
             $this->_mapper->destroy( $user );
 
@@ -219,8 +233,11 @@ class UserController extends BaseController {
                 // If token fails to validate, let's send back an error message
                 $errorMsg = 'Não foi possível processar a requisição.';
             } // Validate permission to edit all users
-            else if ( !$this->_user->hasPrivilege( 'edit_other_users' ) ) {
+            else if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
                 $errorMsg = 'Permissão negada.';
+            } else if ( ! $this->_user->hasPrivilege( 'disable_own_user' )
+                       && $this->_user->id == $id ) {
+                $errorMsg = 'Você não pode desativar seu próprio usuário!';
             } // No problems occurred: we can carry through with the request
             else {
                 if ( $this->_mapper->toggleStatus( $id ) ) {

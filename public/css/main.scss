@@ -205,6 +205,11 @@ table td .icon span {
     font-size: $font-size1 + 1px;
 }
 
+table td .status {
+    color: #0179ff;
+    margin-left: 10px;
+}
+
 .editor-field {
     width: 85%;
     padding: 20px;
