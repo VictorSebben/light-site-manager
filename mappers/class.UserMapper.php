@@ -52,6 +52,8 @@ class UserMapper extends Mapper {
         $this->request->setPagParams();
         $params = $this->request->pagParams;
 
+        $offset = $this->pagination->getOffset();
+
         // validate $params[ 'dir' ] to make sure it contains a valid value
         if ( $params[ 'dir' ] !== 'ASC' && $params[ 'dir' ] !== 'DESC' ) {
             $params[ 'dir' ] = 'ASC';
@@ -88,7 +90,7 @@ class UserMapper extends Mapper {
         }
         $lim = 2;
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
-        $selectStmt->bindParam( ':offset', $this->pagination->getOffset(), PDO::PARAM_INT );
+        $selectStmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $selectStmt->execute();
         $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UserModel' );
         $users = $selectStmt->fetchAll();
@@ -154,14 +156,10 @@ class UserMapper extends Mapper {
     }
 
     /**
-     * @param UserModel $model
-     * @param bool|false $overrideNullData
+     * @param $user
+     * @throws Exception
      */
-    public function save( UserModel $model, $overrideNullData = false ) {
-        parent::save( $model, $overrideNullData );
-    }
-
-    public function destroy( UserModel $user ) {
+    public function destroy( $user ) {
         if ( ! is_numeric( $user->id ) ) {
             throw new Exception( 'Não foi possível remover: chave primária sem valor!' );
         }

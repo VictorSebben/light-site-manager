@@ -1,7 +1,9 @@
 var btnConfig = document.getElementById( 'btn-open-config' );
 btnConfig.addEventListener( 'click', toggleDivConfig, false );
 
-function toggleDivConfig () {
+function toggleDivConfig ( e ) {
+    e.preventDefault();
+
     var navConfig = document.getElementById( 'nav-config' );
 
     if ( navConfig.style[ 'display' ] == 'block' ) {

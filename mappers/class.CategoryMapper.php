@@ -30,6 +30,8 @@ class CategoryMapper extends Mapper {
         $this->request->setPagParams();
         $params = $this->request->pagParams;
 
+        $offset = $this->pagination->getOffset();
+
         // validate $params[ 'dir' ] to make sure it contains a valid value
         if ( $params[ 'dir' ] !== 'ASC' && $params[ 'dir' ] !== 'DESC' ) {
             $params[ 'dir' ] = 'ASC';
@@ -70,7 +72,7 @@ class CategoryMapper extends Mapper {
         }
         $lim = 2;
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
-        $selectStmt->bindParam( ':offset', $this->pagination->getOffset(), PDO::PARAM_INT );
+        $selectStmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $selectStmt->execute();
         $selectStmt->setFetchMode( PDO::FETCH_OBJ );
         $categories = $selectStmt->fetchAll();
@@ -98,26 +100,6 @@ class CategoryMapper extends Mapper {
         $selectStmt->execute();
         $this->pagination->numRecords = $selectStmt->fetch( PDO::FETCH_OBJ )->count;
         $selectStmt->closeCursor();
-    }
-
-    /**
-     * @param CategoryModel $model
-     * @param bool|false $overrideNullData
-     */
-    public function save( CategoryModel $model, $overrideNullData = false ) {
-        parent::save( $model, $overrideNullData );
-    }
-
-    /**
-     * @param CategoryModel $model
-     * @throws Exception
-     */
-    public function destroy( CategoryModel $model ) {
-        if ( ! is_numeric( $model->id ) ) {
-            throw new Exception( 'Não foi possível remover: chave primária sem valor!' );
-        }
-
-        parent::destroy( $model );
     }
 
     public function getPostsByCategory( $catId, $count = false ) {

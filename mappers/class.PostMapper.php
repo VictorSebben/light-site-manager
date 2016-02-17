@@ -37,6 +37,8 @@ class PostMapper extends Mapper {
         $this->request->setPagParams();
         $params = $this->request->pagParams;
 
+        $offset = $this->pagination->getOffset();
+
         // validate $params[ 'dir' ] to make sure it contains a valid value
         if ( $params[ 'dir' ] !== 'ASC' && $params[ 'dir' ] !== 'DESC' ) {
             $params[ 'dir' ] = 'ASC';
@@ -92,7 +94,7 @@ class PostMapper extends Mapper {
 
         $lim = 2;
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
-        $selectStmt->bindParam( ':offset', $this->pagination->getOffset(), PDO::PARAM_INT );
+        $selectStmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $selectStmt->execute();
         // Since the index of posts has info taken from the categories and users
         // tables, we are going to fetch a standard object here, instead of a model object
@@ -126,14 +128,10 @@ class PostMapper extends Mapper {
     }
 
     /**
-     * @param PostModel $model
-     * @param bool|false $overrideNullData
+     * @param $model
+     * @throws Exception
      */
-    public function save( PostModel $model, $overrideNullData = false ) {
-        parent::save( $model, $overrideNullData );
-    }
-
-    public function destroy( PostModel $model ) {
+    public function destroy( $model ) {
         self::$_pdo->beginTransaction();
 
         try {

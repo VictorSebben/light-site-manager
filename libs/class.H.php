@@ -97,6 +97,10 @@ class H {
             $_SESSION[ 'input' ] = json_encode( $input );
         }
         else {
+            if ( !isset( $_SESSION[ 'input' ] ) ) {
+                return array();
+            }
+
             $input = $_SESSION[ 'input' ];
             unset( $_SESSION[ 'input' ] );
             return json_decode( $input, true );

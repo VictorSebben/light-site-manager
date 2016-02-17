@@ -2,7 +2,11 @@
 // Check if it is an update operation (this will affect the page's heading)
 $isUpdate = ( isset( $this->object ) && is_numeric( $this->object->id ) );
 
-$catId = H::ifnull( $this->cat, $this->object->category_id );
+if ( isset( $this->cat ) ) {
+    $catId = $this->cat;
+} else if ( isset( $this->object->category_id ) ) {
+    $catId = $this->object->category_id;
+}
 
 if ( isset( $_SESSION[ 'err-msg' ] ) ) {
     $msg = '<ul>';

@@ -58,8 +58,10 @@ class Pagination extends Base {
 
     public function getMinLimit() {
         // TODO -> if (TotalPages - $this->getCurrentPage() > LIM_LINKS) -> soma o que sobre do limite (porque faltou página no fim) no começo
-        if ( $this->getTotalPages() - $this->getCurrentPage() < self::LIM_LINKS )
-            return $this->getCurrentPage() - self::LIM_LINKS - (self::LIM_LINKS - ($this->getTotalPages() - $this->getCurrentPage()));
+        if ( $this->getTotalPages() - $this->getCurrentPage() < self::LIM_LINKS ) {
+            $minLimit = $this->getCurrentPage() - self::LIM_LINKS - ( self::LIM_LINKS - ( $this->getTotalPages() - $this->getCurrentPage() ) );
+            return ( $minLimit ) ? $minLimit : 1;
+        }
         else if ( $this->getCurrentPage() >= self::LIM_LINKS + 2 )
             return $this->getCurrentPage() - self::LIM_LINKS;
         else

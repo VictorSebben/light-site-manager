@@ -65,7 +65,12 @@ class RoleMapper extends Mapper {
         return $stmt->fetchAll( PDO::FETCH_COLUMN );
     }
 
-    public function save( RoleModel $role, $overrideNullData = false ) {
+    /**
+     * @param $role
+     * @param bool $overrideNullData
+     * @throws Exception
+     */
+    public function save( $role, $overrideNullData = false ) {
         // Start transaction: in case anything goes wrong when inserting,
         // we cancel the deletion that precedes it
         self::$_pdo->beginTransaction();
@@ -96,7 +101,11 @@ class RoleMapper extends Mapper {
         }
     }
 
-    public function destroy( RoleModel $role ) {
+    /**
+     * @param $role
+     * @throws Exception
+     */
+    public function destroy( $role ) {
         if ( ! is_numeric( $role->id ) ) {
             throw new Exception( 'Não foi possível remover: chave primária sem valor!' );
         }

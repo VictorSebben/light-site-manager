@@ -107,10 +107,15 @@ class Mapper {
      * UPDATE operations. If set to TRUE, null values in the object WILL
      * be used to update the corresponding columns.
      *
-     * @param BaseModel $obj
+     * @param $obj
      * @param bool|false $overrideNullData
+     * @throws Exception
      */
-    public function save( BaseModel $obj, $overrideNullData = false ) {
+    public function save( $obj, $overrideNullData = false ) {
+        if ( ! isset( $obj->tableName ) || ! $obj->tableName ) {
+            throw new Exception( 'Object given to Mapper::save() is not a valid Model' );
+        }
+
         if ( !is_array( $obj->primaryKey ) ) {
             $arrPrimaryKey = array( $obj->primaryKey );
         } else {
@@ -297,7 +302,15 @@ class Mapper {
         $stmt->closeCursor();
     }
 
-    public function destroy( BaseModel $obj ) {
+    /**
+     * @param $obj
+     * @throws Exception
+     */
+    public function destroy( $obj ) {
+        if ( ! isset( $obj->tableName ) || ! $obj->tableName ) {
+            throw new Exception( 'Object given to Mapper::save() is not a valid Model' );
+        }
+
         if ( !is_array( $obj->primaryKey ) ) {
             $arrPrimaryKey = array( $obj->primaryKey );
         } else {
