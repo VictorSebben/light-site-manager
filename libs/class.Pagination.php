@@ -14,7 +14,7 @@ class Pagination extends Base {
     /**
      * Set by the controller. Tells Pagination what to allow for pagination links.
      *
-     * @var Array
+     * @var array
      */
     private $_link_params;
 
@@ -60,6 +60,8 @@ class Pagination extends Base {
         // TODO -> if (TotalPages - $this->getCurrentPage() > LIM_LINKS) -> soma o que sobre do limite (porque faltou página no fim) no começo
         if ( $this->getTotalPages() - $this->getCurrentPage() < self::LIM_LINKS ) {
             $minLimit = $this->getCurrentPage() - self::LIM_LINKS - ( self::LIM_LINKS - ( $this->getTotalPages() - $this->getCurrentPage() ) );
+
+            // If the minimum number found was 0, return 1
             return ( $minLimit ) ? $minLimit : 1;
         }
         else if ( $this->getCurrentPage() >= self::LIM_LINKS + 2 )

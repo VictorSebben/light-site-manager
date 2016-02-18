@@ -3,17 +3,19 @@
 if ( $this->pagination->getTotalPages() > 1 ) {
 
     // link for previous page
-    if ( !$this->pagination->hasPreviousPage() ) {
-        echo "<span class='pagination-prev-next pagination-disabled'>&lsaquo; Anterior</span>";
+    if ( ! $this->pagination->hasPreviousPage() ) {
+        echo "<span class='pagination-prev-next pagination-disabled'>&lsaquo;&lsaquo; Primeira</span>
+              <span class='pagination-prev-next pagination-disabled'>&lsaquo; Anterior</span>";
     } else {
-        echo "<a class='pagination-prev-next' href='{$this->pagination->getPagnLink( $this->pagination->getPreviousPage() )}'>&lsaquo; Anterior</a>";
+        echo "<a class='pagination-prev-next' href='{$this->pagination->getPagnLink( 1 )}'>&lsaquo;&lsaquo; Primeira</a>
+              <a class='pagination-prev-next' href='{$this->pagination->getPagnLink( $this->pagination->getPreviousPage() )}'>&lsaquo; Anterior</a>";
     }
 
     //$pageNum = $this->pagination->getMinLimit();
     $pageNum = $this->pagination->getMinLimit();
     $end = $pageNum + Pagination::LIM_LINKS * 2;
     // TODO -> IF GETMINLIM > 1 -> SUM LIM TWICE IN THE END
-    while ( ($pageNum <= $this->pagination->getTotalPages()) && ($pageNum <= $end) ) {
+    while ( ( $pageNum <= $this->pagination->getTotalPages() ) && ( $pageNum <= $end ) ) {
         $className = 'pagination-num';
 
         if ( $pageNum == $this->pagination->getCurrentPage() )
@@ -25,10 +27,12 @@ if ( $this->pagination->getTotalPages() > 1 ) {
     }
 
     // link for next page
-    if ( !$this->pagination->hasNextPage() ) {
-        echo "<span class='pagination-prev-next pagination-disabled'>Próxima &rsaquo;</span>";
+    if ( ! $this->pagination->hasNextPage() ) {
+        echo "<span class='pagination-prev-next pagination-disabled'>Próxima &rsaquo;</span>
+              <span class='pagination-prev-next pagination-disabled'>Última &rsaquo;&rsaquo;</span>";
     } else {
-        echo "<a class='pagination-prev-next' href='{$this->pagination->getPagnLink( $this->pagination->getNextPage() )}'>Próxima &rsaquo;</a>";
+        echo "<a class='pagination-prev-next' href='{$this->pagination->getPagnLink( $this->pagination->getNextPage() )}'>Próxima &rsaquo;</a>
+              <a class='pagination-prev-next' href='{$this->pagination->getPagnLink( $this->pagination->getTotalPages() )}'>Última &rsaquo;&rsaquo;</a>";
     }
 }
 ?>
