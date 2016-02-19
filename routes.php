@@ -159,6 +159,10 @@ $app->map(
     array( 'args' => array( 'id' ) )
 );
 $app->map(
+    '/posts/delete/?',
+    array( 'controller' => 'Post', 'method' => 'deleteAjax' )
+);
+$app->map(
     '/posts/destroy/?',
     array( 'controller' => 'Post', 'method' => 'destroy' )
 );
@@ -190,6 +194,14 @@ $app->map(
     '/posts/\d+/toggle-status/?',
     array( 'controller' => 'Post', 'method' => 'toggleStatus' ),
     array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/posts/activate/?',
+    array( 'controller' => 'Post', 'method' => 'activate' )
+);
+$app->map(
+    '/posts/deactivate/?',
+    array( 'controller' => 'Post', 'method' => 'deactivate' )
 );
 $app->map(
     '/posts/\d+/upload/?',

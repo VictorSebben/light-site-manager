@@ -2,6 +2,8 @@
 // Check if it is an update operation (this will affect the page's heading)
 $isUpdate = ( isset( $this->object ) && is_numeric( $this->object->id ) );
 
+$catId = null;
+
 if ( isset( $this->cat ) ) {
     $catId = $this->cat;
 } else if ( isset( $this->object->category_id ) ) {
@@ -90,7 +92,6 @@ if ( isset( $_SESSION[ 'err-msg' ] ) ) {
     <a id="go-back" class="go-back" href="#">Voltar</a>
 </div>
 
-<script src="<?= $this->Url->make( 'js/lsmhelper.js' ); ?>" type="text/javascript"></script>
 <script src="vendor/ckeditor/ckeditor/ckeditor.js" type="text/javascript"></script>
 <script>
     CKEDITOR.replace( 'post-editor' );

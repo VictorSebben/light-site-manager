@@ -74,8 +74,8 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
                 <div class="onoffswitch" title="<?= $user->getStatus( true ); ?>">
                     <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox"
                            value="<?= $user->id ?>"
-                           id="myonoffswitch-<?= $user->id ?>" <?= ( $user->status ) ? "checked" : "" ?>>
-                    <label class="onoffswitch-label" for="myonoffswitch-<?= $user->id ?>">
+                           id="onoffswitch-<?= $user->id ?>" <?= ( $user->status ) ? "checked" : "" ?>>
+                    <label class="onoffswitch-label" for="onoffswitch-<?= $user->id ?>">
                         <span class="onoffswitch-inner"></span>
                         <span class="onoffswitch-switch"></span>
                     </label>

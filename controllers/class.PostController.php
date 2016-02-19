@@ -73,6 +73,8 @@ class PostController extends BaseController {
             $this->_view->object = $post;
         }
 
+        $this->_view->addExtraScript( 'js/lsmhelper.js' );
+
         $this->_view->render( 'posts/form' );
     }
 
@@ -136,6 +138,8 @@ class PostController extends BaseController {
 
             $this->_view->object = $post;
         }
+
+        $this->_view->addExtraScript( 'js/lsmhelper.js' );
 
         $this->_view->render( 'posts/form' );
     }
@@ -219,6 +223,9 @@ class PostController extends BaseController {
         }
     }
 
+    /**
+     * @param $id
+     */
     public function toggleStatus( $id ) {
         // Initialize error message (to be used if update fails) and the $isOk flag
         $errorMsg = '';
@@ -233,20 +240,141 @@ class PostController extends BaseController {
                 // If token fails to validate, let's send back an error message
                 $errorMsg = 'Não foi possível processar a requisição.';
             } // Validate permission to edit all users
-            else if ( !$this->_user->hasPrivilege( 'edit_other_users' ) ) {
+            else if ( !$this->_user->hasPrivilege( 'edit_contents' ) ) {
                 $errorMsg = 'Permissão negada.';
             } // No problems occurred: we can carry through with the request
             else {
                 if ( $this->_mapper->toggleStatus( $id ) ) {
-                    // At the end of the process, give back a new token
-                    // to the page
                     $isOk = true;
                 } else {
                     $errorMsg = 'Não foi possível atualizar o status do post. Contate o suporte.';
                 }
             }
 
+            // At the end of the process, give back a new token
+            // to the page, as well as the isOk flag and an eventual error message
             echo json_encode( array( 'isOk' => $isOk, 'token' => H::generateToken(), 'error' => $errorMsg ) );
+        } catch ( Exception $e ) {
+            // If any exceptions were thrown in the process, send an error message
+            if ( DEBUG )
+                echo json_encode( array( 'isOk' => false, 'error' => $e->getMessage() ) );
+            else
+                echo json_encode( array( 'isOk' => false, 'error' => $errorMsg ) );
+        }
+    }
+
+    public function activate() {
+        $this->_toggleStatusArr( 'activate' );
+    }
+
+    public function deactivate() {
+        $this->_toggleStatusArr( 'deactivate' );
+    }
+
+    /**
+     * @param $method
+     */
+    private function _toggleStatusArr( $method ) {
+        // Initialize messages and the $isOk flag to be sent back to the page
+        $errorMsg = '';
+        $successMsg = '';
+        $isOk = false;
+
+        // Get token that came with the request
+        $token = filter_input( INPUT_POST, 'token', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+        // Get array os Post IDs
+        $items = $_POST[ 'items' ];
+
+        try {
+            // Validate token
+            if ( !H::checkToken( $token ) ) {
+                // If token fails to validate, let's send back an error message
+                $errorMsg = 'Não foi possível processar a requisição.';
+            } // Validate permission to edit all users
+            else if ( !$this->_user->hasPrivilege( 'edit_contents' ) ) {
+                $errorMsg = 'Permissão negada.';
+            } // No problems occurred: we can carry through with the request
+            else {
+                if ( $this->_mapper->{$method}( $items ) ) {
+                    $isOk = true;
+                    if ( $method == 'activate' )
+                        $successMsg = 'Posts ativados com sucesso!';
+                    else
+                        $successMsg = 'Posts desativados com sucesso!';
+                } else {
+                    $errorMsg = 'Não foi possível atualizar o status dos Posts. Contate o suporte.';
+                }
+            }
+
+            // At the end of the process, give back a new token
+            // to the page, as well as the isOk flag and an eventual message.
+            // We'll also send back the ids that were changed, so that we can
+            // toggle the status checkboxes in the table.
+            echo json_encode(
+                array(
+                    'isOk' => $isOk,
+                    'token' => H::generateToken(),
+                    'error' => $errorMsg,
+                    'success' => $successMsg,
+                    'items' => $items
+                )
+            );
+        } catch ( Exception $e ) {
+            // If any exceptions were thrown in the process, send an error message
+            if ( DEBUG )
+                echo json_encode( array( 'isOk' => false, 'error' => $e->getMessage() ) );
+            else
+                echo json_encode( array( 'isOk' => false, 'error' => $errorMsg ) );
+        }
+    }
+
+    public function deleteAjax() {
+        // Initialize error message and the $isOk flag to be sent back to the page
+        $errorMsg = '';
+        $isOk = false;
+
+        // Get token that came with the request
+        $token = filter_input( INPUT_POST, 'token', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+        // Get array os Post IDs
+        $items = $_POST[ 'items' ];
+
+        try {
+            // Validate token
+            if ( ! H::checkToken( $token ) ) {
+                // If token fails to validate, let's send back an error message
+                $errorMsg = 'Não foi possível processar a requisição.';
+            } // Validate permission to edit all users
+            else if ( !$this->_user->hasPrivilege( 'edit_contents' ) ) {
+                $errorMsg = 'Permissão negada.';
+            } // No problems occurred: we can carry through with the request
+            else {
+                if ( $this->_mapper->deleteAjax( $items ) ) {
+                    $isOk = true;
+
+                    // If everything worked out, we are going to redirect the user
+                    // back to the first page on the view. Therefore, we have to
+                    // add a success message to the session
+                    H::flash( 'success-msg', 'Posts removidos com sucesso!' );
+                } else {
+                    $errorMsg = 'Não foi possível atualizar o status dos Posts. Contate o suporte.';
+                }
+            }
+
+            // At the end of the process, give back a new token
+            // to the page, as well as the isOk flag and an eventual message.
+            // We'll also send back the ids that were changed, so that we can
+            // toggle the status checkboxes in the table.
+            echo json_encode(
+                array(
+                    'isOk' => $isOk,
+                    'token' => H::generateToken(),
+                    'error' => $errorMsg,
+                    'success' => 'Posts excluídos com sucesso',
+                    'items' => $items
+                )
+            );
         } catch ( Exception $e ) {
             // If any exceptions were thrown in the process, send an error message
             if ( DEBUG )

@@ -171,26 +171,72 @@ class PostMapper extends Mapper {
      * @param $id
      * @return bool
      */
-    public static function toggleStatus( $id ) {
+    public function toggleStatus( $id ) {
         if ( !is_numeric( $id ) ) {
             return false;
         }
 
         try {
-            $postMapper = new PostMapper();
-
-            $postMapper->_selectStmt = self::$_pdo->prepare(
+            $this->_selectStmt = self::$_pdo->prepare(
                 "SELECT id, status FROM posts WHERE id = ?"
             );
-            $post = $postMapper->find( $id );
+            $post = $this->find( $id );
 
             if ( ! $post ) return false;
 
             // toggle post's status
             $post->status = ( $post->status == 0 ) ? 1 : 0;
-            $postMapper->save( $post );
+            $this->save( $post );
 
             // if everything worked out, return true
+            return true;
+        } catch ( PDOException $e ) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function activate( $postIds ) {
+        return $this->_toggleStatusArr( $postIds, 1 );
+    }
+
+    public function deactivate( $postIds ) {
+        return $this->_toggleStatusArr( $postIds, 0 );
+    }
+
+    private function _toggleStatusArr( $postIds, $status ) {
+        try {
+            $sql = "UPDATE posts SET status = {$status} WHERE id IN (";
+
+            foreach ( $postIds as $id ) {
+                $sql .= '?, ';
+            }
+
+            $sql = trim( $sql, ', ' ) . ')';
+            $stmt = self::$_pdo->prepare( $sql );
+            $stmt->execute( $postIds );
+
+            // If everything worked out, return true
+            return true;
+        } catch ( Exception $e ) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function deleteAjax( $postIds ) {
+        try {
+            $sql = 'DELETE FROM posts WHERE id IN (';
+
+            foreach ( $postIds as $id ) {
+                $sql .= '?, ';
+            }
+
+            $sql = trim( $sql, ', ' ) . ')';
+            $stmt = self::$_pdo->prepare( $sql );
+            $stmt->execute( $postIds );
+
+            // If everything worked out, return true
             return true;
         } catch ( PDOException $e ) {
             echo $e->getMessage();

@@ -1,3 +1,6 @@
+// Define base URL for Ajax requests
+var baseUrl = window.location.origin;
+
 var toggleAll = document.getElementById( 'toggle-all' );
 
 if ( toggleAll) {
@@ -11,34 +14,143 @@ if ( toggleAll) {
     }, false );
 }
 
+function getIds( items ) {
+    var ids = [];
+    var i = 0;
+
+    items.each( function() {
+        ids[i] = $( this ).val();
+        i++;
+    } );
+
+    return ids;
+}
+
 var formConsole = {
     btnActivate: $( '#btn-activate' ),
     btnDeactivate: $( '#btn-deactivate' ),
     btnRemove: $( '#btn-delete' ),
 
-    // TODO METHODS/FUNCTIONALITY OF THE CONSOLE
-    removeItems: function removeItems() {
-        console.log( 'Removing items' );
-    },
-    activateItems: function activateItems() {
+    removeItems: function removeItems( baseRoute ) {
+        var items = getIds( $( '.list-item:checked' ) );
 
+        if ( items.length && confirm( 'Deseja remover os Posts selecionados?' ) ) {
+            callConsoleAjax( items, baseRoute, 'delete' );
+        }
     },
-    deactivateItems: function deactivateItems() {
-
+    activateItems: function activateItems( baseRoute ) {
+        callConsoleAjax( getIds( $( '.list-item:checked' ) ), baseRoute, 'activate' );
+    },
+    deactivateItems: function deactivateItems( baseRoute ) {
+        callConsoleAjax( getIds( $( '.list-item:checked' ) ), baseRoute, 'deactivate' );
     }
 };
 
-window.onload = function () {
-    formConsole.btnRemove.click( formConsole.removeItems );
+function callSuccess( result ) {
+    // Remove old messages if they exist
+    $( '.err-msg' ).remove();
+    $( '.success-msg' ).remove();
 
-    if ( formConsole.btnActivate.length ) {
-        formConsole.btnActivate.click( formConsole.activateItems() );
-        formConsole.btnDeactivate.click( formConsole.deactivateItems() );
+    if ( result.isOk ) {
+        // If everything was OK, we're printing a success message
+        $( '<div class="flash success-msg">' +
+              result.success +
+           '</div>' ).insertAfter( '#area-header' );
+    } else {
+        // If something went wrong, we're printing an error message
+        $( '<div class="flash err-msg">' +
+              result.error +
+           '</div>' ).insertAfter( '#area-header' );
     }
-};
 
-// Define base URL for Ajax requests
-var baseUrl = window.location.origin;
+    // Reset token
+    if ( result.token ) {
+        $( '#token' )[0].value = result.token;
+    }
+
+    // Uncheck all of the items
+    $( '#toggle-all' ).attr( 'checked', false );
+    $( '.list-item' ).each( function() {
+        $( this ).attr( 'checked', false );
+    } );
+}
+
+function callSuccessActivate( result ) {
+    if ( result.isOk ) {
+        // Toggle all status checkboxes of updated items to "Ativo"
+        for ( var i = 0; i < result.items.length; i++ ) {
+            $( '#onoffswitch-' + result.items[ i ] ).prop( 'checked', 'checked' );
+        }
+    }
+
+    callSuccess( result );
+}
+
+function callSuccessDeactivate( result ) {
+    if ( result.isOk ) {
+        // Toggle all status checkboxes of updated items to "Ativo"
+        for ( var i = 0; i < result.items.length; i++ ) {
+            $( '#onoffswitch-' + result.items[ i ] ).prop( 'checked', false );
+        }
+    }
+
+    callSuccess( result );
+}
+
+function callFail() {
+    // Remove old error message if exists
+    $( '.err-msg' ).remove();
+    $( '.success-msg' ).remove();
+
+    // Show the user a failure message
+    $( '<div class="flash err-msg">' +
+         'Não foi possível atualizar os Posts: contate o suporte.' +
+       '</div>' ).insertAfter( '#area-header' );
+
+    // Uncheck all
+    $( '#toggle-all' ).attr( 'checked', false );
+    $( '.list-item' ).each( function() {
+        $( this ).attr( 'checked', false );
+    } );
+}
+
+function callSuccessRemove( result ) {
+    // Redirect user to same URL but in page 1
+    var url = window.location.href;
+    url = url.replace( /pag:\d/, 'pag:1' );
+
+    window.location.replace( url );
+}
+
+function callConsoleAjax( items, baseRoute, method ) {
+    if ( ! items.length ) {
+        return;
+    }
+
+    var successCallback = undefined;
+
+    // Get success callback function in accordance with the method called
+    if ( method == 'activate' ) {
+        successCallback = callSuccessActivate;
+    } else if ( method == 'deactivate' ) {
+        successCallback = callSuccessDeactivate;
+    } else {
+        successCallback = callSuccessRemove;
+    }
+
+    try {
+        $.ajax( {
+                method: 'POST',
+                url: baseUrl + '/' + baseRoute + '/' + method,
+                data: { token: document.getElementById( 'token' ).value, items: items },
+                dataType: 'json'
+            } )
+            .done( successCallback )
+            .fail( callFail );
+    } catch ( e ) {
+        console.log( e );
+    }
+}
 
 // Toggle functionality (for those forms with a toggle-status button
 var toggleSuccess = function toggleSuccess( result ) {

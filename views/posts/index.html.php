@@ -103,8 +103,8 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
                 <div class="onoffswitch" title="<?= PostModel::$statusString[ $post->status ] ?>">
                     <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox"
                            value="<?= $post->id ?>"
-                           id="myonoffswitch-<?= $post->id ?>" <?= ( $post->status ) ? "checked" : "" ?>>
-                    <label class="onoffswitch-label" for="myonoffswitch-<?= $post->id ?>">
+                           id="onoffswitch-<?= $post->id ?>" <?= ( $post->status ) ? "checked" : "" ?>>
+                    <label class="onoffswitch-label" for="onoffswitch-<?= $post->id ?>">
                         <span class="onoffswitch-inner"></span>
                         <span class="onoffswitch-switch"></span>
                     </label>
