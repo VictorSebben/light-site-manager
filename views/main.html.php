@@ -7,6 +7,14 @@
     <link rel='stylesheet' type='text/css' href='<?= $this->Url->make( 'css/main.css' ); ?>'>
 
     <?= $this->getExtraLinkTags(); ?>
+
+    <script>
+        window.lsmConf = {
+            baseUrl: '<?= "{$this->_config[ 'base_url' ]}/{$this->_config[ 'admin_path' ]}"; ?>'
+        };
+
+        console.log( window.lsmConf );
+    </script>
 </head>
 <body>
 

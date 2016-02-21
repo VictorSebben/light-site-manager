@@ -1,6 +1,3 @@
-// Define base URL for Ajax requests
-var baseUrl = window.location.origin + '/lsm';
-
 var toggleAll = document.getElementById( 'toggle-all' );
 
 if ( toggleAll) {
@@ -141,7 +138,7 @@ function callConsoleAjax( items, baseRoute, method ) {
     try {
         $.ajax( {
                 method: 'POST',
-                url: baseUrl + '/' + baseRoute + '/' + method,
+                url: window.lsmConf.baseUrl + '/' + baseRoute + '/' + method,
                 data: { token: document.getElementById( 'token' ).value, items: items },
                 dataType: 'json'
             } )
@@ -190,7 +187,7 @@ function sendToggleStatusRequest( baseRoute ) {
     try {
         $.ajax( {
                 method: 'POST',
-                url: baseUrl + '/' + baseRoute + '/' + this.value + '/toggle-status/',
+                url: window.lsmConf.baseUrl + '/' + baseRoute + '/' + this.value + '/toggle-status/',
                 data: { token: document.getElementById( 'token' ).value },
                 dataType: 'json'
             } )
