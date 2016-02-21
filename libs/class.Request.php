@@ -10,6 +10,16 @@ class Request {
     public $uri;
 
     /**
+     * If the route accessed is an admin route (lsm),
+     * this property will be set and used to compose the
+     * base URL, which is internally used for links, form actions,
+     * etc. of the admin
+     *
+     * @var string
+     */
+    public $uriAdminPath;
+
+    /**
      * Array containing the uri parts after exploding the string.
      *
      * @var array
@@ -97,7 +107,8 @@ class Request {
     public $routeParts;
 
     private function __construct() {
-        $this->query = "";
+        $this->query = '';
+        $this->uriAdminPath = '';
     }
 
     public static function getInstance() {

@@ -32,10 +32,3 @@ spl_autoload_register( function ( $className ) {
 });
 
 require __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
-
-$loginHelper = new LoginHelper();
-$loginHelper->chkLogin();
-
-if ( isset( $_GET[ 'logout' ] ) ) {
-    $loginHelper->logout();
-}

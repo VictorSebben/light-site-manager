@@ -17,9 +17,11 @@ tags
 .sass-cache/
 *.map
 
-/vendor/
+vendor/
 
-/public/_tmp/*
-!/public/_tmp/.gitignore
-/public/vendor/
-/public/composer.lock
+/public/lsm/_tmp/*
+!/public/lsm/_tmp/.gitignore
+/public/lsm/composer.lock
+
+/public/site/*
+!/public/site/.gitkeep

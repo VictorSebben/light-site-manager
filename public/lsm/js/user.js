@@ -24,3 +24,7 @@ for ( var i = 0; i < toggleBtns.length; i++ ) {
         false
     );
 }
+
+formConsole.btnRemove.click( formConsole.removeItems.bind( undefined, [ 'users' ] ) );
+formConsole.btnActivate.click( formConsole.activateItems.bind( undefined, [ 'users' ] ) );
+formConsole.btnDeactivate.click( formConsole.deactivateItems.bind( undefined, [ 'users' ] ) );

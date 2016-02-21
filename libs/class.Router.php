@@ -1,6 +1,6 @@
 <?php
 
-class Router {
+class Router extends Base {
 
     /**
      * The defined url routes, like '/users/\d+/edit'.
@@ -38,6 +38,8 @@ class Router {
      */
     protected $_key;
 
+    protected $_namespace;
+
     /**
      * Request object that hold important information to be passed and searched.
      *
@@ -54,6 +56,9 @@ class Router {
 
     public function __construct() {
         $this->_request = Request::getInstance();
+        $this->_namespace = '';
+
+        parent::__construct();
     }
 
     /**
@@ -69,6 +74,10 @@ class Router {
         return self::$_instance;
     }
 
+    public function setNamespace( $ns ) {
+        $this->_namespace = $ns;
+    }
+
     /**
      * Maps, routes, controller options (controller name and mathod) and additional parameters.
      *
@@ -78,7 +87,7 @@ class Router {
      * The first key must be called 'args'.
      */
     public function map( $route, $controller, $params = array() ) {
-        $this->_routes[] = $route;
+        $this->_routes[] = "/{$this->_namespace}{$route}";
         $this->_controllers[] = $controller;
         $this->_params[] = $params;
     }
@@ -131,6 +140,10 @@ class Router {
         // check the last position to be taken from th URI
         $pos = strpos( $uri, '?' ) ?: ( strlen( $uri ) );
         $this->_request->uriParts = explode( '/', substr( $uri, 0, $pos ) );
+
+        if ( $this->_request->uriParts[ 0 ] === $this->_config[ 'admin_path' ] ) {
+            Request::getInstance()->uriAdminPath = array_shift( $this->_request->uriParts );
+        }
 
         $controller_name = $this->_controllers[ $this->_key ][ 'controller' ] . 'Controller';
         $model_base_name = $this->_controllers[ $this->_key ][ 'controller' ];

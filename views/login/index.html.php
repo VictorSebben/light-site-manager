@@ -10,7 +10,7 @@
 <div class="login-form">
     <fieldset>
         <legend>Login</legend>
-        <form method="post" action="<?= $this->_config[ 'base_url' ]; ?>/login/run">
+        <form method="post" action="<?= $this->Url->make( 'login/run' ); ?>">
             <div class="login-info-input form-field">
                 <label for="email">E-mail</label>
                 <input id="email" type="text" name="email">

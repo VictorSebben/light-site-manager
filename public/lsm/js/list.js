@@ -1,5 +1,5 @@
 // Define base URL for Ajax requests
-var baseUrl = window.location.origin;
+var baseUrl = window.location.origin + '/lsm';
 
 var toggleAll = document.getElementById( 'toggle-all' );
 
@@ -104,7 +104,7 @@ function callFail() {
 
     // Show the user a failure message
     $( '<div class="flash err-msg">' +
-         'Não foi possível atualizar os Posts: contate o suporte.' +
+         'Não foi possível atualizar os itens: contate o suporte.' +
        '</div>' ).insertAfter( '#area-header' );
 
     // Uncheck all

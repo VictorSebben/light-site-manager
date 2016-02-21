@@ -6,7 +6,7 @@ class LoginHelper extends Base {
         if ( ! isset( $_SESSION[ 'userid' ] ) || ! isset( $_SESSION[ 'username' ] ) ) {
             // This if prevents infinite redirections. @TODO: Find a better, more elegant way.
             if ( ! strstr( $_SERVER[ 'REQUEST_URI' ], 'login' ) ) {
-                header( 'Location: ' . $this->_config['base_url'] . '/login' );
+                header( "Location: {$this->_config[ 'base_url' ]}/{$this->_config[ 'admin_path' ]}/login" );
             }
         }
 
@@ -69,7 +69,7 @@ class LoginHelper extends Base {
         unset( $_SESSION[ 'userid' ] );
         unset( $_SESSION[ 'username' ] );
         session_destroy();
-        header( 'Location: ./' );
+        header( "Location: ./{$this->_config[ 'admin_path' ]}/" );
     }
 }
 

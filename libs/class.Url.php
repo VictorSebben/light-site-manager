@@ -12,6 +12,10 @@ class Url {
     public function __construct() {
         $arrAppConf = include '../conf/inc.appconfig.php';
         $this->base = $arrAppConf[ 'base_url' ];
+
+        if ( Request::getInstance()->uriAdminPath != '' ) {
+            $this->base .= '/' . Request::getInstance()->uriAdminPath;
+        }
     }
 
     /**
@@ -21,6 +25,6 @@ class Url {
      * @return string The path.
      */
     public function make( $path = null ) {
-        return ( $path ) ? "{$this->base}/{$path}" : $this->base;
+        return ( $path ) ? "{$this->base}/{$path}" : "{$this->base}/";
     }
 }

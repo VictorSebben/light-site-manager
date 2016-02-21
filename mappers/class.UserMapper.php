@@ -224,4 +224,53 @@ class UserMapper extends Mapper {
             return false;
         }
     }
+
+    // TODO TEST CONSOLE STUFF FOR USERS
+    public function activate( $userIds ) {
+        return $this->_toggleStatusArr( $userIds, 1 );
+    }
+
+    public function deactivate( $userIds ) {
+        return $this->_toggleStatusArr( $userIds, 0 );
+    }
+
+    private function _toggleStatusArr( $userIds, $status ) {
+        try {
+            $sql = "UPDATE posts SET status = {$status} WHERE id IN (";
+
+            foreach ( $userIds as $id ) {
+                $sql .= '?, ';
+            }
+
+            $sql = trim( $sql, ', ' ) . ')';
+            $stmt = self::$_pdo->prepare( $sql );
+            $stmt->execute( $userIds );
+
+            // If everything worked out, return true
+            return true;
+        } catch ( Exception $e ) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
+
+    public function deleteAjax( $userIds ) {
+        try {
+            $sql = 'UPDATE users SET deleted = 1 WHERE id IN (';
+
+            foreach ( $userIds as $id ) {
+                $sql .= '?, ';
+            }
+
+            $sql = trim( $sql, ', ' ) . ')';
+            $stmt = self::$_pdo->prepare( $sql );
+            $stmt->execute( $userIds );
+
+            // If everything worked out, return true
+            return true;
+        } catch ( PDOException $e ) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
 }

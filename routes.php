@@ -76,6 +76,10 @@ $app->map(
     array( 'args' => array( 'id' ) )
 );
 $app->map(
+    '/users/delete/?',
+    array( 'controller' => 'Post', 'method' => 'deleteAjax' )
+);
+$app->map(
     '/users/destroy/?',
     array( 'controller' => 'User', 'method' => 'destroy' )
 );
@@ -91,6 +95,14 @@ $app->map(
     '/users/\d+/toggle-status/?',
     array( 'controller' => 'User', 'method' => 'toggleStatus' ),
     array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/users/activate/?',
+    array( 'controller' => 'Post', 'method' => 'activate' )
+);
+$app->map(
+    '/users/deactivate/?',
+    array( 'controller' => 'Post', 'method' => 'deactivate' )
 );
 $app->map(
     '/users/\d+/?(view)?/?',
