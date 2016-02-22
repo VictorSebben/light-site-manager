@@ -33,7 +33,11 @@ class Pagination extends Base {
         $this->_request = Request::getInstance();
 
         // default: x per page
-        $this->_limit = 2;
+        $this->_limit = 5;
+    }
+
+    public function getLimit() {
+        return $this->_limit;
     }
 
     public function getCurrentPage() {

@@ -94,7 +94,7 @@ class UserMapper extends Mapper {
             $search = "%{$this->request->pagParams[ 'search' ]}%";
             $selectStmt->bindParam( ':search', $search );
         }
-        $lim = 2;
+        $lim = $this->pagination->getLimit();
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
         $selectStmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $selectStmt->execute();

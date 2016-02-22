@@ -99,7 +99,7 @@ class PostMapper extends Mapper {
             $selectStmt->bindParam( ':cat', $cat, PDO::PARAM_INT );
         }
 
-        $lim = 2;
+        $lim = $this->pagination->getLimit();
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
         $selectStmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $selectStmt->execute();
