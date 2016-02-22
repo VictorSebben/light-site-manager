@@ -13,6 +13,7 @@ tags
 # Ignore our .css files (for admin and site) since we'll only commit .scss ones.
 public/lsm/css/*.css
 public/site/css/*.css
+!public/lsm/css/colorbox.css
 
 # Sass stuff.
 .sass-cache/

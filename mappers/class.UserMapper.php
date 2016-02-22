@@ -76,8 +76,13 @@ class UserMapper extends Mapper {
                  WHERE deleted = 0 ";
 
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $sql .= 'AND name ~* :search
-                      OR email ~* :search ';
+            if ( self::$_db === 'pgsql' ) {
+                $sql .= 'AND unaccent(name) ILIKE unaccent(:search)
+                          OR unaccent(email) ILIKE unaccent(:search) ';
+            } else {
+                $sql .= 'AND name ILIKE :search
+                          OR email ILIKE :search ';
+            }
         }
 
         $sql .= " ORDER BY {$ord} {$params['dir']}
@@ -86,7 +91,8 @@ class UserMapper extends Mapper {
 
         $selectStmt = self::$_pdo->prepare( $sql );
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $selectStmt->bindParam( ':search', $this->request->pagParams[ 'search' ] );
+            $search = "%{$this->request->pagParams[ 'search' ]}%";
+            $selectStmt->bindParam( ':search', $search );
         }
         $lim = 2;
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
@@ -225,7 +231,6 @@ class UserMapper extends Mapper {
         }
     }
 
-    // TODO TEST CONSOLE STUFF FOR USERS
     public function activate( $userIds ) {
         return $this->_toggleStatusArr( $userIds, 1 );
     }

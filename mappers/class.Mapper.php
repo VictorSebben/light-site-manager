@@ -10,6 +10,13 @@ class Mapper {
     protected static $_pdo;
 
     /**
+     * Name of the database being used. This static variable is used
+     *
+     * @var string
+     */
+    protected static $_db;
+
+    /**
      * Prepared statement to be executed by PDO.
      *
      * @var PDOStatement
@@ -35,7 +42,7 @@ class Mapper {
     public function __construct() {
         $this->request = Request::getInstance();
 
-        if ( !isset( self::$_pdo ) ) {
+        if ( ! isset( self::$_pdo ) ) {
 
             $db_config = include '../conf/inc.dbconfig.php';
             if ( is_null( $db_config ) ) {
@@ -61,6 +68,8 @@ class Mapper {
                     $db_config[ 'password' ],
                     $arrAttrs
                 );
+
+                self::$_db = $db_config[ 'driver' ];
             } catch ( PDOException $e ) {
                 die( $e->getMessage() );
             }

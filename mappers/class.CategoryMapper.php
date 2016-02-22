@@ -56,8 +56,13 @@ class CategoryMapper extends Mapper {
 
         // Search category by either name or description
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $sql .= 'AND name ~* :search
-                      OR description ~* :search ';
+            if ( self::$_db === 'pgsql' ) {
+                $sql .= 'AND unaccent(name) ILIKE unaccent(:search)
+                          OR unaccent(description) ILIKE unaccent(:search) ';
+            } else {
+                $sql .= 'AND name ILIKE :search
+                          OR description ILIKE :search ';
+            }
         }
 
         $sql .= "GROUP BY c.id, name, description";
@@ -68,7 +73,8 @@ class CategoryMapper extends Mapper {
 
         $selectStmt = self::$_pdo->prepare( $sql );
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $selectStmt->bindParam( ':search', $this->request->pagParams[ 'search' ] );
+            $search = "%{$this->request->pagParams[ 'search' ]}%";
+            $selectStmt->bindParam( ':search', $search );
         }
         $lim = 2;
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );

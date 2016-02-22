@@ -71,9 +71,15 @@ class PostMapper extends Mapper {
 
         // Search category by either name or description
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $sql .= 'AND title ~* :search
-                      OR intro ~* :search
-                      OR post_text ~* :search ';
+            if ( self::$_db === 'pgsql' ) {
+                $sql .= 'AND unaccent(title) ILIKE unaccent(:search)
+                          OR unaccent(intro) ILIKE unaccent(:search)
+                          OR unaccent(post_text) ILIKE unaccent(:search) ';
+            } else {
+                $sql .= 'AND title ILIKE :search
+                          OR intro ILIKE :search
+                          OR post_text ILIKE :search ';
+            }
         }
 
         if ( $cat ) {
@@ -86,7 +92,8 @@ class PostMapper extends Mapper {
         $selectStmt = self::$_pdo->prepare( $sql );
 
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $selectStmt->bindParam( ':search', $this->request->pagParams[ 'search' ] );
+            $search = "%{$this->request->pagParams[ 'search' ]}%";
+            $selectStmt->bindParam( ':search', $search );
         }
         if ( $cat ) {
             $selectStmt->bindParam( ':cat', $cat, PDO::PARAM_INT );
