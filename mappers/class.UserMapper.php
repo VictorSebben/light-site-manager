@@ -236,7 +236,7 @@ class UserMapper extends Mapper {
 
     private function _toggleStatusArr( $userIds, $status ) {
         try {
-            $sql = "UPDATE posts SET status = {$status} WHERE id IN (";
+            $sql = "UPDATE users SET status = {$status} WHERE id IN (";
 
             foreach ( $userIds as $id ) {
                 $sql .= '?, ';

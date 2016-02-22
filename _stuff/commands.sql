@@ -13,6 +13,8 @@ CREATE DATABASE ecommaster
 -- Connect to the newly created database!!! Wow! Amazing.
 \c ecommaster;
 
+CREATE EXTENSION unaccent;
+
 CREATE TABLE cat_users (
     id SERIAL NOT NULL PRIMARY KEY,
     description VARCHAR( 32 )
@@ -178,6 +180,7 @@ CREATE TABLE IF NOT EXISTS galleries (
   id SERIAL NOT NULL,
   post_id INTEGER,
   image VARCHAR(35) NOT NULL,
+  position INTEGER,
   created_at TIMESTAMP WITHOUT TIME ZONE,
   updated_at TIMESTAMP WITHOUT TIME ZONE,
   PRIMARY KEY (id),

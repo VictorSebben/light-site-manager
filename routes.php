@@ -77,7 +77,7 @@ $app->map(
 );
 $app->map(
     '/users/delete/?',
-    array( 'controller' => 'Post', 'method' => 'deleteAjax' )
+    array( 'controller' => 'User', 'method' => 'deleteAjax' )
 );
 $app->map(
     '/users/destroy/?',
@@ -98,11 +98,11 @@ $app->map(
 );
 $app->map(
     '/users/activate/?',
-    array( 'controller' => 'Post', 'method' => 'activate' )
+    array( 'controller' => 'User', 'method' => 'activate' )
 );
 $app->map(
     '/users/deactivate/?',
-    array( 'controller' => 'Post', 'method' => 'deactivate' )
+    array( 'controller' => 'User', 'method' => 'deactivate' )
 );
 $app->map(
     '/users/\d+/?(view)?/?',

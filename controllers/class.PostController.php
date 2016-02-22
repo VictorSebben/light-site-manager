@@ -239,7 +239,7 @@ class PostController extends BaseController {
             if ( !H::checkToken( $token ) ) {
                 // If token fails to validate, let's send back an error message
                 $errorMsg = 'Não foi possível processar a requisição.';
-            } // Validate permission to edit all users
+            } // Validate permission to edit contents
             else if ( !$this->_user->hasPrivilege( 'edit_contents' ) ) {
                 $errorMsg = 'Permissão negada.';
             } // No problems occurred: we can carry through with the request
@@ -291,7 +291,7 @@ class PostController extends BaseController {
             if ( !H::checkToken( $token ) ) {
                 // If token fails to validate, let's send back an error message
                 $errorMsg = 'Não foi possível processar a requisição.';
-            } // Validate permission to edit all users
+            } // Validate permission to edit contents
             else if ( !$this->_user->hasPrivilege( 'edit_contents' ) ) {
                 $errorMsg = 'Permissão negada.';
             } // No problems occurred: we can carry through with the request
@@ -345,8 +345,8 @@ class PostController extends BaseController {
             if ( ! H::checkToken( $token ) ) {
                 // If token fails to validate, let's send back an error message
                 $errorMsg = 'Não foi possível processar a requisição.';
-            } // Validate permission to edit all users
-            else if ( !$this->_user->hasPrivilege( 'edit_contents' ) ) {
+            } // Validate permission to edit contents
+            else if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
                 $errorMsg = 'Permissão negada.';
             } // No problems occurred: we can carry through with the request
             else {

@@ -31,7 +31,7 @@ var formConsole = {
     removeItems: function removeItems( baseRoute ) {
         var items = getIds( $( '.list-item:checked' ) );
 
-        if ( items.length && confirm( 'Deseja remover os Posts selecionados?' ) ) {
+        if ( items.length && confirm( 'Deseja remover os itens selecionados?' ) ) {
             callConsoleAjax( items, baseRoute, 'delete' );
         }
     },

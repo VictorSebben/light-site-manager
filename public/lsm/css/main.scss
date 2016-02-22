@@ -56,6 +56,7 @@ span {
 .fit {
     max-width: $width-max;
     margin: 0 auto;
+    overflow: hidden;
 }
 
 .main-header {
@@ -118,6 +119,8 @@ span {
     float: left;
     background-color: $color-bg1;
     padding: 2% 0;
+    margin-bottom: -99999px;
+    padding-bottom: 99999px;
     li {
         margin: 2%;
     }
@@ -133,6 +136,8 @@ span {
     width: $width-max - $width-menu;
     padding: 2%;
     float: left;
+    margin-bottom: -99950px;
+    padding-bottom: 99999px;
 }
 
 /* -------------------------------------------------------- */
