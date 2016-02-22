@@ -132,4 +132,24 @@ class CategoryMapper extends Mapper {
 
         return $posts;
     }
+
+    public function deleteAjax( $postIds ) {
+        try {
+            $sql = 'DELETE FROM categories WHERE id IN (';
+
+            foreach ( $postIds as $id ) {
+                $sql .= '?, ';
+            }
+
+            $sql = trim( $sql, ', ' ) . ')';
+            $stmt = self::$_pdo->prepare( $sql );
+            $stmt->execute( $postIds );
+
+            // If everything worked out, return true
+            return true;
+        } catch ( PDOException $e ) {
+            echo $e->getMessage();
+            return false;
+        }
+    }
 }

@@ -132,6 +132,10 @@ $app->map(
     array( 'args' => array( 'id' ) )
 );
 $app->map(
+    '/categories/delete/?',
+    array( 'controller' => 'Category', 'method' => 'deleteAjax' )
+);
+$app->map(
     '/categories/destroy/?',
     array( 'controller' => 'Category', 'method' => 'destroy' )
 );

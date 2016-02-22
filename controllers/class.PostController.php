@@ -358,7 +358,7 @@ class PostController extends BaseController {
                     // add a success message to the session
                     H::flash( 'success-msg', 'Posts removidos com sucesso!' );
                 } else {
-                    $errorMsg = 'Não foi possível atualizar o status dos Posts. Contate o suporte.';
+                    $errorMsg = 'Não foi possível excluir os Posts. Contate o suporte.';
                 }
             }
 
