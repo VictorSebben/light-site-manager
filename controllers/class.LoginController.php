@@ -25,17 +25,15 @@ class LoginController {
     public function run() {
         $request = Request::getInstance();
 
-        if ( H::checkToken( $request->getInput( 'token' ) ) ) {
-            $email = $request->getInput( 'email' );
-            $password = $request->getInput( 'password' );
+        $email = $request->getInput( 'email' );
+        $password = $request->getInput( 'password' );
 
-            if ( $this->_loginHelper->login( $email, $password ) ) {
-                header( 'Location: ' . $this->_url->make( '' ) );
-                // TODO -> adjust later to redirect to ifnull("the page the user originally wanted to go", "index page")
-            } else {
-                H::flash( 'login-error', 'E-mail e/ou senha incorreto(s).' );
-                header( 'Location: ' . $this->_url->make( 'login/' ) );
-            }
+        if ( $this->_loginHelper->login( $email, $password ) ) {
+            header( 'Location: ' . $this->_url->make( '' ) );
+            // TODO -> adjust later to redirect to ifnull("the page the user originally wanted to go", "index page")
+        } else {
+            H::flash( 'login-error', 'E-mail e/ou senha incorreto(s).' );
+            header( 'Location: ' . $this->_url->make( 'login/' ) );
         }
 
         exit;

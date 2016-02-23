@@ -20,7 +20,6 @@
                 <input id="password" type="password" name="password" autocomplete="off">
             </div>
 
-            <input type="hidden" name="token" value="<?= H::generateToken() ?>">
             <input class="input-submit-login" type="submit" name="login" value="Entrar">
         </form>
     </fieldset>
