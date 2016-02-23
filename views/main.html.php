@@ -5,6 +5,7 @@
     <base href="<?= $this->Url->make(); ?>">
     <title>LSM - Light Site Manager</title>
     <link rel='stylesheet' type='text/css' href='<?= $this->Url->make( 'css/main.css' ); ?>'>
+    <link rel='stylesheet' type='text/css' href='<?= $this->Url->make( 'font-awesome/css/font-awesome.min.css') ?>'>
 
     <?= $this->getExtraLinkTags(); ?>
 

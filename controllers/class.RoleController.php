@@ -26,8 +26,14 @@ class RoleController extends BaseController {
     }
 
     public function index() {
+        // instantiate Pagination object and
+        // pass it to the Mapper
+        $pagination = new Pagination();
+        $this->_mapper->pagination = $pagination;
+
+        $this->_view->pagination = $pagination;
         $this->_view->objectList = $this->_mapper->index();
-        $this->_view->render( 'roles/index' );
+        $this->_view->render( 'roles/index', 'pagination' );
     }
 
     public function edit() {

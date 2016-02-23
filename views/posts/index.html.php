@@ -56,8 +56,8 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     <thead>
     <tr>
         <th><input id="toggle-all" type="checkbox" name="toggle-all" title="Selecionar todos"></th>
-        <th>Título</th>
-        <th>Categoria</th>
+        <th><?= $this->makeOrderByLink( 'Título', 'title' ); ?></th>
+        <th><?= $this->makeOrderByLink( 'Categoria', 'category_name' ); ?></th>
         <th>Imagem</th>
         <th>Upload</th>
         <th>Galerias</th>

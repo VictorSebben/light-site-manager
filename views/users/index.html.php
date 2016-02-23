@@ -50,8 +50,8 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     <thead>
     <tr>
         <th><input id="toggle-all" type="checkbox" name="toggle-all" title="Selecionar todos"></th>
-        <th>Nome</th>
-        <th>E-mail</th>
+        <th><?= $this->makeOrderByLink( 'Nome', 'name' ); ?></th>
+        <th><?= $this->makeOrderByLink( 'E-mail', 'email' ); ?></th>
         <th>Status</th>
         <?php if ( $this->editOtherUsers ) : ?>
         <th>Editar</th>

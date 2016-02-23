@@ -39,8 +39,8 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
 <table>
     <thead>
     <tr>
-        <th>Id</th>
-        <th>Nome</th>
+        <th><?= $this->makeOrderByLink( 'Id', 'id' ); ?></th>
+        <th><?= $this->makeOrderByLink( 'Nome', 'name' ); ?></th>
         <th>Editar</th>
         <th>Excluir</th>
     </tr>

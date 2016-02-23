@@ -18,10 +18,6 @@ $app->map(
 
 // ROLES
 $app->map(
-    '/roles/?',
-    array( 'controller' => 'Role', 'method' => 'index' )
-);
-$app->map(
     '/roles/insert/?',
     array( 'controller' => 'Role', 'method' => 'insert' )
 );
@@ -42,6 +38,12 @@ $app->map(
 $app->map(
     '/roles/destroy/?',
     array( 'controller' => 'Role', 'method' => 'destroy' )
+);
+// ?.* means that there may be more things in the url. Those will be
+// search and pagination stuff.
+$app->map(
+    '/roles(/?|/.*)',
+    array( 'controller' => 'Role', 'method' => 'index' )
 );
 
 // HOME

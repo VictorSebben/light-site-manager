@@ -10,11 +10,38 @@ class RoleMapper extends Mapper {
     }
 
     public function index() {
-        // select roles
+        // set additional parameters for the pagination
+        // in the request object
+        $this->request->setPagParams();
+        $params = $this->request->pagParams;
+
+        $offset = $this->pagination->getOffset();
+
+        // validate $params[ 'dir' ] to make sure it contains a valid value
+        if ( $params[ 'dir' ] !== 'ASC' && $params[ 'dir' ] !== 'DESC' ) {
+            $params[ 'dir' ] = 'ASC';
+        }
+
+        $ord = 'id';
+        $rs = self::$_pdo->query( 'SELECT id, name FROM roles LIMIT 0' );
+        for ( $i = 0; $i < $rs->columnCount(); $i++ ) {
+            if ( $rs->getColumnMeta( $i )[ 'name' ] == $params[ 'ord' ] ) {
+                $ord = $params[ 'ord' ];
+                break;
+            }
+        }
+
+        // Set number of records in the pagination object
+        $this->_setNumRecordsPagn();
+
         $stmt = self::$_pdo->prepare(
-            "SELECT id, name FROM roles ORDER BY id"
+            "SELECT id, name FROM roles ORDER BY {$ord} {$params[ 'dir' ]} LIMIT :lim OFFSET :offset"
         );
 
+        $lim = $this->pagination->getLimit();
+
+        $stmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
+        $stmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $stmt->execute();
         $stmt->setFetchMode( PDO::FETCH_CLASS, 'RoleModel' );
         $roles = $stmt->fetchAll();
@@ -27,6 +54,16 @@ class RoleMapper extends Mapper {
         }
 
         return $roles;
+    }
+
+    protected function _setNumRecordsPagn() {
+        $sql = "SELECT count(*) AS count
+                  FROM roles ";
+
+        $selectStmt = self::$_pdo->prepare( $sql );
+        $selectStmt->execute();
+        $this->pagination->numRecords = $selectStmt->fetch( PDO::FETCH_OBJ )->count;
+        $selectStmt->closeCursor();
     }
 
     /**

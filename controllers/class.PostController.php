@@ -37,7 +37,6 @@ class PostController extends BaseController {
         $this->_view->objectList = $this->_mapper->index( Request::getInstance()->category );
 
         $this->_view->addExtraLink( 'css/colorbox.css' );
-        $this->_view->addExtraLink( 'font-awesome/css/font-awesome.min.css' );
 
         $this->_view->addExtraScript( 'js/list.js' );
         $this->_view->addExtraScript( 'js/post.js' );

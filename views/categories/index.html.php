@@ -49,8 +49,8 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     <thead>
     <tr>
         <th><input id="toggle-all" type="checkbox" name="toggle-all" title="Selecionar todas"></th>
-        <th>Nome</th>
-        <th>Descrição</th>
+        <th><?= $this->makeOrderByLink( 'Nome', 'name' ); ?></th>
+        <th><?= $this->makeOrderByLink( 'Descrição', 'description' ); ?></th>
         <th>Núm. de Posts</th>
         <?php if ( $this->editCat ) : ?>
             <th>Editar</th>

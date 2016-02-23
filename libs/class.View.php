@@ -142,4 +142,40 @@ class View extends stdClass {
             return $tags . "<script src='{$this->Url->make( $src )}'></script>\n";
         });
     }
+
+    public function makeOrderByLink( $label, $ord ) {
+        // We are going to use a hidden input here: the Request parameters
+        // will be used to assemble the link
+        $request = Request::getInstance();
+
+        // If the link accessed by the user already had pagination for this link, we are going to
+        // create the link with the opposite direction
+
+        if ( $ord == $request->pagParams[ 'ord' ]
+             && $request->pagParams[ 'dir' ] == 'ASC' ) {
+            $dir = 'DESC';
+            $arrow = '<span class="fa fa-caret-up"></span>';
+        }
+        else {
+            $dir = 'ASC';
+            $arrow = '<span class="fa fa-caret-down"></span>';
+        }
+// TODO PAGINATION
+// TODO TEST POSTS LISTED BY CATEGORIES
+        // Get the base of the link, which is the same page being rendered right now
+        $path = "{$request->uriParts[ 0 ]}/";
+
+        if ( $request->category ) {
+            $path .= "{$request->category}/list/";
+        }
+
+        $path .= "ord:{$ord}/dir:{$dir}/";
+
+        // Check search parameters
+        if ( isset( $request->pagParams[ 'search' ] ) ) {
+            $path .= "?search={$request->pagParams[ 'search' ]}";
+        }
+
+        return "<a href='{$this->Url->make( $path )}'>{$label}&nbsp;{$arrow}</a>";
+    }
 }
