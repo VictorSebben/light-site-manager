@@ -412,4 +412,64 @@ class PostController extends BaseController {
         $imgH = new ImgH();
         $imgH->saveImg();
     }
+
+    public function createVideoGal() {
+        if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
+            throw new PermissionDeniedException();
+        }
+
+        // Store URL in session so we can redirect the user
+        // after she is done with the upload
+        $this->flashRedirectTo( $_SERVER[ 'HTTP_REFERER' ] );
+
+        $pagination = new Pagination();
+
+        $videoGalleryMapper = new VideoGalleryMapper();
+        $videoGalleryMapper->pagination = $pagination;
+
+        $this->_view->pagination = $pagination;
+        $this->_view->objectList = $videoGalleryMapper->index();
+        $this->_view->object = $this->_mapper->find( Request::getInstance()->pk );
+
+        $category = ( new CategoryMapper() )->find( $this->_view->object->category_id );
+
+        $this->_view->addExtraLink( 'css/video-gallery.css' );
+        $this->_view->addExtraScript( 'js/video-gallery.js' );
+
+        $this->_view->render( 'posts/video-gallery', 'pagination' );
+    }
+
+    public function insertVideo( $postId ) {
+        // Initialize error message (to be used if update fails) and the $isOk flag
+        $errorMsg = '';
+        $isOk = false;
+
+        try {
+            // Validate permission to edit contents
+            if ( !$this->_user->hasPrivilege( 'edit_contents' ) ) {
+                $errorMsg = 'Permissão Negada';
+            } else {
+                $mapper = new VideoGalleryMapper();
+
+                $videoGallery = new VideoGalleryModel();
+                $videoGallery->post_id = $postId;
+                $videoGallery->title = Request::getInstance()->getInput( 'title' );
+                $videoGallery->video_iframe = Request::getInstance()->getInput( 'iframe' );
+                $videoGallery->position = Request::getInstance()->getInput( 'position' );
+
+                $mapper->save( $videoGallery );
+                H::flash( 'success-msg', 'Vídeo inserido com sucesso!' );
+                $isOk = true;
+            }
+
+            echo json_encode( array( 'isOk' => $isOk, 'error' => $errorMsg ) );
+
+        } catch ( Exception $e ) {
+            if ( DEBUG ) {
+                echo json_encode( array( 'isOk' => false, 'error' => $e->getMessage() ) );
+            } else {
+                echo json_encode( array( 'isOk' => false, 'error' => 'Não foi possível inserir o vídeo. Contate o suporte.' ) );
+            }
+        }
+    }
 }

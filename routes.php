@@ -227,6 +227,21 @@ $app->map(
     array( 'args' => array( 'id' ) )
 );
 $app->map(
+    '/posts/\d+/img-gal/?',
+    array( 'controller' => 'Post', 'method' => 'uploadImgGal' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/posts/\d+/vid-gal/?',
+    array( 'controller' => 'Post', 'method' => 'createVideoGal' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
+    '/posts/\d+/insert-video/?',
+    array( 'controller' => 'Post', 'method' => 'insertVideo' ),
+    array( 'args' => array( 'id' ) )
+);
+$app->map(
     '/posts/saveImg/?',
     array( 'controller' => 'Post', 'method' => 'saveImg' )
 );

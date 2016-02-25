@@ -60,7 +60,8 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
         <th><?= $this->makeOrderByLink( 'Categoria', 'category_name' ); ?></th>
         <th>Imagem</th>
         <th>Upload</th>
-        <th>Galerias</th>
+        <th>Galeria de Img.</th>
+        <th>Galeria de Vídeos</th>
         <th>Status</th>
         <?php if ( $this->editContents ) : ?>
             <th>Editar</th>
@@ -94,11 +95,20 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
                 </a>
             </td>
             <td>
-                <a class="imgup icon" href="<?= $this->Url->make( "posts/{$post->id}/upload/" ); ?>">
+                <a title="Upload Imagem" class="imgup icon" href="<?= $this->Url->make( "posts/{$post->id}/upload/" ); ?>">
                     <span class="fa fa-upload"></span>
                 </a>
             </td>
-            <td><!-- TODO GALLERIES --></td>
+            <td>
+                <a title="Galeria de Imagens" class="imgup icon" href="<?= $this->Url->make( "posts/{$post->id}/img-gal/" ); ?>">
+                    <span class="fa fa-picture-o"></span>
+                </a>
+            </td>
+            <td>
+                <a title="Galeria de Vídeos" class="imgup icon" href="<?= $this->Url->make( "posts/{$post->id}/vid-gal/" ); ?>">
+                    <span class="fa fa-youtube"></span>
+                </a>
+            </td>
             <td>
                 <div class="onoffswitch" title="<?= PostModel::$statusString[ $post->status ] ?>">
                     <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox"

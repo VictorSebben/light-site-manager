@@ -1,0 +1,126 @@
+table {
+    width: 80%;
+}
+
+.info {
+    font-size: 17px;
+}
+
+.video-insert {
+    width: 740px;
+    border: 1px solid #999;
+    border-radius: 5px;
+    padding: 10px;
+
+    .insert-btn-msg {
+        display: block;
+
+        .input-submit {
+            margin-top: 10px;
+        }
+
+        .msg {
+            color: #f00;
+            margin-left: 20px;
+            font-weight: 700;
+            display: none;
+        }
+    }
+
+    .video-info {
+        width: 450px;
+        display: inline-block;
+        border-radius: 5px;
+        margin-right: 10px;
+        padding-top: 2px;
+
+        input {
+            display: block;
+            margin: 5px 2px;
+        }
+
+        #insert-position {
+            width: 65px;
+        }
+
+        #insert-iframe {
+            width: 450px;
+        }
+    }
+
+    .video-preview {
+        width: 250px;
+        height: 130px;
+        display: inline-block;
+        border-radius: 5px;
+        background-color: #eee;
+        position: absolute;
+
+        .preview {
+            display: block;
+            height: 130px;
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            padding-top: 55px;
+            font-style: italic;
+        }
+    }
+}
+
+.video-item {
+    padding: 1%;
+
+    .info #title, .info #position {
+        background-color: #eee;
+        padding: 3px;
+        border-radius: 5px;
+    }
+
+    .video-preview {
+        width: 200px;
+        height: 100px;
+        display: inline-block;
+        border-radius: 5px;
+        background-color: #eee;
+
+        .preview {
+            font-style: italic;
+            text-align: center;
+            display: block;
+            vertical-align: middle;
+            padding-top: 40px;
+        }
+    }
+
+    .info-title-pos {
+        margin: 0 30px 0 0;
+        float: left;
+
+        .info {
+            display: block;
+        }
+
+        #title {
+            display: inline-block;
+            width: 200px;
+            margin-bottom: 15px;
+        }
+
+        #position {
+            display: inline-block;
+            width: 50px;
+        }
+    }
+
+    .remove {
+        display: block;
+        float: right;
+    }
+
+    .iframe div {
+        height: 70px;
+        width: 98%;
+        background-color: #eee;
+    }
+}

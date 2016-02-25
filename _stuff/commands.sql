@@ -180,6 +180,19 @@ CREATE TABLE IF NOT EXISTS galleries (
   id SERIAL NOT NULL,
   post_id INTEGER,
   image VARCHAR(35) NOT NULL,
+  caption VARCHAR(200),
+  position INTEGER,
+  created_at TIMESTAMP WITHOUT TIME ZONE,
+  updated_at TIMESTAMP WITHOUT TIME ZONE,
+  PRIMARY KEY (id),
+  FOREIGN KEY (post_id) REFERENCES posts(id)
+);
+
+CREATE TABLE IF NOT EXISTS video_galleries (
+  id SERIAL NOT NULL,
+  post_id INTEGER,
+  video_iframe VARCHAR(700) NOT NULL,
+  title VARCHAR(200),
   position INTEGER,
   created_at TIMESTAMP WITHOUT TIME ZONE,
   updated_at TIMESTAMP WITHOUT TIME ZONE,
