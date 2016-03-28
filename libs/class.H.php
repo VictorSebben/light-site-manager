@@ -74,13 +74,19 @@ class H {
      * @return mixed
      */
     public static function flash( $name, $msg = '' ) {
+        if ( $msg ) {
+            $_SESSION[ $name ] = $msg;
+            return true;
+        }
+
+        $text = '';
+
         if ( isset( $_SESSION[ $name ] ) ) {
             $text = $_SESSION[ $name ];
             unset( $_SESSION[ $name ] );
-            return $text;
-        } else {
-            $_SESSION[ $name ] = $msg;
         }
+
+        return $text;
     }
 
     /**
@@ -115,5 +121,22 @@ class H {
         }
 
         return null;
+    }
+
+    public static function sanitizeSlashes( $uri ) {
+        return preg_replace( '%/{2,}%', '/', $uri );
+    }
+
+    public static function str2Url( $str, $replace = array(), $delimiter = '-' ) {
+        if( ! empty( $replace ) ) {
+            $str = str_replace( ( array ) $replace, ' ', $str);
+        }
+
+        $clean = iconv( 'UTF-8', 'ASCII//TRANSLIT', $str );
+        $clean = preg_replace( '/[^a-zA-Z0-9\/_|+ -]/', '', $clean );
+        $clean = strtolower( trim( $clean, '-' ) );
+        $clean = preg_replace( '/[\/_|+ -]+/', $delimiter, $clean );
+
+        return $clean;
     }
 }

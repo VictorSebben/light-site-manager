@@ -38,7 +38,7 @@ class PostMapper extends Mapper {
         $params = $this->request->pagParams;
 
         $offset = $this->pagination->getOffset();
-
+// TODO USE CATEGORY, IF EXISTS, TO COUNT PAGES
         // validate $params[ 'dir' ] to make sure it contains a valid value
         if ( $params[ 'dir' ] !== 'ASC' && $params[ 'dir' ] !== 'DESC' ) {
             $params[ 'dir' ] = 'ASC';

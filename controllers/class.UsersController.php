@@ -92,14 +92,12 @@ class UserController extends BaseController {
         }
     }
 
-    public function edit() {
+    public function edit( $id ) {
         if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
             throw new PermissionDeniedException();
         }
 
         $this->_view->disableOwnUser = $this->_user->hasPrivilege( 'disable_own_user' );
-
-        $id = Request::getInstance()->pk;
 
         $this->_view->object = $this->_mapper->find( $id );
 
