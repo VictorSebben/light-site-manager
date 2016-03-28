@@ -2,7 +2,8 @@
     "name": "superbits/light-site-manager",
     "description": "Light-weight site and blog manager written in PHP.",
     "require": {
-        "verot/class.upload.php": "dev-master"
+        "verot/class.upload.php": "dev-master",
+        "ckeditor/ckeditor": "4.*"
     },
     "license": "GPLv3",
     "authors": [

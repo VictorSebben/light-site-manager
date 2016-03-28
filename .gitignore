@@ -2,7 +2,7 @@
 # filename: .gitignore
 #
 
-public/.htaccess
+.htaccess
 .idea/
 conf/inc.dbconfig.php
 conf/inc.appconfig.php
@@ -11,9 +11,8 @@ conf/inc.appconfig.php
 tags
 
 # Ignore our .css files (for admin and site) since we'll only commit .scss ones.
-public/lsm/css/*.css
-public/site/css/*.css
-!public/lsm/css/colorbox.css
+/css/*.css
+!/css/colorbox.css
 
 # Sass stuff.
 .sass-cache/
@@ -21,9 +20,6 @@ public/site/css/*.css
 
 vendor/
 
-/public/lsm/_tmp/*
-!/public/lsm/_tmp/.gitignore
-/public/lsm/composer.lock
-
-/public/site/*
-!/public/site/.gitkeep
+/_tmp/*
+!/_tmp/.gitignore
+composer.lock

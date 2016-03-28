@@ -1,6 +1,6 @@
 RewriteEngine ON
-RewriteBase /
-# RewriteBase /light-site-manager/public/
+#RewriteBase /
+ RewriteBase /light-site-manager/
 
 # If it is an actual directory of file, don't "rewrite"
 RewriteCond %{REQUEST_FILENAME} !-f
