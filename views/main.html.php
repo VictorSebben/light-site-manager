@@ -11,10 +11,8 @@
 
     <script>
         window.lsmConf = {
-            baseUrl: '<?= "{$this->_config[ 'base_url' ]}/{$this->_config[ 'admin_path' ]}"; ?>'
+            baseUrl: '<?= "{$this->_config[ 'base_url' ]}"; ?>'
         };
-
-        console.log( window.lsmConf );
     </script>
 </head>
 <body>
@@ -38,9 +36,9 @@
     <div class='fit cf'>
         <nav class='menu'>
             <ul>
-                <li><a href='<?= $this->Url->make( 'users/' ); ?>'>Usuários</a>
-                <li><a href='<?= $this->Url->make( 'categories/' ); ?>'>Categorias</a></li>
-                <li><a href='<?= $this->Url->make( 'posts/') ; ?>'>Posts</a></li>
+                <li><a href='<?= $this->Url->make( 'users/index/' ); ?>'>Usuários</a>
+                <li><a href='<?= $this->Url->make( 'categories/index/' ); ?>'>Categorias</a></li>
+                <li><a href='<?= $this->Url->make( 'posts/index/') ; ?>'>Posts</a></li>
             </ul>
         </nav>
 

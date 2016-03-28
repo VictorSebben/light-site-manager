@@ -7,7 +7,7 @@ class Router extends Base {
      *
      * @var array
      */
-    protected $_routes;
+    protected $_routeRegex;
 
     /**
     * Array containing controller names related to user requests.
@@ -58,6 +58,11 @@ class Router extends Base {
         $this->_request = Request::getInstance();
         $this->_namespace = '';
 
+        // Create the regexp to match the route accessed by the user.
+        // From the parts (groups) that were matched, we are going to get the information
+        // about Controller, categories, primary key, and method.
+        $this->_routeRegex = '/(\w+)/((?:[a-z][a-z0-9-]{0,}/?){0,4}/)?(\d+)?/?([\w-]+(?=(?:/|$)))/?(.+)?';
+
         parent::__construct();
     }
 
@@ -79,20 +84,6 @@ class Router extends Base {
     }
 
     /**
-     * Maps, routes, controller options (controller name and mathod) and additional parameters.
-     *
-     * @param String $route      A string containing the route. It may contain regular expressions.
-     * @param array  $controller An associative array containing controller name and method to be called.
-     * @param array  $params     Optional parameters that will be passed to the model class.
-     * The first key must be called 'args'.
-     */
-    public function map( $route, $controller, $params = array() ) {
-        $this->_routes[] = "/{$this->_namespace}{$route}";
-        $this->_controllers[] = $controller;
-        $this->_params[] = $params;
-    }
-
-    /**
      * Starts the application. If a route matches the url, _run() is called.
      */
     public function start() {
@@ -102,31 +93,31 @@ class Router extends Base {
         // In order to make it work inside subdirectories on both Apache and NGINX, we have to
         // get the uri from $_SERVER (not as a $_GET param). As for Apache, we need to strip away
         // the root directory from the uri string, hence the preg_replace() functions.
-        $this->_request->servRootDir = preg_replace( '/index.php/', '', trim( $_SERVER[ "SCRIPT_NAME" ], '/') );
-        $this->_request->uri = preg_replace( ":{$this->_request->servRootDir}:", '', $this->_request->uri );
+        $this->_request->uri = preg_replace(
+            ":" . preg_replace( '/index.php/', '', trim( $_SERVER[ "SCRIPT_NAME" ], '/') ) . ":",
+            '',
+            $this->_request->uri
+        );
 
-        foreach ( $this->_routes as $key => $route ) {
+        // Remove query part, if there was one: it will be accessed via get later
+        $pos = strpos( $this->_request->uri, '?' ) ? : ( strlen( $this->_request->uri ) );
+        $this->_request->uri = substr( $this->_request->uri, 0, $pos );
 
-            if ( preg_match( ";^{$route}$;", $this->_request->uri ) ) {
-                $this->_request->mappedRoute = $route;
-                $this->_key = $key;
-                try {
-                    $this->_run();
-                }  catch ( PermissionDeniedException $e ) {
-                    // TODO redirect to an error page
-                    echo $e->getMessage();
-                }  catch ( PDOException $e ) {
-                    if ( DEBUG )
-                        echo "DebugError: " . $e->getMessage();
-                    else
-                        echo "Ocorreu um erro na execução da aplicação. Contate o administrador do sistema.";
-                } catch ( Exception $e ) {
-                    echo $e->getMessage();
-                }
-                break;
+        // If no controller or method was found, the run method will throw
+        // an exception. We will catch the exception to show an error to the user.
+        try {
+            $this->_run();
+        } catch ( PermissionDeniedException $e ) {
+            echo $e->getMessage();
+        } catch ( PDOException $e ) {
+            if ( DEBUG ) {
+                echo "DebugError: " . $e->getMessage();
+            } else {
+                echo "Ocorreu um erro na execução da aplicação. Contate o administrador do sistema.";
             }
+        } catch ( Exception $e ) {
+            echo $e->getMessage();
         }
-
     }
 
     /*
@@ -134,72 +125,142 @@ class Router extends Base {
     * the correct method
     */
     protected function _run() {
-        // trim '/' so that /news/11/ gives us two pieces instead of four (one before
-        // the first /, and one after the last /, which will be always empty.
-        $uri = trim( $this->_request->uri, '/' );
-        // check the last position to be taken from th URI
-        $pos = strpos( $uri, '?' ) ?: ( strlen( $uri ) );
-        $this->_request->uriParts = explode( '/', substr( $uri, 0, $pos ) );
+        $uriParts = array();
 
-        if ( $this->_request->uriParts[ 0 ] === $this->_config[ 'admin_path' ] ) {
-            Request::getInstance()->uriAdminPath = array_shift( $this->_request->uriParts );
+        // Initialize uriParts[ 'params' ]: if there were no pagination or other
+        // parameters in the URL, this will remain null
+        $this->_request->uriParts[ 'params' ] = null;
+
+        // Initialize uriParts[ 'args_str' ]: it will contain the whole args string, before implosion
+        $this->_request->uriParts[ 'args_str' ] = '';
+
+        preg_match( ";{$this->_routeRegex};", $this->_request->uri, $uriParts );
+
+        if ( count( $uriParts) ) {
+            $this->_request->uri = array_shift( $uriParts );
+            $this->_request->uriParts[ 'ctrl' ] = array_shift( $uriParts );
+
+            $lastElem = array_pop( $uriParts );
+
+            // Check if the last part of the array corresponds to parameters
+            // (pagination, order by, etc.) or the method, and assign properties
+            // accordingly
+
+            if ( strpos( $lastElem, ':' ) !== false ) {
+                $this->_request->uriParts[ 'params' ] = $lastElem;
+                $this->_request->uriParts[ 'act' ] = array_pop( $uriParts );
+            } else {
+                $this->_request->uriParts[ 'act' ] = $lastElem;
+            }
+
+            $this->_request->uriParts[ 'pk' ] = array_pop( $uriParts );
+
+            $uriParts = array_filter( $uriParts );
+
+            $this->_request->uriParts[ 'args' ] = array_pop( $uriParts );
+            if ( $this->_request->uriParts[ 'args' ] ) {
+                $this->_request->uriParts[ 'args_str' ] = trim( $this->_request->uriParts[ 'args' ], '/' );
+                $this->_request->uriParts[ 'args' ] = explode( '/', trim( $this->_request->uriParts[ 'args' ], '/' ) );
+            }
+        }
+        // If nothing was matched, get default controller and method
+        else {
+            $this->_request->uriParts[ 'ctrl' ] = 'Home';
+            $this->_request->uriParts[ 'act' ] = 'welcome';
+
+            $this->_request->uriParts[ 'pk' ] = null;
+            $this->_request->uriParts[ 'args' ] = null;
         }
 
-        $controller_name = $this->_controllers[ $this->_key ][ 'controller' ] . 'Controller';
-        $model_base_name = $this->_controllers[ $this->_key ][ 'controller' ];
-        $method_name = $this->_controllers[ $this->_key ][ 'method' ];
+        // set additional parameters for the pagination
+        // in the request object
+        Request::getInstance()->setPagParams();
 
-        $this->_request->controller = $this->_controllers[ $this->_key ][ 'controller' ];
-        $this->_request->method = $this->_controllers[ $this->_key ][ 'method' ];
+        $ctrl_name = $this->_dashes2camel( $this->_request->uriParts[ 'ctrl' ], true ). 'Controller';
+        $method_name = $this->_dashes2camel( $this->_request->uriParts[ 'act' ] );
 
-        $controller_class = new ReflectionClass( $controller_name );
-        if ( $controller_class->isInstantiable() ) {
+        $ref_class = new ReflectionClass( $ctrl_name );
+        if ( ! $ref_class->isInstantiable() ) {
+            throw new Exception( "{$ctrl_name} not found." );
+        } else if ( ! $ref_class->hasMethod( $method_name ) ) {
+            throw new Exception( "Method {$method_name} not found." );
+        }
 
-            $controller_obj = new $controller_name( $model_base_name );
+        $args = array();
+        $ref_method = new ReflectionMethod( $ctrl_name, $method_name );
+        foreach ( $ref_method->getParameters() as $param ) {
+            if ( $param->getName() === 'pk' || $param->getName() === 'id' ) {
+                if ( ! $this->_request->uriParts[ 'pk' ] ) {
+                    throw new Exception( 'Primary key not informed.' );
+                }
 
-            // get arguments
-            $this->_args = $this->_getRouteArgs();
+                $args[] = $this->_request->uriParts[ 'pk' ];
+            } else if ( $param->getName() === 'fk' || $param->getName() === 'args' ) {
+                if ( ( ! $this->_request->uriParts[ 'args' ] ) && ( ! $param->allowsNull() ) ) {
+                    throw new Exception( 'Arguments not informed.' );
+                }
 
-            if ( count( $this->_args ) ) {
-                call_user_func_array( array( $controller_obj, $method_name ), $this->_args );
-            } else {
-                call_user_func( array( $controller_obj, $method_name ) );
+                $args[] = $this->_request->uriParts[ 'args' ];
             }
+        }
+
+        if ( count( $args ) ) {
+            call_user_func_array( array( new $ctrl_name(), $method_name ), $args );
         } else {
-            throw new Exception( "{$controller_name} not found." );
+            call_user_func( array( new $ctrl_name, $method_name ) );
         }
     }
 
-    protected function _getRouteArgs() {
-        $args = array();
+    /**
+     * @param $uri
+     * @return array
+     */
+    protected function _getRouteArgs( $uri ) {
+        // Check the last position to be taken from the URI, cutting the query parameters
+        $pos = strpos( $uri, '?' ) ?: ( strlen( $uri ) );
+        $uri = explode( '/', substr( $uri, 0, $pos ) );
 
-        if ( count( $this->_params[ $this->_key ] ) ) {
+        // Get the controller/model name (first position of the URL)
+        $this->_request->uriParts[ 'ctrl' ] = array_shift( $uri );
 
-            $uriParts = $this->_request->uriParts;
-            // remove first element, that contains the module name (ex: users)
-            array_shift( $uriParts );
+        // Initialize array of categories
+        $this->_request->uriParts[ 'cats' ] = array();
+        // Get categories
+        foreach ( $uri as $part ) {
+            // When we get to the pagination or order by slugs, or the id (numeric value)
+            // we are not in the categories positions anymore
+            if ( ( strpos( $part, ':' ) !== false )
+                || preg_match( '%\d+%', $part ) ) break;
 
-            $routeArgs = $this->_params[ $this->_key ][ 'args' ];
-            for ( $i = 0; $i < count( $routeArgs ); $i++ ) {
-
-                $uriArgVal = $uriParts[ $i ];
-
-                // store param value in array that's going to be passed when calling the
-                // method specified in the route
-                $args[] = $uriArgVal;
-
-                // store parameters in the request object
-                switch ( $routeArgs[ $i ] ) {
-                    case 'id':
-                        $this->_request->pk = $uriArgVal;
-                        break;
-                    case 'cat':
-                        $this->_request->category = $uriArgVal;
-                }
-            }
+            $this->_request->uriParts[ 'cats' ][] = $part;
         }
 
+        // TODO -> USE ARGS TO CHECK IF STRING IS CATEGORY OR ACTION?
+        // TODO Ex: /posts/create/
+        H::ppr( $this->_request->uriParts );
+        exit;
+
+        $args = array();
+
+        if ( ! count( $this->_params[ $this->_key ] ) ) {
+            return $args;
+        }
+
+        $routeArgs = $this->_params[ $this->_key ][ 'args' ];
+
+
+
         return $args;
+    }
+
+    protected function _dashes2camel( $str, $capitalizeFirstChar = false ) {
+        $str = str_replace(' ', '', ucwords(str_replace('-', ' ', $str)));
+
+        if ( ! $capitalizeFirstChar ) {
+            $str[ 0 ] = strtolower( $str[ 0 ] );
+        }
+
+        return $str;
     }
 
     protected function _isHomePath( $route ) {

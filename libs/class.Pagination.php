@@ -24,6 +24,16 @@ class Pagination extends Base {
     protected $_request;
 
     /**
+     * @var int
+     */
+    protected $_pageNum;
+
+    /**
+     * @var Url
+     */
+    protected $_url;
+
+    /**
      * Number of links to be shown before and after the current page number.
      */
     const LIM_LINKS = 1;
@@ -31,9 +41,12 @@ class Pagination extends Base {
     public function __construct() {
         parent::__construct();
         $this->_request = Request::getInstance();
+        $this->_pageNum = H::ifnull( $this->_request->pagParams[ 'pag' ], 1 );
 
-        // default: x per page
-        $this->_limit = 5;
+        $this->_url = new Url();
+
+        // Default: x per page
+        $this->_limit = 2; // TODO TEST
     }
 
     public function getLimit() {
@@ -41,11 +54,11 @@ class Pagination extends Base {
     }
 
     public function getCurrentPage() {
-        return $this->_request->pagParams["pag"];
+        return $this->_pageNum;
     }
 
     public function getOffset() {
-        return ( ($this->_request->pagParams["pag"] - 1) * $this->_limit );
+        return ( ( $this->_pageNum - 1 ) * $this->_limit );
     }
 
     public function getTotalPages() {
@@ -53,11 +66,11 @@ class Pagination extends Base {
     }
 
     public function getPreviousPage() {
-        return $this->_request->pagParams["pag"] - 1;
+        return $this->_pageNum - 1;
     }
 
     public function getNextPage() {
-        return $this->_request->pagParams["pag"] + 1;
+        return $this->_pageNum + 1;
     }
 
     public function getMinLimit() {
@@ -83,23 +96,8 @@ class Pagination extends Base {
     }
 
     public function getPagnLink( $pagNum = 1 ) {
-        $uri = $this->_config[ 'base_url' ] . '/' . $this->_config[ 'admin_path' ] . '/' . $this->_request->uriParts[0] . '/';
-
-        // assemble pagination link using the pagination params
-        foreach( $this->_request->pagParams AS $key => $value ) {
-            if ( $key === 'pag' ) {
-                $uri .= "{$key}:{$pagNum}/";
-            }
-
-            // ! empty so we don't end up with urls with params without value like ord:/search=/
-            else if ( ! empty( $value ) && $key != 'search' ) {
-                $uri .= "{$key}:{$value}/";
-            }
-        }
-
-        if ( $this->_request->pagParams['search'] !== null ) {
-            $uri .= "?search={$this->_request->pagParams['search']}";
-        }
+        $uri = $this->_url->act( $this->_request->uriParts[ 'act' ], $this->_request->uriParts[ 'pk' ], false );
+        $uri .= "/{$this->_url->getPagnParams( $pagNum, true )}";
 
         return $uri;
     }

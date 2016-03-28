@@ -31,7 +31,7 @@ class BaseController {
     protected $_view;
 
     /**
-     * @var UserModel
+     * @var UsersModel
      */
     protected $_user;
 
@@ -51,11 +51,11 @@ class BaseController {
          * execution
          */
         // populate User
-        $userMapper = new UserMapper();
+        $usersMapper = new UsersMapper();
 
-        $this->_user = new UserModel();
+        $this->_user = new UsersModel();
         $this->_user->id = $_SESSION[ 'user' ];
-        $userMapper->initRoles( $this->_user );
+        $usersMapper->initRoles( $this->_user );
 
         // If it is the edit method, set last URL in the session so we can
         // redirect the user to the same route, with the same parameters
@@ -69,6 +69,26 @@ class BaseController {
             H::flash( 'redirect_to', $url );
         } else {
             return H::flash( 'redirect_to' );
+        }
+    }
+
+    /**
+     * Sets the flash message information (message and class) on
+     * a View object
+     * @param View $view
+     */
+    public function prepareFlashMsg( View $view ) {
+        if ( isset( $_SESSION[ 'success-msg' ] ) ) {
+            $view->flashMsg = H::flash( 'success-msg' );
+            $view->flashMsgClass = 'success-msg';
+        } else if ( isset( $_SESSION[ 'err-msg' ] ) ) {
+            $view->flashMsg = '<ul>';
+            foreach ( json_decode( H::flash( 'err-msg' ) ) as $errMsg ) {
+                $view->flashMsg .= "<li>{$errMsg}</li>";
+            }
+            $view->flashMsg .= '</ul>';
+
+            $view->flashMsgClass = 'err-msg';
         }
     }
 }

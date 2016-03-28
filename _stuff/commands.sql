@@ -201,3 +201,28 @@ CREATE TABLE IF NOT EXISTS video_galleries (
 );
 
 INSERT INTO permissions (description, created_at, updated_at) VALUES ('disable_own_user', now(), now());
+
+ALTER TABLE posts DROP COLUMN category_id;
+
+ALTER TABLE categories ALTER COLUMN id TYPE VARCHAR(32);
+
+ALTER TABLE posts ADD COLUMN category_id VARCHAR(32);
+ALTER TABLE posts ADD CONSTRAINT posts_category_id_fkey FOREIGN KEY (category_id) REFERENCES categories (id);
+
+ALTER TABLE categories ADD COLUMN parent_id VARCHAR(32);
+ALTER TABLE categories ADD CONSTRAINT categories_category_id_fkey FOREIGN KEY (parent_id) REFERENCES categories (id);
+
+CREATE TABLE posts_categories (
+  post_id INTEGER,
+  category_id VARCHAR(32),
+  PRIMARY KEY (post_id, category_id),
+  FOREIGN KEY (post_id) REFERENCES posts(id),
+  FOREIGN KEY (category_id) REFERENCES categories(id)
+);
+
+-- Now that categories.id is a string, we have to drop the
+-- default value and the sequence
+ALTER TABLE categories ALTER COLUMN id DROP DEFAULT;
+DROP SEQUENCE IF EXISTS categories_id_seq;
+
+ALTER TABLE posts ALTER COLUMN category_id SET NOT NULL;

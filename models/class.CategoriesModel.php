@@ -1,6 +1,6 @@
 <?php
 
-class CategoryModel extends BaseModel {
+class CategoriesModel extends BaseModel {
 
     public $id;
     public $name;

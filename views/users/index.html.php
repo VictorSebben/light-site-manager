@@ -1,18 +1,6 @@
-<?php
-$msgClass = false;
-
-if ( isset( $_SESSION[ 'success-msg' ] ) ) {
-    $msg = H::flash( 'success-msg' );
-    $msgClass = 'success-msg';
-} else if ( isset( $_SESSION[ 'err-msg' ] ) ) {
-    $msg = H::flash( 'err-msg' );
-    $msgClass = 'err-msg';
-}
-?>
-
 <div class="console">
     <!-- Adicionar -->
-    <a href="<?= $this->Url->make( "users/create" ) ?>" class="input-submit btn-green">Adicionar</a>
+    <a href="<?= $this->Url->create(); ?>" class="input-submit btn-green">Adicionar</a>
 
     <div class="console-toggle">
         <!-- Ativar -->
@@ -26,22 +14,22 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
     <button id="btn-delete" name="btn-delete" class="input-submit btn-red">Excluir</button>
 
     <div class="search" title="Pode usar parte do nome ou email">
-        <form id="users-search-form" class="search-form" action="<?= $this->Url->make( 'users/' ) ?>">
+        <form id="users-search-form" class="search-form" action="<?= $this->Url->index( false ); ?>">
             <div class="form-field">
                 <input placeholder="Pesquisar Usuários" title="Pode-se pesquisar por nome ou e-mail"
                        id="search" type="text" name="search" value="<?= Request::getInstance()->getInput( 'search', false ); ?>">
             </div>
             <input class="input-submit" type="submit" value="Buscar">
-            <a href="<?= $this->Url->make( 'users/' ) ?>">Limpar pesquisa</a>
+            <a href="<?= $this->Url->make( 'users/index' ); ?>">Limpar pesquisa</a>
         </form>
     </div>
 </div>
 
 <h2 id="area-header">Users</h2>
 
-<?php if ( isset( $msg ) ): ?>
-    <div class="flash <?= $msgClass ?>">
-        <?= $msg ?>
+<?php if ( $this->flashMsg ): ?>
+    <div class="flash <?= $this->flashMsgClass; ?>">
+        <?= $this->flashMsg; ?>
     </div>
 <?php endif; ?>
 
@@ -88,11 +76,11 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
             </td>
             <?php if ( $this->editOtherUsers ) : ?>
             <td>
-                <a class="input-submit btn-edit" href="<?= $this->Url->make( "users/{$user->id}/edit" ) ?>">Editar</a>
+                <a class="input-submit btn-edit" href="<?= $this->Url->edit( $user->id ); ?>">Editar</a>
             </td>
             <td>
                 <?php if ( $this->disableOwnUser || ( $user->id != $_SESSION[ 'user' ] ) ) : ?>
-                <a class="input-submit btn-delete" href="<?= $this->Url->make( "users/{$user->id}/delete" ) ?>">Excluir</a>
+                <a class="input-submit btn-delete" href="<?= $this->Url->delete( $user->id ); ?>">Excluir</a>
                 <?php endif; ?>
             </td>
             <?php endif; ?>

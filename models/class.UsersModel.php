@@ -1,6 +1,6 @@
 <?php
 
-class UserModel extends BaseModel {
+class UsersModel extends BaseModel {
 
     public $id;
     public $name;
@@ -10,7 +10,7 @@ class UserModel extends BaseModel {
     public $deleted;
 
     /**
-     * Array to hold RoleModel objects.
+     * Array to hold RolesModel objects.
      * @var array
      */
     public $roles;

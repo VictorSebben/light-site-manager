@@ -72,13 +72,25 @@ class View extends stdClass {
      */
     public $extraScript;
 
+    /**
+     * Flash message to be shown on the view
+     * @var string
+     */
+    public $flashMsg;
+
+    /**
+     * Class name of the flash message
+     * @var string
+     */
+    public $flashMsgClass;
+
     public function __construct( $templateName = 'main.html.php' ) {
         $this->Url = new Url();
 
         $this->_config = include CONF_DIR . 'inc.appconfig.php';
 
         if ( $templateName ) {
-            $this->_template = '../views/' . $templateName;
+            $this->_template = 'views/' . $templateName;
         } else {
             $this->_template = null;
         }
@@ -88,6 +100,8 @@ class View extends stdClass {
             'js/jquery-2.1.4.min.js',
             'js/lsmhelper.js'
         );
+
+        $this->flashMsg = $this->flashMsgClass = '';
     }
 
     public function addExtraLink( $href ) {
@@ -118,10 +132,10 @@ class View extends stdClass {
      * Includes a view.
      */
     public function render( $path, $pathPaginationFile = null ) {
-        $this->_file = "../views/{$path}.html.php";
+        $this->_file = "views/{$path}.html.php";
 
         if ( $pathPaginationFile ) {
-            $this->_pagFile = "../views/{$pathPaginationFile}.html.php";
+            $this->_pagFile = "views/{$pathPaginationFile}.html.php";
         }
 
         if ( $this->_template ) {
@@ -143,6 +157,11 @@ class View extends stdClass {
         });
     }
 
+    /**
+     * @param $label
+     * @param $ord
+     * @return string
+     */
     public function makeOrderByLink( $label, $ord ) {
         // We are going to use a hidden input here: the Request parameters
         // will be used to assemble the link
@@ -160,14 +179,19 @@ class View extends stdClass {
             $dir = 'ASC';
             $arrow = '<span class="fa fa-caret-down"></span>';
         }
-// TODO PAGINATION
-// TODO TEST POSTS LISTED BY CATEGORIES
-        // Get the base of the link, which is the same page being rendered right now
-        $path = "{$request->uriParts[ 0 ]}/";
 
-        if ( $request->category ) {
-            $path .= "{$request->category}/list/";
+        // Get the base of the link, which is the same page being rendered right now
+        $path = "{$request->uriParts[ 'ctrl' ]}/";
+
+        if ( $request->uriParts[ 'args_str' ] ) {
+            $path .= "{$request->uriParts[ 'args_str' ]}/";
         }
+
+        if ( $request->uriParts[ 'pk' ] ) {
+            $path .= "{$request->uriParts[ 'pk' ]}/";
+        }
+
+        $path .= "{$request->uriParts[ 'act' ]}/";
 
         $path .= "ord:{$ord}/dir:{$dir}/";
 

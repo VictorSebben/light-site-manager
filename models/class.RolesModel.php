@@ -1,6 +1,6 @@
 <?php
 
-class RoleModel extends BaseModel {
+class RolesModel extends BaseModel {
 
     public $id;
     public $name;

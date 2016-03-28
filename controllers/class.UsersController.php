@@ -1,24 +1,24 @@
 <?php
 
-class UserController extends BaseController {
+class UsersController extends BaseController {
     /**
      * The Model object.
      *
-     * @var UserModel
+     * @var UsersModel
      */
     protected $_model;
 
     /**
      * The Mapper object, used to deal with database operations.
      *
-     * @var UserMapper
+     * @var UsersMapper
      */
     protected $_mapper;
 
-    public function __construct( $model_base_name ) {
-        parent::__construct( $model_base_name );
+    public function __construct() {
+        parent::__construct( 'Users' );
 
-        $mapper_name = $model_base_name . 'Mapper';
+        $mapper_name = 'UsersMapper';
         $this->_mapper = new $mapper_name();
     }
 
@@ -39,6 +39,8 @@ class UserController extends BaseController {
         $this->_view->addExtraScript( 'js/list.js' );
         $this->_view->addExtraScript( 'js/user.js' );
 
+        $this->prepareFlashMsg( $this->_view );
+
         $this->_view->render( 'users/index', 'pagination' );
     }
 
@@ -47,18 +49,21 @@ class UserController extends BaseController {
             throw new PermissionDeniedException();
         }
 
+        $user = new UsersModel();
+
         // Check if there is input data (we are redirecting the user back to the form
         // with an error message after he tried to submit it), in which case we will
         // give back the input data to the form
         $inputData = H::flashInput();
         if ( $inputData ) {
-            $user = new UserModel();
             $user->name = $inputData[ 'name' ];
             $user->email = $inputData[ 'email' ];
             $user->status = $inputData[ 'status' ];
-
-            $this->_view->object = $user;
         }
+
+        $this->_view->object = $user;
+
+        $this->prepareFlashMsg( $this->_view );
 
         $this->_view->render( 'users/form' );
     }
@@ -79,7 +84,7 @@ class UserController extends BaseController {
             unset( $_POST[ 'password-confirm' ] );
             H::flashInput( Request::getInstance()->getInput() );
 
-            header( 'Location: ' . $this->_url->make( 'users/create/' ) );
+            header( 'Location: ' . $this->_url->create() );
         } else {
             $this->_model->name = Request::getInstance()->getInput( 'name' );
             $this->_model->email = Request::getInstance()->getInput( 'email' );
@@ -88,7 +93,7 @@ class UserController extends BaseController {
 
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Usuário criado com sucesso!' );
-            header( 'Location: ' . $this->_url->make( 'users/' ) );
+            header( 'Location: ' . $this->_url->make( 'users/index' ) );
         }
     }
 
@@ -112,9 +117,11 @@ class UserController extends BaseController {
             $this->_view->object->status = $inputData[ 'status' ];
         }
 
-        if ( ! ( $this->_view->object instanceof UserModel ) ) {
+        if ( ! ( $this->_view->object instanceof UsersModel ) ) {
             throw new Exception( 'Erro: Usuário não encontrado!' );
         }
+
+        $this->prepareFlashMsg( $this->_view );
 
         $this->_view->render( 'users/form' );
     }
@@ -149,7 +156,7 @@ class UserController extends BaseController {
             // Flash input data (the data the user had typed int he form)
             H::flashInput( Request::getInstance()->getInput() );
 
-            header( 'Location: ' . $this->_url->make( "users/{$id}/edit/" ) );
+            header( 'Location: ' . $this->_url->edit( $id ) );
         } else {
             $this->_model->id = $id;
             $this->_model->name = Request::getInstance()->getInput( 'name' );
@@ -161,9 +168,8 @@ class UserController extends BaseController {
             }
 
             $this->_mapper->save( $this->_model );
-
             H::flash( 'success-msg', 'Usuário atualizado com sucesso!' );
-            Request::getInstance()->redirect( $this->_url->make( 'users/' ), true );
+            header( 'Location: ' . $this->_url->index() );
         }
     }
 
@@ -172,16 +178,14 @@ class UserController extends BaseController {
         $this->_view->render( 'users/show' );
     }
 
-    public function delete() {
+    public function delete( $id ) {
         if ( ! $this->_user->hasPrivilege( 'edit_other_users' ) ) {
             throw new PermissionDeniedException();
         }
 
-        $id = Request::getInstance()->pk;
-
-        // give the view the UserModel object
+        // give the view the UsersModel object
         $this->_view->object = $this->_mapper->find( $id );
-        if ( ! ( $this->_view->object instanceof UserModel ) ) {
+        if ( ! ( $this->_view->object instanceof UsersModel ) ) {
             throw new Exception( 'Erro: Usuário não encontrado!' );
         }
 
@@ -195,10 +199,10 @@ class UserController extends BaseController {
 
         if ( ! H::checkToken( Request::getInstance()->getInput( 'token' ) ) ) {
             H::flash( 'err-msg', "Não foi possível processar a requisição!" );
-            header( 'Location: ' . $this->_url->make( "users/" ) );
+            header( 'Location: ' . $this->_url->index() );
         }
 
-        $user = new UserModel();
+        $user = new UsersModel();
         $user->id = Request::getInstance()->getInput( 'id' );
 
         if ( ! $this->_user->hasPrivilege( 'disable_own_user' )
@@ -210,10 +214,10 @@ class UserController extends BaseController {
             $this->_mapper->destroy( $user );
 
             H::flash( 'success-msg', 'Usuário removido com sucesso!' );
-            header( 'Location: ' . $this->_url->make( "users/" ) );
+            header( 'Location: ' . $this->_url->index() );
         } catch ( PDOException $e ) {
             H::flash( 'err-msg', "Não foi possível excluir o Usuário!" );
-            header( 'Location: ' . $this->_url->make( "users/" ) );
+            header( 'Location: ' . $this->_url->index() );
         }
     }
 

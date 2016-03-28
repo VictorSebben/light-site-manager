@@ -1,46 +1,49 @@
 <?php
 
-class PostController extends BaseController {
+class PostsController extends BaseController {
     /**
      * The Model object.
      *
-     * @var PostModel
+     * @var PostsModel
      */
     protected $_model;
 
     /**
      * The Mapper object, used to deal with database operations.
      *
-     * @var PostMapper
+     * @var PostsMapper
      */
     protected $_mapper;
 
-    public function __construct( $model_base_name ) {
-        parent::__construct( $model_base_name );
+    public function __construct() {
+        parent::__construct( 'Posts' );
 
-        $mapper_name = $model_base_name . 'Mapper';
+        $mapper_name = 'PostsMapper';
         $this->_mapper = new $mapper_name();
     }
 
-    public function index() {
+    public function index( $args = null ) {
         // Load result of edit_contents permission test
         $this->_view->editContents = $this->_user->hasPrivilege( 'edit_contents' );
-        $this->_view->cat = ( Request::getInstance()->category ) ?: '';
 
-        // instantiate Pagination object and
+        $args = (array) $args;
+
+        // Instantiate Pagination object and
         // pass it to the Mapper
         $pagination = new Pagination();
         $this->_mapper->pagination = $pagination;
 
         // load post-objects array for use in the view
         $this->_view->pagination = $pagination;
-        $this->_view->objectList = $this->_mapper->index( Request::getInstance()->category );
+        $this->_view->objectList = $this->_mapper->index( array_pop( $args ) );
 
         $this->_view->addExtraLink( 'css/colorbox.css' );
 
         $this->_view->addExtraScript( 'js/list.js' );
         $this->_view->addExtraScript( 'js/post.js' );
         $this->_view->addExtraScript( 'js/jquery.colorbox-min.js' );
+
+        $this->prepareFlashMsg( $this->_view );
 
         $this->_view->render( 'posts/index', 'pagination' );
     }
@@ -50,9 +53,16 @@ class PostController extends BaseController {
             throw new PermissionDeniedException();
         }
 
-        // Add category that came from the URL, if the user in inserting/updating a post
-        // by category. If there was a a category in the URL, the field will be readonly in the view
-        $this->_view->cat = Request::getInstance()->category;
+        $post = new PostsModel();
+
+        // Add category that came from the URL, if the user is inserting/updating a post
+        // by category. If there was a a category in the URL, the field will have a default
+        // value in the view.
+        if ( isset( Request::getInstance()->uriParts[ 'args' ] ) ) {
+            $this->_view->cat = array_pop( Request::getInstance()->uriParts[ 'args' ] );
+        } else {
+            $this->_view->cat = null;
+        }
 
         // Populate categories for the select field
         $this->_view->objectList = $this->_mapper->getAllCat();
@@ -62,15 +72,16 @@ class PostController extends BaseController {
         // give back the input data to the form
         $inputData = H::flashInput();
         if ( $inputData ) {
-            $post = new PostModel();
             $post->title = $inputData[ 'title' ];
             $post->intro = $inputData[ 'intro' ];
             $post->post_text = $inputData[ 'post_text' ];
             $post->category_id = $inputData[ 'category_id' ];
             $post->status = $inputData[ 'status' ];
-
-            $this->_view->object = $post;
         }
+
+        $this->_view->object = $post;
+
+        $this->prepareFlashMsg( $this->_view );
 
         $this->_view->addExtraScript( 'js/lsmhelper.js' );
 
@@ -91,7 +102,7 @@ class PostController extends BaseController {
             // put it back in the form fields
             H::flashInput( Request::getInstance()->getInput() );
 
-            header( 'Location: ' . $this->_url->make( 'posts/create' ) );
+            header( 'Location: ' . $this->_url->create() );
         } else {
             $this->_model->title = Request::getInstance()->getInput( 'title' );
             $this->_model->intro = Request::getInstance()->getInput( 'intro' );
@@ -102,23 +113,23 @@ class PostController extends BaseController {
 
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Post criado com sucesso!' );
-            header( 'Location: ' . $this->_url->make( 'posts/' ) );
+            header( 'Location: ' . $this->_url->make( 'posts/index' ) );
         }
     }
 
-    public function edit() {
+    public function edit( $id ) {
         if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
             throw new PermissionDeniedException();
         }
 
-        $id = Request::getInstance()->pk;
-
         $this->_view->object = $this->_mapper->find( $id );
+
+        $this->_view->cat = $this->_view->object->category_id;
 
         // Populate categories for the select field
         $this->_view->objectList = $this->_mapper->getAllCat();
 
-        if ( ! ( $this->_view->object instanceof PostModel ) ) {
+        if ( ! ( $this->_view->object instanceof PostsModel ) ) {
             throw new Exception( 'Erro: Post não encontrado!' );
         }
 
@@ -128,7 +139,7 @@ class PostController extends BaseController {
         // error message, putting back the data she had typed
         $inputData = H::flashInput();
         if ( $inputData ) {
-            $post = new PostModel();
+            $post = new PostsModel();
             $post->title = $inputData[ 'title' ];
             $post->intro = $inputData[ 'intro' ];
             $post->post_text = $inputData[ 'post_text' ];
@@ -139,6 +150,8 @@ class PostController extends BaseController {
         }
 
         $this->_view->addExtraScript( 'js/lsmhelper.js' );
+
+        $this->prepareFlashMsg( $this->_view );
 
         $this->_view->render( 'posts/form' );
     }
@@ -159,7 +172,7 @@ class PostController extends BaseController {
             // Flash input data (the data the user had typed int he form)
             H::flashInput( Request::getInstance()->getInput() );
 
-            header( 'Location: ' . $this->_url->make( "posts/{$id}/edit/" ) );
+            header( 'Location: ' . $this->_url->edit( $id ) );
         } else {
             $this->_model->id = $id;
             $this->_model->title = Request::getInstance()->getInput( 'title' );
@@ -170,8 +183,10 @@ class PostController extends BaseController {
             $this->_model->user_id = $_SESSION[ 'user' ];
 
             $this->_mapper->save( $this->_model );
+
             H::flash( 'success-msg', 'Post atualizado com sucesso!' );
-            header( 'Location: ' . $this->_url->make( 'posts/' ) );
+
+            header( 'Location: ' . $this->_url->index() );
         }
     }
 
@@ -180,16 +195,14 @@ class PostController extends BaseController {
         $this->_view->render( 'posts/show' );
     }
 
-    public function delete() {
+    public function delete( $id ) {
         if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
             throw new PermissionDeniedException();
         }
 
-        $id = Request::getInstance()->pk;
-
-        // give the view the PostModel object
+        // give the view the PostsModel object
         $this->_view->object = $this->_mapper->find( $id );
-        if ( ! ( $this->_view->object instanceof PostModel ) ) {
+        if ( ! ( $this->_view->object instanceof PostsModel ) ) {
             throw new Exception( 'Erro: Post não encontrado!' );
         }
 
@@ -203,22 +216,22 @@ class PostController extends BaseController {
 
         if ( ! H::checkToken( Request::getInstance()->getInput( 'token' ) ) ) {
             H::flash( 'err-msg', "Não foi possível processar a requisição!" );
-            header( 'Location: ' . $this->_url->make( "posts/" ) );
+            header( 'Location: ' . $this->_url->make( "posts/index" ) );
         }
 
         $id = Request::getInstance()->getInput( 'id' );
 
-        $post = new PostModel();
+        $post = new PostsModel();
         $post->id = $id;
 
         try {
             $this->_mapper->destroy( $post );
 
             H::flash( 'success-msg', 'Post removido com sucesso!' );
-            header( 'Location: ' . $this->_url->make( "posts/" ) );
+            header( 'Location: ' . $this->_url->index() );
         } catch ( PDOException $e ) {
             H::flash( 'err-msg', "Não foi possível excluir o Post!" );
-            header( 'Location: ' . $this->_url->make( "posts/" ) );
+            header( 'Location: ' . $this->_url->index() );
         }
     }
 
@@ -394,10 +407,10 @@ class PostController extends BaseController {
 
         $this->_view->object = $this->_mapper->find( Request::getInstance()->pk );
 
-        $category = ( new CategoryMapper() )->find( $this->_view->object->category_id );
+        $category = ( new CategoriesMapper() )->find( $this->_view->object->category_id );
 
-        $this->_view->w = H::ifnull( $category->img_w, CategoryModel::IMG_WIDTH );
-        $this->_view->h = H::ifnull( $category->img_h, CategoryModel::IMG_HEIGHT );
+        $this->_view->w = H::ifnull( $category->img_w, CategoriesModel::IMG_WIDTH );
+        $this->_view->h = H::ifnull( $category->img_h, CategoriesModel::IMG_HEIGHT );
 
         $this->_view->addExtraLink( 'font-awesome/css/font-awesome.min.css' );
         $this->_view->addExtraLink( 'imgup/css/imgareaselect-default.css' );
@@ -431,7 +444,7 @@ class PostController extends BaseController {
         $this->_view->objectList = $videoGalleryMapper->index();
         $this->_view->object = $this->_mapper->find( Request::getInstance()->pk );
 
-        $category = ( new CategoryMapper() )->find( $this->_view->object->category_id );
+        $category = ( new CategoriesMapper() )->find( $this->_view->object->category_id );
 
         $this->_view->addExtraLink( 'css/video-gallery.css' );
         $this->_view->addExtraScript( 'js/video-gallery.js' );

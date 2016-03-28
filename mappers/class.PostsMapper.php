@@ -1,6 +1,6 @@
 <?php
 
-class PostMapper extends Mapper {
+class PostsMapper extends Mapper {
 
     /**
      * @throws Exception
@@ -27,18 +27,17 @@ class PostMapper extends Mapper {
     }
 
     /**
-     * @param $cat mixed
+     * @param $catId mixed
      * @return array|null
      */
-    public function index( $cat = null ) {
-
+    public function index( $catId = null ) {
         // set additional parameters for the pagination
         // in the request object
         $this->request->setPagParams();
         $params = $this->request->pagParams;
 
         $offset = $this->pagination->getOffset();
-// TODO USE CATEGORY, IF EXISTS, TO COUNT PAGES
+
         // validate $params[ 'dir' ] to make sure it contains a valid value
         if ( $params[ 'dir' ] !== 'ASC' && $params[ 'dir' ] !== 'DESC' ) {
             $params[ 'dir' ] = 'ASC';
@@ -60,7 +59,7 @@ class PostMapper extends Mapper {
         }
 
         // Set number of records in the pagination object
-        $this->_setNumRecordsPagn();
+        $this->_setNumRecordsPagn( $catId );
 
         $sql = "SELECT p.id, title, image, p.status,
                        c.name AS category_name, u.name AS user_name
@@ -82,21 +81,23 @@ class PostMapper extends Mapper {
             }
         }
 
-        if ( $cat ) {
+        if ( $catId ) {
             $sql .= 'AND category_id = :cat ';
         }
 
         $sql .= " ORDER BY {$ord} {$params['dir']}
                   LIMIT :lim
                  OFFSET :offset ";
+
         $selectStmt = self::$_pdo->prepare( $sql );
 
         if ( $this->request->pagParams[ 'search' ] != null ) {
             $search = "%{$this->request->pagParams[ 'search' ]}%";
             $selectStmt->bindParam( ':search', $search );
         }
-        if ( $cat ) {
-            $selectStmt->bindParam( ':cat', $cat, PDO::PARAM_INT );
+
+        if ( $catId ) {
+            $selectStmt->bindParam( ':cat', $catId, PDO::PARAM_STR );
         }
 
         $lim = $this->pagination->getLimit();
@@ -114,7 +115,10 @@ class PostMapper extends Mapper {
         return $posts;
     }
 
-    protected function _setNumRecordsPagn() {
+    /**
+     * @param $catId
+     */
+    protected function _setNumRecordsPagn( $catId ) {
         $sql = "SELECT count(*) AS count
                   FROM posts
                  WHERE TRUE ";
@@ -125,10 +129,20 @@ class PostMapper extends Mapper {
                       OR post_text ~* :search ';
         }
 
+        if ( $catId ) {
+            $sql .= 'AND category_id = :cat ';
+        }
+
         $selectStmt = self::$_pdo->prepare($sql);
+
         if ( $this->request->pagParams['search'] != null ) {
             $selectStmt->bindParam( ':search', $this->request->pagParams['search'] );
         }
+
+        if ( $catId ) {
+            $selectStmt->bindParam( ':cat', $catId, PDO::PARAM_STR );
+        }
+
         $selectStmt->execute();
         $this->pagination->numRecords = $selectStmt->fetch( PDO::FETCH_OBJ )->count;
         $selectStmt->closeCursor();
@@ -167,7 +181,7 @@ class PostMapper extends Mapper {
 
     public function getAllCat() {
         $stmt = self::$_pdo->prepare( 'SELECT * FROM categories' );
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'CategoryModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, 'CategoriesModel' );
         $stmt->execute();
         return $stmt->fetchAll();
     }
@@ -251,7 +265,7 @@ class PostMapper extends Mapper {
         }
     }
 
-    public function populatePostGallery( PostModel $post ) {
+    public function populatePostGallery( PostsModel $post ) {
         if ( !is_numeric( $post->id ) )
             return;
 

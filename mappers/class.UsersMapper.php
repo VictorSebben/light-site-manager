@@ -1,6 +1,6 @@
 <?php
 
-class UserMapper extends Mapper {
+class UsersMapper extends Mapper {
 
     /**
      * @throws Exception
@@ -14,7 +14,7 @@ class UserMapper extends Mapper {
 
     /**
      * @param $email
-     * @return bool|UserModel
+     * @return bool|UsersModel
      */
     public function findByEmail( $email ) {
         $selectStmt = self::$_pdo->prepare(
@@ -23,7 +23,7 @@ class UserMapper extends Mapper {
 
         $selectStmt->bindParam( ':email', $email, PDO::PARAM_STR, 64 );
         $selectStmt->execute();
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UserModel' );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UsersModel' );
         $users = $selectStmt->fetch();
         $selectStmt->closeCursor();
 
@@ -46,11 +46,18 @@ class UserMapper extends Mapper {
      * @return array|null
      */
     public function index() {
-
-        // set additional parameters for the pagination
-        // in the request object
-        $this->request->setPagParams();
+        // Get pagination parameters from the request (the pagn. parameters that were in the URL)
         $params = $this->request->pagParams;
+
+        // If order and direction were not specified in the route, get default values
+        // from the configuration array in the mapper itself
+        if ( ! $params[ 'ord' ] ) {
+            $params[ 'ord' ] = $this->pagParams[ 'ord' ];
+        }
+
+        if ( ! $params[ 'dir' ] ) {
+            $params[ 'dir' ] = $this->pagParams[ 'dir' ];
+        }
 
         $offset = $this->pagination->getOffset();
 
@@ -98,7 +105,7 @@ class UserMapper extends Mapper {
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
         $selectStmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $selectStmt->execute();
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UserModel' );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UsersModel' );
         $users = $selectStmt->fetchAll();
         $selectStmt->closeCursor();
 
@@ -126,7 +133,11 @@ class UserMapper extends Mapper {
         $selectStmt->closeCursor();
     }
 
-    public function initRoles( UserModel $user ) {
+    /**
+     * @param UsersModel $user
+     * @throws Exception
+     */
+    public function initRoles( UsersModel $user ) {
         $user->roles = array();
 
         if ( ! $user->id ) {
@@ -141,7 +152,7 @@ class UserMapper extends Mapper {
         $stmt = self::$_pdo->prepare( $sql );
         $stmt->bindParam( ':user_id', $user->id, PDO::PARAM_INT );
         $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'RoleModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, 'RolesModel' );
 
         $user->roles = $stmt->fetchAll();
         $stmt->closeCursor();
@@ -149,15 +160,18 @@ class UserMapper extends Mapper {
         $this->initRolePermissions( $user );
     }
 
-    protected function initRolePermissions( UserModel $user ) {
-        $roleMapper = new RoleMapper();
+    /**
+     * @param UsersModel $user
+     */
+    protected function initRolePermissions( UsersModel $user ) {
+        $rolesMapper = new RolesMapper();
 
         array_walk(
             $user->roles,
-            function ( &$role, $key, $roleMapper ) {
-                $roleMapper->populateRolePerms( $role );
+            function ( &$role, $key, $rolesMapper ) {
+                $rolesMapper->populateRolePerms( $role );
             },
-            $roleMapper
+            $rolesMapper
         );
     }
 
@@ -193,7 +207,7 @@ class UserMapper extends Mapper {
         }
     }
 
-    protected function destroyUserRole( UserModel $user ) {
+    protected function destroyUserRole( UsersModel $user ) {
         self::$_pdo->prepare( "DELETE FROM user_role WHERE user_id = ?" )
             ->execute( array( $user->id ) );
     }
@@ -204,24 +218,22 @@ class UserMapper extends Mapper {
      * @param $userId
      * @return bool
      */
-    public static function toggleStatus( $userId ) {
+    public function toggleStatus( $userId ) {
         if ( !is_numeric( $userId ) ) {
             return false;
         }
 
         try {
-            $userMapper = new UserMapper();
-
-            $userMapper->_selectStmt = self::$_pdo->prepare(
+            $this->_selectStmt = self::$_pdo->prepare(
                 "SELECT id, status FROM users WHERE id = ?"
             );
-            $user = $userMapper->find( $userId );
+            $user = $this->find( $userId );
 
             if ( ! $user ) return false;
 
             // toggle user's status
             $user->status = ( $user->status == 0 ) ? 1 : 0;
-            $userMapper->save( $user );
+            $this->save( $user );
 
             // if everything worked out, return true
             return true;

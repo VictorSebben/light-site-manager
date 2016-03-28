@@ -14,4 +14,3 @@
     </form>
     <a id="go-back" class="go-back input-submit" href="#">Voltar</a>
 </div>
-<script src="<?= $this->Url->make( 'js/lsmhelper.js' ); ?>" type="text/javascript"></script>

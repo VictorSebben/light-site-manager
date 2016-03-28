@@ -5,8 +5,8 @@ class LoginHelper extends Base {
     public function chkLogin() {
         if ( ! isset( $_SESSION[ 'userid' ] ) || ! isset( $_SESSION[ 'username' ] ) ) {
             // This if prevents infinite redirections. @TODO: Find a better, more elegant way.
-            if ( ! strstr( $_SERVER[ 'REQUEST_URI' ], 'login' ) ) {
-                header( "Location: {$this->_config[ 'base_url' ]}/{$this->_config[ 'admin_path' ]}/login" );
+            if ( ! strstr( $_SERVER[ 'REQUEST_URI' ], 'login/index' ) ) {
+                header( "Location: {$this->_config[ 'base_url' ]}/login/index" );
             }
         }
 
@@ -14,9 +14,9 @@ class LoginHelper extends Base {
         else {
             // Validate if user can really use the system (if user has been deleted or
             // set as inactive, any functionality will be disallowed
-            $userMapper = new UserMapper();
-            $userMapper->selectStmt( 'SELECT status, deleted FROM users WHERE id = :id' );
-            $user = $userMapper->find( $_SESSION[ 'user' ] );
+            $usersMapper = new UsersMapper();
+            $usersMapper->selectStmt( 'SELECT status, deleted FROM users WHERE id = :id' );
+            $user = $usersMapper->find( $_SESSION[ 'user' ] );
             if ( ( $user->status == 0 ) || ( $user->deleted == 1 ) ) {
                 echo "Usuário inexistente ou inativo";
                 unset( $_SESSION[ 'userid' ] );
@@ -32,11 +32,11 @@ class LoginHelper extends Base {
             return false;
         }
 
-        $userMapper = new UserMapper();
+        $usersMapper = new UsersMapper();
 
-        // UserMapper::findByEmail() will return a user in case
+        // UsersMapper::findByEmail() will return a user in case
         // it finds 1 entry for the e-mail given, and false otherwise
-        $user = $userMapper->findByEmail( $email );
+        $user = $usersMapper->findByEmail( $email );
 
         // If user was not found, or if it was found but is not active, return false
         if ( ! $user || ( $user->status == 0 ) || ( $user->deleted == 1 ) ) return false;
@@ -47,7 +47,7 @@ class LoginHelper extends Base {
                 // of the hash function has changed the default algorithm)
                 if ( password_needs_rehash( $user->password, PASSWORD_DEFAULT ) ) {
                     $user->password = password_hash( $password, PASSWORD_DEFAULT );
-                    $userMapper->save( $user );
+                    $usersMapper->save( $user );
                 }
 
                 $_SESSION[ 'user' ] = $user->id;
@@ -69,7 +69,7 @@ class LoginHelper extends Base {
         unset( $_SESSION[ 'userid' ] );
         unset( $_SESSION[ 'username' ] );
         session_destroy();
-        header( "Location: ./{$this->_config[ 'admin_path' ]}/" );
+        header( "Location: ./" );
     }
 }
 

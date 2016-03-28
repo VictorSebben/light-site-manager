@@ -1,24 +1,24 @@
 <?php
 
-class CategoryController extends BaseController {
+class CategoriesController extends BaseController {
     /**
      * The Model object.
      *
-     * @var CategoryModel
+     * @var CategoriesModel
      */
     protected $_model;
 
     /**
      * The Mapper object, used to deal with database operations.
      *
-     * @var CategoryMapper
+     * @var CategoriesMapper
      */
     protected $_mapper;
 
-    public function __construct( $model_base_name ) {
-        parent::__construct( $model_base_name );
+    public function __construct() {
+        parent::__construct( 'Categories' );
 
-        $mapper_name = $model_base_name . 'Mapper';
+        $mapper_name = 'CategoriesMapper';
         $this->_mapper = new $mapper_name();
     }
 
@@ -38,6 +38,8 @@ class CategoryController extends BaseController {
         $this->_view->addExtraScript( 'js/list.js' );
         $this->_view->addExtraScript( 'js/category.js' );
 
+        $this->prepareFlashMsg( $this->_view );
+
         $this->_view->render( 'categories/index', 'pagination' );
     }
 
@@ -46,17 +48,20 @@ class CategoryController extends BaseController {
             throw new PermissionDeniedException();
         }
 
+        $category = new CategoriesModel();
+
         // Check if there is input data (we are redirecting the user back to the form
         // with an error message after he tried to submit it), in which case we will
         // give back the input data to the form
         $inputData = H::flashInput();
         if ( $inputData ) {
-            $category = new CategoryModel();
             $category->name = $inputData[ 'name' ];
             $category->description = $inputData[ 'description' ];
-
-            $this->_view->object = $category;
         }
+
+        $this->_view->object = $category;
+
+        $this->prepareFlashMsg( $this->_view );
 
         $this->_view->render( 'categories/form' );
     }
@@ -65,6 +70,14 @@ class CategoryController extends BaseController {
         if ( ! $this->_user->hasPrivilege( 'edit_categories' ) ) {
             throw new PermissionDeniedException();
         }
+
+        $name = Request::getInstance()->getInput( 'name' );
+
+        // We will generate the id by URLizing the name that
+        // the user typed
+        $id = H::str2Url( $name );
+
+        // TODO Validate if the id is unique
 
         $validator = new Validator();
         if ( ! $validator->check( $_POST, $this->_model->rules ) ) {
@@ -75,23 +88,27 @@ class CategoryController extends BaseController {
             // put it back in the form fields
             H::flashInput( Request::getInstance()->getInput() );
 
-            header( 'Location: ' . $this->_url->make( 'categories/create/' ) );
+            header( 'Location: ' . $this->_url->create() );
         } else {
-            $this->_model->name = Request::getInstance()->getInput( 'name' );
+            $this->_model->id = $id;
+            $this->_model->name = $name;
             $this->_model->description = Request::getInstance()->getInput( 'description' );
 
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Categoria criada com sucesso!' );
-            header( 'Location: ' . $this->_url->make( 'categories/' ) );
+            header( 'Location: ' . $this->_url->make( 'categories/index' ) );
         }
     }
 
-    public function edit() {
+    public function edit( $args ) {
         if ( ! $this->_user->hasPrivilege( 'edit_categories' ) ) {
             throw new PermissionDeniedException();
         }
 
-        $id = Request::getInstance()->pk;
+        // Since this is a category, instead of getting a numeric id from the
+        // URI, we get the categories (args). This may be a subcategory, so
+        // its ID is actually the last category from $args
+        $id = array_pop( $args );
 
         $this->_view->object = $this->_mapper->find( $id );
 
@@ -105,9 +122,11 @@ class CategoryController extends BaseController {
             $this->_view->object->description = $inputData[ 'description' ];
         }
 
-        if ( ! ( $this->_view->object instanceof CategoryModel ) ) {
+        if ( ! ( $this->_view->object instanceof CategoriesModel ) ) {
             throw new Exception( 'Erro: Categoria não encontrada!' );
         }
+
+        $this->prepareFlashMsg( $this->_view );
 
         $this->_view->render( 'categories/form' );
     }
@@ -117,8 +136,13 @@ class CategoryController extends BaseController {
             throw new PermissionDeniedException();
         }
 
-        // Get id from $_POST
-        $id = Request::getInstance()->getInput( 'id' );
+        $name = Request::getInstance()->getInput( 'name' );
+
+        // We will generate the id by URLizing the name that
+        // the user typed
+        $id = H::str2Url( $name );
+
+        // TODO Validate if the id is unique
 
         $validator = new Validator();
         if ( ! $validator->check( $_POST, $this->_model->rules ) ) {
@@ -128,33 +152,37 @@ class CategoryController extends BaseController {
             // Flash input data (the data the user had typed int he form)
             H::flashInput( Request::getInstance()->getInput() );
 
-            header( 'Location: ' . $this->_url->make( "categories/{$id}/edit/" ) );
+            header( 'Location: ' . $this->_url->edit( $id ) );
         } else {
             $this->_model->id = $id;
             $this->_model->name = Request::getInstance()->getInput( 'name' );
             $this->_model->description = Request::getInstance()->getInput( 'description' );
 
-            $this->_mapper->save( $this->_model );
+            $this->_mapper->save( $this->_model, false, Request::getInstance()->getInput( 'id' ) );
+
             H::flash( 'success-msg', 'Categoria atualizada com sucesso!' );
-            header( 'Location: ' . $this->_url->make( 'categories/' ) );
+
+            // Before redirecting, let's remove the category that is the primary key
+            // from the URL arguments
+            Request::getInstance()->rmArg( $this->_model->id );
+
+            header( 'Location: ' . $this->_url->index() );
         }
     }
 
-    public function show( $id ) {
-        $this->_view->user = $this->_mapper->show( $id );
-        $this->_view->render( 'categories/show' );
-    }
-
-    public function delete() {
+    public function delete( $args ) {
         if ( ! $this->_user->hasPrivilege( 'edit_categories' ) ) {
             throw new PermissionDeniedException();
         }
 
-        $id = Request::getInstance()->pk;
+        // Since this is a category, instead of getting a numeric id from the
+        // URI, we get the categories (args). This may be a subcategory, so
+        // its ID is actually the last category from $args
+        $id = array_pop( $args );
 
-        // give the view the CategoryModel object
+        // give the view the CategoriesModel object
         $this->_view->object = $this->_mapper->find( $id );
-        if ( ! ( $this->_view->object instanceof CategoryModel ) ) {
+        if ( ! ( $this->_view->object instanceof CategoriesModel ) ) {
             throw new Exception( 'Erro: Categoria não encontrada!' );
         }
 
@@ -177,21 +205,21 @@ class CategoryController extends BaseController {
         // in which case deletion will not be allowed
         if ( $this->_mapper->getPostsByCategory( $id, true ) ) {
             H::flash( 'err-msg', "Não foi possível excluir a categoria, pois ela possui Posts associados!" );
-            header( 'Location: ' . $this->_url->make( "categories/" ) );
+            header( 'Location: ' . $this->_url->make( "categories/index" ) );
             exit;
         }
 
-        $category = new CategoryModel();
+        $category = new CategoriesModel();
         $category->id = $id;
 
         try {
             $this->_mapper->destroy( $category );
 
             H::flash( 'success-msg', 'Categoria removida com sucesso!' );
-            header( 'Location: ' . $this->_url->make( "categories/" ) );
+            header( 'Location: ' . $this->_url->index() );
         } catch ( PDOException $e ) {
             H::flash( 'err-msg', "Não foi possível excluir a Categoria!" );
-            header( 'Location: ' . $this->_url->make( "categories/" ) );
+            header( 'Location: ' . $this->_url->index() );
         }
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-class RoleMapper extends Mapper {
+class RolesMapper extends Mapper {
 
     public function __construct() {
         parent::__construct();
@@ -43,7 +43,7 @@ class RoleMapper extends Mapper {
         $stmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
         $stmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'RoleModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, 'RolesModel' );
         $roles = $stmt->fetchAll();
         $stmt->closeCursor();
 
@@ -69,11 +69,11 @@ class RoleMapper extends Mapper {
     /**
      * Populates the array of permissions of a given Role object
      *
-     * @param RoleModel $role
-     * @return RoleModel
+     * @param RolesModel $role
+     * @return RolesModel
      * @throws Exception
      */
-    public function populateRolePerms( RoleModel $role ) {
+    public function populateRolePerms( RolesModel $role ) {
         if ( !is_numeric( $role->id ) )
             return;
 
@@ -105,9 +105,11 @@ class RoleMapper extends Mapper {
     /**
      * @param $role
      * @param bool $overrideNullData
+     * @param $oldPKValue
+     *
      * @throws Exception
      */
-    public function save( $role, $overrideNullData = false ) {
+    public function save( $role, $overrideNullData = false, $oldPKValue = null ) {
         // Start transaction: in case anything goes wrong when inserting,
         // we cancel the deletion that precedes it
         self::$_pdo->beginTransaction();
@@ -118,7 +120,7 @@ class RoleMapper extends Mapper {
             $stmt = self::$_pdo->prepare( "INSERT INTO role_perm (role_id, perm_desc) VALUES (:role_id, :perm_desc)" );
 
             // call parent method to save role
-            parent::save( $role, true );
+            parent::save( $role, true, $oldPKValue );
 
             // save role_perm entries
             foreach ( $role->permissions as $permDesc ) {
@@ -154,12 +156,12 @@ class RoleMapper extends Mapper {
         parent::destroy( $role );
     }
 
-    protected function destroyRolePerm( RoleModel $role ) {
+    protected function destroyRolePerm( RolesModel $role ) {
         self::$_pdo->prepare( "DELETE FROM role_perm WHERE role_id = ?" )
             ->execute( array( $role->id ) );
     }
 
-    protected function destroyRoleUser( RoleModel $role ) {
+    protected function destroyRoleUser( RolesModel $role ) {
         self::$_pdo->prepare( "DELETE FROM user_role WHERE role_id = ?" )
             ->execute( array( $role->id ) );
     }

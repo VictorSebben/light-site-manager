@@ -27,14 +27,6 @@ class Request {
     public $uriParts;
 
     /**
-     * String containing the path to the server's root directory.
-     * Used for PHP's paths (nor for HTML paths).
-     *
-     * @var string
-     */
-    public $servRootDir;
-
-    /**
      * Route defined in routes.php that matches the uri entered
      * by the user.
      *
@@ -51,20 +43,6 @@ class Request {
      * @var string
      */
     public $routeModule;
-
-    /**
-     * The id of the current entity (ex: User) that was accessed via URL.
-     *
-     * @var integer
-     */
-    public $pk;
-
-    /**
-     * The category. Ex: one could list products by category.
-     *
-     * @var integer
-     */
-    public $category;
 
     /**
      * String containing the order options to be used on the query to the db.
@@ -120,17 +98,17 @@ class Request {
     }
 
     public function setPagParams() {
-
-        $this->pagParams = array(
-            'pag' => 1,
-            'ord' => 'id',
-            'dir' => 'ASC',
+        $this->pagParams = [
+            'pag' => null,
+            'ord' => null,
+            'dir' => null,
             'search' => null
-        );
+        ];
 
-        foreach ( $this->uriParts as $uriPart ) {
-            if ( strpos( $uriPart, ':' ) !== false ) {
-                list( $key, $val ) = explode( ':', $uriPart );
+        if ( $this->uriParts[ 'params' ] ) {
+            $params = explode( '/', trim( $this->uriParts[ 'params' ], '/' ) );
+            foreach ( $params as $param ) {
+                list( $key, $val ) = explode( ':', $param );
                 $this->pagParams[ $key ] = $val;
             }
         }
@@ -193,5 +171,17 @@ class Request {
         else {
             header( "Location: {$url}" );
         }
+    }
+
+    public function rmArg( $argName ) {
+        $key = array_search( $argName, $this->uriParts[ 'args' ] );
+
+        if ( $key === false )
+            return;
+
+        unset( $this->uriParts[ $key ] );
+
+        // Remove string from array
+        $this->uriParts[ 'args_str' ] = H::sanitizeSlashes( preg_replace( "%{$argName}%", '', $this->uriParts[ 'args_str' ] ) );
     }
 }

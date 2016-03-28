@@ -46,7 +46,6 @@ class BaseModel {
     }
 
     protected function setTableName() {
-        // TODO pluralize
-        $this->tableName = strtolower( str_replace( 'Model', '', get_class( $this ) ) ) . 's';
+        $this->tableName = strtolower( str_replace( 'Model', '', get_class( $this ) ) );
     }
 }

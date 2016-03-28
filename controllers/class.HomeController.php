@@ -6,13 +6,12 @@ class HomeController extends BaseController {
      */
     protected $_model;
 
-    public function __construct( $model_name ) {
-
-        parent::__construct( $model_name );
+    public function __construct() {
+        parent::__construct( 'Home' );
     }
 
-    public function index() {
-        $this->_view->render( 'home/index' );
+    public function welcome() {
+        $this->_view->render( 'home/welcome' );
     }
 
     public function notFound() {

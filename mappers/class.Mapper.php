@@ -37,14 +37,28 @@ class Mapper {
      */
     public $request;
 
+    /**
+     * @var string
+     */
     public $modelName;
+
+    /**
+     * Default pagination and order by parameters
+     * @var array
+     */
+    public $pagParams;
 
     public function __construct() {
         $this->request = Request::getInstance();
 
+        $this->pagParams = [
+            'ord' => 'id',
+            'dir' => 'ASC',
+        ];
+
         if ( ! isset( self::$_pdo ) ) {
 
-            $db_config = include '../conf/inc.dbconfig.php';
+            $db_config = include 'conf/inc.dbconfig.php';
             if ( is_null( $db_config ) ) {
                 throw new Exception( 'No data specified for configuring the Dababase.' );
             }
@@ -116,16 +130,22 @@ class Mapper {
      * UPDATE operations. If set to TRUE, null values in the object WILL
      * be used to update the corresponding columns.
      *
+     * If $oldPKValue is given, the save method will override the Primary Key
+     * and with the value in the object, using the $oldPKValue in the where
+     * clause. The $oldPKValue is, therefore, used in the update operations
+     * exclusively.
+     *
      * @param $obj
      * @param bool|false $overrideNullData
+     * @param int $oldPKValue
      * @throws Exception
      */
-    public function save( $obj, $overrideNullData = false ) {
+    public function save( $obj, $overrideNullData = false, $oldPKValue = null ) {
         if ( ! isset( $obj->tableName ) || ! $obj->tableName ) {
             throw new Exception( 'Object given to Mapper::save() is not a valid Model' );
         }
 
-        if ( !is_array( $obj->primaryKey ) ) {
+        if ( ! is_array( $obj->primaryKey ) ) {
             $arrPrimaryKey = array( $obj->primaryKey );
         } else {
             $arrPrimaryKey = $obj->primaryKey;
@@ -143,7 +163,7 @@ class Mapper {
             }
         }
 
-        if ( !$hasPKValues ) {
+        if ( ! $hasPKValues ) {
             $sql .= " LIMIT 0 ";
         }
 
@@ -167,8 +187,8 @@ class Mapper {
         // check if there already is an entry in the DB with this
         // (set of) value(s) for the primary key
         // if there is, perform an update operation
-        if ( $rowCount ) {
-            $this->performUpdate( $obj, $arrColMeta, $overrideNullData );
+        if ( $rowCount || $oldPKValue ) {
+            $this->performUpdate( $obj, $arrColMeta, $overrideNullData, $oldPKValue );
         } else {
             // perform insert operation
             $this->performInsert( $obj, $arrColMeta );
@@ -185,8 +205,11 @@ class Mapper {
      * @param BaseModel $obj
      * @param array $arrColMeta
      * @param $overrideNullData
+     * @param $oldPKValue
+     * 
+     * @throws Exception
      */
-    protected function performUpdate( BaseModel $obj, array $arrColMeta, $overrideNullData = false ) {
+    protected function performUpdate( BaseModel $obj, array $arrColMeta, $overrideNullData = false, $oldPKValue = null ) {
         if ( $obj->updated_at === null ) {
             $obj->updated_at = date( 'Y-m-d G:i:s' );
         }
@@ -198,13 +221,20 @@ class Mapper {
 
         $sql = "UPDATE {$obj->tableName} SET ";
 
+        // Create array with the name of the column(s) that compose the primary key
+        if ( ! is_array( $obj->primaryKey ) ) {
+            $primaryKeys = array( $obj->primaryKey );
+        } else {
+            $primaryKeys = $obj->primaryKey;
+        }
+
         // if $overrideNullData is set to true, update database according
         // to the current state of the object, including null data.
         if ( $overrideNullData ) {
             for ( $i = 0; $i < count( $arrColMeta[ 'names' ] ); $i++ ) {
                 $colName = $arrColMeta[ 'names' ][ $i ];
 
-                if ( $colName == 'created_at' ) continue;
+                if ( ( $colName == 'created_at' ) || ( ! $oldPKValue && in_array( $colName, $primaryKeys ) ) ) continue;
 
                 $arrUpdatedCols[] = array( 'name' => $colName,
                                            'type' => $arrColMeta[ 'pdo_type' ][ $i ] );
@@ -217,7 +247,7 @@ class Mapper {
             for ( $i = 0; $i < count( $arrColMeta[ 'names' ] ); $i++ ) {
                 $colName = $arrColMeta[ 'names' ][ $i ];
 
-                if ( $colName == 'created_at' ) continue;
+                if ( ( $colName == 'created_at' ) || ( ! $oldPKValue && in_array( $colName, $primaryKeys ) ) ) continue;
 
                 if ( isset( $obj->$colName ) ) {
                     $arrUpdatedCols[] = array( 'name' => $colName,
@@ -232,15 +262,9 @@ class Mapper {
 
         $sql .= " WHERE TRUE";
 
-        // build where clause using the PK values from the Model object
-        if ( !is_array( $obj->primaryKey ) ) {
-            $primaryKeys = array( $obj->primaryKey );
-        } else {
-            $primaryKeys = $obj->primaryKey;
-        }
-
+        // Build where clause using the PK values from the Model object
         foreach ( $primaryKeys as $pk ) {
-            $sql .= " AND {$pk} = :{$pk}";
+            $sql .= " AND {$pk} = :where_{$pk}";
         }
 
         // Prepare query and bind parameters:
@@ -252,9 +276,32 @@ class Mapper {
             $stmt->bindParam( $colName, $obj->$colName, $arrUpdatedCols[ $i ][ 'type' ] );
         }
 
-        // bind where values
-        foreach ( $primaryKeys as $pk ) {
-            $stmt->bindParam( $pk, $obj->$pk );
+        if ( $oldPKValue ) {
+            if ( ! is_array( $oldPKValue ) ) {
+                if ( count( $primaryKeys ) > 1 ) {
+                    throw new Exception( 'Too little PK values given to Mapper::save()!' );
+                }
+
+                $pk = array_shift( $primaryKeys );
+                $stmt->bindParam( "where_{$pk}", $oldPKValue );
+            } else {
+                if ( count( $primaryKeys ) != count( $oldPKValue ) ) {
+                    throw new Exception( 'Too little PK values given to Mapper::save()!' );
+                }
+
+                foreach ( $primaryKeys as $pk ) {
+                    if ( ! isset( $oldPKValue[ $pk ] ) ) {
+                        throw new Exception( "PK value {$pk} not given to Mapper::save()!" );
+                    }
+
+                    $stmt->bindParam( "where_{$pk}", $oldPKValue[ $pk ] );
+                }
+            }
+        } else {
+            // bind where values
+            foreach ( $primaryKeys as $pk ) {
+                $stmt->bindParam( "where_{$pk}", $obj->$pk );
+            }
         }
 
         $stmt->execute();

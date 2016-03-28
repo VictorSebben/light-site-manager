@@ -1,6 +1,6 @@
 <?php
 
-class PostModel extends BaseModel {
+class PostsModel extends BaseModel {
 
     public $id;
     public $category_id;

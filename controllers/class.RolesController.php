@@ -1,16 +1,16 @@
 <?php
 
-class RoleController extends BaseController {
+class RolesController extends BaseController {
 
     /**
-     * The RoleMapper object, used to deal with database operations
+     * The RolesMapper object, used to deal with database operations
      *
-     * @var RoleMapper
+     * @var RolesMapper
      */
     protected $_mapper;
 
     /**
-     * @var RoleModel
+     * @var RolesModel
      */
     protected $_model;
 
@@ -36,10 +36,8 @@ class RoleController extends BaseController {
         $this->_view->render( 'roles/index', 'pagination' );
     }
 
-    public function edit() {
-        $id = Request::getInstance()->pk;
-
-        // give the view the RoleModel object
+    public function edit( $id ) {
+        // give the view the RolesModel object
         $this->_view->object = $this->_mapper->find( $id );
 
         // Try to get input data from session (data that the user had typed
@@ -56,7 +54,7 @@ class RoleController extends BaseController {
 
         $this->_view->permArray = $this->_mapper->getPermissionsArray();
 
-        if ( ! ( $this->_view->object instanceof RoleModel ) ) {
+        if ( ! ( $this->_view->object instanceof RolesModel ) ) {
             throw new Exception( 'Erro: Role não encontrada!' );
         }
 
@@ -104,7 +102,7 @@ class RoleController extends BaseController {
             $this->_model->name = Request::getInstance()->getInput( 'name' );
             $this->_model->permissions = Request::getInstance()->getInput( 'perms' );
 
-            // call RoleMapper::save() method, which overrides the parent's method
+            // call RolesMapper::save() method, which overrides the parent's method
             // to insert the permissions in the role_perm table after saving the role
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Role atualizada com sucesso!' );
@@ -112,12 +110,10 @@ class RoleController extends BaseController {
         }
     }
 
-    public function delete() {
-        $id = Request::getInstance()->pk;
-
-        // give the view the RoleModel object
+    public function delete( $id ) {
+        // give the view the RolesModel object
         $this->_view->object = $this->_mapper->find( $id );
-        if ( ! ( $this->_view->object instanceof RoleModel ) ) {
+        if ( ! ( $this->_view->object instanceof RolesModel ) ) {
             throw new Exception( 'Erro: Role não encontrada!' );
         }
 
@@ -130,7 +126,7 @@ class RoleController extends BaseController {
             header( 'Location: ' . $this->_url->make( "roles/" ) );
         }
 
-        $role = new RoleModel();
+        $role = new RolesModel();
         $role->id = Request::getInstance()->getInput( 'id' );
 
         try {

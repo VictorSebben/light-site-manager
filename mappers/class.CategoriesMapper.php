@@ -1,6 +1,6 @@
 <?php
 
-class CategoryMapper extends Mapper {
+class CategoriesMapper extends Mapper {
 
     /**
      * @throws Exception
@@ -126,7 +126,7 @@ class CategoryMapper extends Mapper {
             return $selectStmt->fetchColumn();
         }
 
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'PostModel' );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'PostsModel' );
         $posts = $selectStmt->fetchAll();
         $selectStmt->closeCursor();
 

@@ -1,24 +1,6 @@
-<?php
-$msgClass = false;
-
-$linkRedirect = $this->Url->make( 'posts/' );
-if ( isset( $this->catId ) ) {
-    $linkRedirect .= "{$this->catId}/list/";
-}
-
-if ( isset( $_SESSION[ 'success-msg' ] ) ) {
-    $msg = H::flash( 'success-msg' );
-    $msgClass = 'success-msg';
-} else if ( isset( $_SESSION[ 'err-msg' ] ) ) {
-    $msg = H::flash( 'err-msg' );
-    $msgClass = 'err-msg';
-}
-
-?>
-
 <div class="console">
     <!-- Adicionar -->
-    <a href="<?= $this->Url->make( ( $this->cat ) ? "posts/{$this->cat}/create" : "posts/create/" ); ?>" class="input-submit btn-green">Adicionar</a>
+    <a href="<?= $this->Url->create(); ?>" class="input-submit btn-green">Adicionar</a>
 
     <div class="console-toggle">
         <!-- Ativar -->
@@ -38,16 +20,16 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
                        id="search" type="text" name="search" value="<?= Request::getInstance()->getInput( 'search', false ); ?>">
             </div>
             <input class="input-submit" type="submit" value="Buscar">
-            <a href="<?= $linkRedirect ?>">Limpar pesquisa</a>
+            <a href="<?= $this->Url->act( 'index', null, false ); ?>">Limpar pesquisa</a>
         </form>
     </div>
 </div>
 
 <h2 id="area-header">Posts</h2>
 
-<?php if ( isset( $msg ) ): ?>
-    <div class="flash <?= $msgClass ?>">
-        <?= $msg ?>
+<?php if ( $this->flashMsg ): ?>
+    <div class="flash <?= $this->flashMsgClass; ?>">
+        <?= $this->flashMsg; ?>
     </div>
 <?php endif; ?>
 
@@ -110,7 +92,7 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
                 </a>
             </td>
             <td>
-                <div class="onoffswitch" title="<?= PostModel::$statusString[ $post->status ] ?>">
+                <div class="onoffswitch" title="<?= PostsModel::$statusString[ $post->status ] ?>">
                     <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox"
                            value="<?= $post->id ?>"
                            id="onoffswitch-<?= $post->id ?>" <?= ( $post->status ) ? "checked" : "" ?>>
@@ -122,10 +104,10 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
             </td>
             <?php if ( $this->editContents ) : ?>
                 <td>
-                    <a class="input-submit btn-edit" href="<?= $this->Url->make( "posts/{$post->id}/edit" ) ?>">Editar</a>
+                    <a class="input-submit btn-edit" href="<?= $this->Url->edit( $post->id ); ?>">Editar</a>
                 </td>
                 <td>
-                    <a class="input-submit btn-delete" href="<?= $this->Url->make( "posts/{$post->id}/delete" ) ?>">Excluir</a>
+                    <a class="input-submit btn-delete" href="<?= $this->Url->delete( $post->id ); ?>">Excluir</a>
                 </td>
             <?php endif; ?>
         </tr>

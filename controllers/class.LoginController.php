@@ -9,9 +9,8 @@ class LoginController {
 
     protected $_url;
 
-    public function __construct( $model_base_name ) {
-        $login_helper_obj = $model_base_name . 'Helper';
-        $this->_loginHelper = new $login_helper_obj;
+    public function __construct() {
+        $this->_loginHelper = new LoginHelper();
 
         $this->_view = new View( null );
 

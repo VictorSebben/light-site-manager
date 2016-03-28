@@ -32,7 +32,7 @@ var formConsole = {
         var items = getIds( $( '.list-item:checked' ) );
 
         if ( items.length && confirm( 'Deseja remover os itens selecionados?' ) ) {
-            callConsoleAjax( items, baseRoute, 'delete' );
+            callConsoleAjax( items, baseRoute, 'delete-ajax' );
         }
     },
     activateItems: function activateItems( baseRoute ) {

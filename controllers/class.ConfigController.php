@@ -3,7 +3,7 @@
 class ConfigController {
 
     /**
-     * @var UserModel
+     * @var UsersModel
      */
     protected $_user;
 
@@ -21,11 +21,11 @@ class ConfigController {
          * execution
          */
         // populate User
-        $userMapper = new UserMapper();
+        $usersMapper = new UsersMapper();
 
-        $this->_user = new UserModel();
+        $this->_user = new UsersModel();
         $this->_user->id = $_SESSION[ 'user' ];
-        $userMapper->initRoles( $this->_user );
+        $usersMapper->initRoles( $this->_user );
     }
 
     public function index() {
