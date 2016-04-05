@@ -66,7 +66,7 @@ class Mapper {
             try {
                 $arrAttrs = [
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => $db_config[ 'fetch' ],
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_CLASS,
                 ];
 
                 $dsn = sprintf(

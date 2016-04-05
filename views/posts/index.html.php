@@ -39,7 +39,7 @@
     <tr>
         <th><input id="toggle-all" type="checkbox" name="toggle-all" title="Selecionar todos"></th>
         <th><?= $this->makeOrderByLink( 'Título', 'title' ); ?></th>
-        <th><?= $this->makeOrderByLink( 'Categoria', 'category_name' ); ?></th>
+        <th>Categorias</th>
         <th>Imagem</th>
         <th>Upload</th>
         <th>Galeria de Img.</th>
@@ -70,7 +70,13 @@
         <tr>
             <td><input type="checkbox" class="list-item" name="li[]" value="<?= $post->id ?>"></td>
             <td><?= $post->title; ?></td>
-            <td><?= $post->category_name; ?></td>
+            <td>
+                <ul>
+                    <?php foreach ( $post->categories as $category ) : ?>
+                    <li><?= $category->name; ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </td>
             <td>
                 <a class="icon preview-colorbox" href="<?= $img ?>">
                     <img src="<?= $imgThumb ?>">

@@ -82,11 +82,18 @@ class BaseController {
             $view->flashMsg = H::flash( 'success-msg' );
             $view->flashMsgClass = 'success-msg';
         } else if ( isset( $_SESSION[ 'err-msg' ] ) ) {
-            $view->flashMsg = '<ul>';
-            foreach ( json_decode( H::flash( 'err-msg' ) ) as $errMsg ) {
-                $view->flashMsg .= "<li>{$errMsg}</li>";
+            $errMsg = H::flash( 'err-msg' );
+            $errMsg = json_decode( $errMsg ) ?: $errMsg;
+
+            if ( is_array( $errMsg ) ) {
+                $view->flashMsg = '<ul>';
+                foreach ( $errMsg as $msg ) {
+                    $view->flashMsg .= "<li>{$msg}</li>";
+                }
+                $view->flashMsg .= '</ul>';
+            } else {
+                $view->flashMsg = $errMsg;
             }
-            $view->flashMsg .= '</ul>';
 
             $view->flashMsgClass = 'err-msg';
         }

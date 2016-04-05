@@ -49,9 +49,9 @@ class CategoriesMapper extends Mapper {
         // Set number of records in the pagination object
         $this->_setNumRecordsPagn();
 
-        $sql = "SELECT c.id, name, description, count(p.*) AS posts_count
+        $sql = "SELECT c.id, name, description, count(pc.*) AS posts_count
                   FROM categories c
-                  LEFT JOIN posts p ON c.id = p.category_id
+                  LEFT JOIN posts_categories pc ON c.id = pc.category_id
                  WHERE TRUE ";
 
         // Search category by either name or description
@@ -116,7 +116,11 @@ class CategoriesMapper extends Mapper {
         }
 
         $selectStmt = self::$_pdo->prepare(
-            "SELECT {$select} FROM posts WHERE category_id = :cat_id"
+            "SELECT {$select} 
+               FROM posts p
+               JOIN posts_categories pc
+                 ON p.id = pc.post_id
+               WHERE pc.category_id = :cat_id"
         );
 
         $selectStmt->bindParam( ':cat_id', $catId, PDO::PARAM_INT );
@@ -133,23 +137,43 @@ class CategoriesMapper extends Mapper {
         return $posts;
     }
 
-    public function deleteAjax( $postIds ) {
+    public function deleteAjax( $catIds ) {
         try {
             $sql = 'DELETE FROM categories WHERE id IN (';
 
-            foreach ( $postIds as $id ) {
+            foreach ( $catIds as $id ) {
                 $sql .= '?, ';
             }
 
             $sql = trim( $sql, ', ' ) . ')';
             $stmt = self::$_pdo->prepare( $sql );
-            $stmt->execute( $postIds );
+            $stmt->execute( $catIds );
 
             // If everything worked out, return true
             return true;
         } catch ( PDOException $e ) {
             echo $e->getMessage();
             return false;
+        }
+    }
+
+    public function save( $obj, $overrideNullData = false, $oldPKValue = null ) {
+        self::$_pdo->beginTransaction();
+
+        try {
+            /*
+             * ***** NOTE *****
+             * If the id changed in an update operation, the ON UPDATE CASCADE clause in the posts_categories
+             * table ensures that no errors will occur and that the posts_categories
+             * will be updated correctly. Therefore, we don't need to treat this here.
+             */
+
+            parent::save( $obj, $overrideNullData, $oldPKValue );
+
+            self::$_pdo->commit();
+        } catch ( Exception $e ) {
+            self::$_pdo->rollBack();
+            throw new Exception( $e->getMessage() );
         }
     }
 }

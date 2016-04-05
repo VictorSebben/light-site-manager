@@ -8,12 +8,9 @@ class PostsMapper extends Mapper {
     function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT p.id, title, intro, image, p.status,
-                    category_id, post_text,
-                    c.name AS category_name, u.name AS user_name
+            "SELECT p.id, title, intro, 
+                    image, p.status, post_text
                FROM posts p
-               JOIN categories c ON c.id = p.category_id
-               JOIN users u ON u.id = p.user_id
               WHERE p.id = ?"
         );
     }
@@ -31,7 +28,7 @@ class PostsMapper extends Mapper {
      * @return array|null
      */
     public function index( $catId = null ) {
-        // set additional parameters for the pagination
+        // Set additional parameters for the pagination
         // in the request object
         $this->request->setPagParams();
         $params = $this->request->pagParams;
@@ -45,10 +42,9 @@ class PostsMapper extends Mapper {
 
         $ord = 'id';
         $rs = self::$_pdo->query('
-             SELECT posts.*, categories.name AS category_name, users.name AS user_name
+             SELECT id, user_id, title, intro, post_text,
+                    image, image_caption, status
                FROM posts
-               JOIN categories ON categories.id = posts.category_id
-               JOIN users ON users.id = posts.user_id
               LIMIT 0'
         );
         for ( $i = 0; $i < $rs->columnCount(); $i++ ) {
@@ -61,11 +57,11 @@ class PostsMapper extends Mapper {
         // Set number of records in the pagination object
         $this->_setNumRecordsPagn( $catId );
 
-        $sql = "SELECT p.id, title, image, p.status,
-                       c.name AS category_name, u.name AS user_name
+        $sql = "SELECT DISTINCT 
+                       id, user_id, title, intro, post_text,
+                       image, image_caption, status
                   FROM posts p
-                  JOIN categories c ON c.id = p.category_id
-                  JOIN users u ON u.id = p.user_id
+                  LEFT JOIN posts_categories pc ON pc.post_id = p.id
                  WHERE TRUE ";
 
         // Search category by either name or description
@@ -106,21 +102,36 @@ class PostsMapper extends Mapper {
         $selectStmt->execute();
         // Since the index of posts has info taken from the categories and users
         // tables, we are going to fetch a standard object here, instead of a model object
-        $selectStmt->setFetchMode( PDO::FETCH_OBJ );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'PostsModel' );
         $posts = $selectStmt->fetchAll();
         $selectStmt->closeCursor();
 
         if ( !is_array( $posts ) ) return null;
 
+        array_map( function( $post ) {
+            $this->loadUser( $post );
+            $this->initCategories( $post );
+            return $post;
+        }, $posts );
+
         return $posts;
+    }
+
+    protected function loadUser( PostsModel $post ) {
+        if ( ! $post->user_id ) return $post;
+
+        $post->user = ( new UsersMapper() )->find( $post->user_id );
+
+        return $post;
     }
 
     /**
      * @param $catId
      */
     protected function _setNumRecordsPagn( $catId ) {
-        $sql = "SELECT count(*) AS count
-                  FROM posts
+        $sql = "SELECT count(DISTINCT p.id) AS count
+                  FROM posts p
+                  LEFT JOIN posts_categories pc ON pc.post_id = p.id
                  WHERE TRUE ";
 
         if ( $this->request->pagParams['search'] != null ) {
@@ -130,7 +141,7 @@ class PostsMapper extends Mapper {
         }
 
         if ( $catId ) {
-            $sql .= 'AND category_id = :cat ';
+            $sql .= 'AND pc.category_id = :cat ';
         }
 
         $selectStmt = self::$_pdo->prepare($sql);
@@ -148,27 +159,46 @@ class PostsMapper extends Mapper {
         $selectStmt->closeCursor();
     }
 
+    public function initCategories( PostsModel $post ) {
+        $post->categories = array();
+
+        if ( ! $post->id ) {
+            throw new Exception( "Could not retrieve categories for post: post id not specified!" );
+        }
+
+        $sql = "SELECT c.* 
+                  FROM categories c
+                  JOIN posts_categories pc ON pc.category_id = c.id
+                  JOIN posts p ON p.id = pc.post_id
+                 WHERE p.id = :post_id";
+
+        $stmt = self::$_pdo->prepare( $sql );
+        $stmt->bindParam( ':post_id', $post->id, PDO::PARAM_INT );
+        $stmt->execute();
+        $stmt->setFetchMode( PDO::FETCH_CLASS, 'CategoriesModel' );
+
+        $post->categories = $stmt->fetchAll();
+        $stmt->closeCursor();
+    }
+
     /**
      * @param $model
      * @throws Exception
      */
-    public function destroy( $model ) {
+    public function destroy( $post ) {
         self::$_pdo->beginTransaction();
 
         try {
-            // First, we will destroy the gallery images related to the post, if there are any
-
+            // First, we will destroy the gallery images and videos related to the post, if there are any
             // Populate the gallery images of the post, if there are any
-            $this->populatePostGallery( $model );
+            self::$_pdo->prepare( 'DELETE FROM galleries WHERE post_id = ?' )->execute( array( $post->id ) );
+            self::$_pdo->prepare( 'DELETE FROM video_galleries WHERE post_id = ?' )->execute( array( $post->id ) );
 
-            $galleryMapper = new GalleryMapper();
+            // Then, we destroy the posts_categories entries
+            self::$_pdo->prepare( 'DELETE FROM posts_categories WHERE post_id = ?' )->execute( array( $post-> id ) );
 
-            foreach ( $model->galleries as $gallery ) {
-                $galleryMapper->destroy( $gallery );
-            }
-
-            // Destroy the post itself
-            parent::destroy( $model );
+            // Finally, destroy the post itself
+            parent::destroy( $post );
 
             self::$_pdo->commit();
         } catch ( Exception $e ) {
@@ -207,7 +237,7 @@ class PostsMapper extends Mapper {
 
             // toggle post's status
             $post->status = ( $post->status == 0 ) ? 1 : 0;
-            $this->save( $post );
+            parent::save( $post );
 
             // if everything worked out, return true
             return true;
@@ -246,20 +276,36 @@ class PostsMapper extends Mapper {
     }
 
     public function deleteAjax( $postIds ) {
+        self::$_pdo->beginTransaction();
+
         try {
+            // SQL to delete posts_categories entries
+            $sqlCat = 'DELETE FROM posts_categories WHERE post_id IN (';
+
+            // SQL to delete posts
             $sql = 'DELETE FROM posts WHERE id IN (';
 
             foreach ( $postIds as $id ) {
+                $sqlCat .= '?, ';
                 $sql .= '?, ';
             }
 
             $sql = trim( $sql, ', ' ) . ')';
+            $sqlCat = trim( $sqlCat, ', ' ) . ')';
+
+            $stmt = self::$_pdo->prepare( $sqlCat );
+            $stmt->execute( $postIds );
+            $stmt->closeCursor();
+
             $stmt = self::$_pdo->prepare( $sql );
             $stmt->execute( $postIds );
+            $stmt->closeCursor();
 
-            // If everything worked out, return true
+            // If everything worked out, commit transaction and return true
+            self::$_pdo->commit();
             return true;
         } catch ( PDOException $e ) {
+            self::$_pdo->rollBack();
             echo $e->getMessage();
             return false;
         }
@@ -279,5 +325,45 @@ class PostsMapper extends Mapper {
         $stmt->execute();
 
         $post->galleries = $stmt->fetchAll( PDO::FETCH_CLASS, 'GalleryModel' );
+    }
+
+    public function save( $post, $overrideNullData = false, $oldPKValue = null ) {
+        // Start transaction: in case anything goes wrong when inserting,
+        // we cancel everything
+        self::$_pdo->beginTransaction();
+
+        try {
+            // If it is an update, let's delete the old entries for posts_categories
+            if ( $post->id ) {
+                self::$_pdo->prepare( "DELETE FROM posts_categories WHERE post_id = ?" )->execute( array( $post->id ) );
+            }
+
+            // Call parent method to save post
+            parent::save( $post, $overrideNullData, $oldPKValue );
+
+            // If it is an insert operation, we have to retrieve the last inserted id
+            if ( ! $post->id ) {
+                $post->id = self::$_pdo->lastInsertId( 'posts_id_seq' );
+            }
+
+            // Insert new values for posts_categories
+            $stmt = self::$_pdo->prepare( "INSERT INTO posts_categories (post_id, category_id) VALUES (:post_id, :category_id)" );
+
+            // Save entries for posts_categories
+            foreach ( $post->categories as $category ) {
+                $stmt->bindParam( ':post_id', $post->id, PDO::PARAM_INT );
+                $stmt->bindParam( ':category_id', $category->id, PDO::PARAM_STR );
+                $stmt->execute();
+                $stmt->closeCursor();
+            }
+
+            self::$_pdo->commit();
+        } catch ( Exception $e ) {
+            // If something went wrong, rollback transaction
+            // and throw a new exception to be caught by the
+            // Router class
+            self::$_pdo->rollBack();
+            throw new Exception( $e->getMessage() );
+        }
     }
 }

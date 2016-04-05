@@ -9,19 +9,6 @@
 <div class="form-h">
     <form action="<?= ( $this->object->id ) ? $this->Url->update() : $this->Url->insert() ?>" method="post">
         <div class="form-field">
-            <label for="category">Categoria</label>
-            <div class="input-field">
-                <select id="category" name="category">
-                    <option value=""></option>
-                    <?php foreach ( $this->objectList as $cat ): ?>
-                    <option <?= ( ( $cat->id == $this->cat ) ) ? 'selected' : ''; ?> value="<?= $cat->id; ?>">
-                        <?= $cat->name; ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        </div>
-        <div class="form-field">
             <label for="title">Título</label>
             <div class="input-field">
                 <input id="title" type="text" name="title" maxlength="64" required
@@ -34,6 +21,18 @@
                 <input id="intro" type="text" name="intro"
                        value="<?= $this->object->intro; ?>">
             </div>
+        </div>
+        <div class="form-h-check">
+            <h3>Categorias</h3>
+            <ul>
+                <?php foreach ( $this->objectList as $cat ): ?>
+                <li>
+                    <label for="cat-<?= $cat->id; ?>"><?= $cat->name; ?></label>
+                    <input type="checkbox" id="cat-<?= $cat->id; ?>" name="cat[]" value="<?= $cat->id; ?>"
+                        <?= ( $this->object->hasCat( $cat->id ) ) ? 'checked' : ''; ?>>
+                </li>
+                <?php endforeach; ?>
+            </ul>
         </div>
         <div class="form-field-radio">
             <h3>Status</h3>

@@ -43,6 +43,39 @@ class CategoriesController extends BaseController {
         $this->_view->render( 'categories/index', 'pagination' );
     }
 
+    /**
+     * We'll overwrite this method here, because this is the only case
+     * where we can have both a success and an error message
+     * (deletion with ajax - it may work for some categories and not for others
+     * if they have posts associated)
+     *
+     * @param View $view
+     */
+    public function prepareFlashMsg( View $view ) {
+        
+        // TODO OVERWRITE AND REFACTOR ALL USES HERE.
+        // TODO IN THE INDEX VIEW, TEST FOR BOTH MESSAGES.
+        // TODO TEST EXCLUIR 2 CATEGORIES, ONE WITH AND ANOTHER WITHOUT POSTS
+        if ( isset( $_SESSION[ 'success-msg' ] ) ) {
+            $view->flashMsg[ 'success' ] = H::flash( 'success-msg' );
+        }
+
+        if ( isset( $_SESSION[ 'err-msg' ] ) ) {
+            $errMsg = H::flash( 'err-msg' );
+            $errMsg = json_decode( $errMsg ) ?: $errMsg;
+
+            if ( is_array( $errMsg ) ) {
+                $view->flashMsg[ 'err' ] = '<ul>';
+                foreach ( $errMsg as $msg ) {
+                    $view->flashMsg[ 'err' ] .= "<li>{$msg}</li>";
+                }
+                $view->flashMsg[ 'err' ] .= '</ul>';
+            } else {
+                $view->flashMsg[ 'err' ] = $errMsg;
+            }
+        }
+    }
+
     public function create() {
         if ( ! $this->_user->hasPrivilege( 'edit_categories' ) ) {
             throw new PermissionDeniedException();
@@ -112,6 +145,10 @@ class CategoriesController extends BaseController {
 
         $this->_view->object = $this->_mapper->find( $id );
 
+        if ( ! ( $this->_view->object instanceof CategoriesModel ) ) {
+            throw new Exception( 'Erro: Categoria não encontrada!' );
+        }
+
         // Try to get input data from session (data that the user had typed
         // in the form before). There will be input data if the validation
         // failed, and we want to redirect the user to the form with an
@@ -120,10 +157,6 @@ class CategoriesController extends BaseController {
         if ( $inputData ) {
             $this->_view->object->name = $inputData[ 'name' ];
             $this->_view->object->description = $inputData[ 'description' ];
-        }
-
-        if ( ! ( $this->_view->object instanceof CategoriesModel ) ) {
-            throw new Exception( 'Erro: Categoria não encontrada!' );
         }
 
         $this->prepareFlashMsg( $this->_view );
@@ -142,6 +175,9 @@ class CategoriesController extends BaseController {
         // the user typed
         $id = H::str2Url( $name );
 
+        // Get the old id, to be used in where clauses
+        $oldId = Request::getInstance()->getInput( 'id' );
+
         // TODO Validate if the id is unique
 
         $validator = new Validator();
@@ -152,19 +188,23 @@ class CategoriesController extends BaseController {
             // Flash input data (the data the user had typed int he form)
             H::flashInput( Request::getInstance()->getInput() );
 
-            header( 'Location: ' . $this->_url->edit( $id ) );
+            // Before redirecting, let's remove the category that is the primary key
+            // from the URL arguments
+            Request::getInstance()->rmArg( $oldId );
+
+            header( 'Location: ' . $this->_url->edit( $oldId ) );
         } else {
             $this->_model->id = $id;
             $this->_model->name = Request::getInstance()->getInput( 'name' );
             $this->_model->description = Request::getInstance()->getInput( 'description' );
 
-            $this->_mapper->save( $this->_model, false, Request::getInstance()->getInput( 'id' ) );
+            $this->_mapper->save( $this->_model, false, $oldId );
 
             H::flash( 'success-msg', 'Categoria atualizada com sucesso!' );
 
             // Before redirecting, let's remove the category that is the primary key
             // from the URL arguments
-            Request::getInstance()->rmArg( $this->_model->id );
+            Request::getInstance()->rmArg( $oldId );
 
             header( 'Location: ' . $this->_url->index() );
         }
@@ -244,15 +284,29 @@ class CategoriesController extends BaseController {
                 $errorMsg = 'Permissão negada.';
             } // No problems occurred: we can carry through with the request
             else {
-                if ( $this->_mapper->deleteAjax( $items ) ) {
-                    $isOk = true;
+                $errorMsg = array();
+                foreach ( $items as $key => $catId ) {
+                    if ( $this->_mapper->getPostsByCategory( $catId, true ) ) {
+                        $errorMsg[] = "Não foi possível excluir a categoria {$catId}, pois ela possui Posts associados!";
+                        unset( $items[ $key ] );
+                    }
+                }
 
-                    // If everything worked out, we are going to redirect the user
-                    // back to the first page on the view. Therefore, we have to
-                    // add a success message to the session
-                    H::flash( 'success-msg', 'Categorias removidas com sucesso!' );
-                } else {
-                    $errorMsg = 'Não foi possível excluir as Categorias. Contate o suporte.';
+                if ( count( $errorMsg ) ) {
+                    H::flash( 'err-msg', json_encode( $errorMsg ) );
+                }
+
+                if ( count( $items ) ) {
+                    if ( $this->_mapper->deleteAjax( $items ) ) {
+                        $isOk = true;
+
+                        // If everything worked out, we are going to redirect the user
+                        // back to the first page on the view. Therefore, we have to
+                        // add a success message to the session
+                        H::flash( 'success-msg', 'Categorias removidas com sucesso!' );
+                    } else {
+                        $errorMsg = 'Não foi possível excluir as Categorias. Contate o suporte.';
+                    }
                 }
             }
 

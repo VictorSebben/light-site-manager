@@ -37,6 +37,8 @@ class PostsController extends BaseController {
         $this->_view->pagination = $pagination;
         $this->_view->objectList = $this->_mapper->index( array_pop( $args ) );
 
+        $this->_view->categories = $this->_mapper->getAllCat();
+
         $this->_view->addExtraLink( 'css/colorbox.css' );
 
         $this->_view->addExtraScript( 'js/list.js' );
@@ -55,15 +57,6 @@ class PostsController extends BaseController {
 
         $post = new PostsModel();
 
-        // Add category that came from the URL, if the user is inserting/updating a post
-        // by category. If there was a a category in the URL, the field will have a default
-        // value in the view.
-        if ( isset( Request::getInstance()->uriParts[ 'args' ] ) ) {
-            $this->_view->cat = array_pop( Request::getInstance()->uriParts[ 'args' ] );
-        } else {
-            $this->_view->cat = null;
-        }
-
         // Populate categories for the select field
         $this->_view->objectList = $this->_mapper->getAllCat();
 
@@ -74,9 +67,15 @@ class PostsController extends BaseController {
         if ( $inputData ) {
             $post->title = $inputData[ 'title' ];
             $post->intro = $inputData[ 'intro' ];
-            $post->post_text = $inputData[ 'post_text' ];
-            $post->category_id = $inputData[ 'category_id' ];
+            $post->post_text = $inputData[ 'post-text' ];
             $post->status = $inputData[ 'status' ];
+
+            if ( isset( $inputData[ 'cat' ] ) ) {
+                array_map( function( $catId ) use ( $post ) {
+                    $category = ( new CategoriesMapper() )->find( $catId );
+                    $post->categories[] = $category;
+                }, $inputData[ 'cat' ] );
+            }
         }
 
         $this->_view->object = $post;
@@ -93,6 +92,8 @@ class PostsController extends BaseController {
             throw new PermissionDeniedException();
         }
 
+        $request = Request::getInstance();
+
         $validator = new Validator();
         if ( ! $validator->check( $_POST, $this->_model->rules ) ) {
             // Flash error messages
@@ -100,20 +101,33 @@ class PostsController extends BaseController {
 
             // Flash input data (data the user had typed in) so that we can
             // put it back in the form fields
-            H::flashInput( Request::getInstance()->getInput() );
+            H::flashInput( $request->getInput() );
 
             header( 'Location: ' . $this->_url->create() );
         } else {
-            $this->_model->title = Request::getInstance()->getInput( 'title' );
-            $this->_model->intro = Request::getInstance()->getInput( 'intro' );
-            $this->_model->post_text = Request::getInstance()->getInput( 'post-text' );
-            $this->_model->category_id = Request::getInstance()->getInput( 'category' );
-            $this->_model->status = Request::getInstance()->getInput( 'status' );
+            $this->_model->title = $request->getInput( 'title' );
+            $this->_model->intro = $request->getInput( 'intro' );
+            $this->_model->post_text = $request->getInput( 'post-text' );
+            $this->_model->status = $request->getInput( 'status' );
             $this->_model->user_id = $_SESSION[ 'user' ];
+
+            // Let us make sure no error will occur if the user changed the hidden id's manually
+            // and duplicated one
+            $categories = array_unique( $request->getInput( 'cat' ) );
+            array_map( function( $catId ) {
+                $category = ( new CategoriesMapper() )->find( $catId );
+                if ( ! $category ) {
+                    // Flash error messages
+                    H::flash( 'err-msg', "Categoria inválida: {$catId}" );
+                    header( 'Location: ' . $this->_url->create() );
+                    exit;
+                }
+                $this->_model->categories[] = $category;
+            }, $categories );
 
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Post criado com sucesso!' );
-            header( 'Location: ' . $this->_url->make( 'posts/index' ) );
+            header( 'Location: ' . $this->_url->index() );
         }
     }
 
@@ -123,8 +137,7 @@ class PostsController extends BaseController {
         }
 
         $this->_view->object = $this->_mapper->find( $id );
-
-        $this->_view->cat = $this->_view->object->category_id;
+        $this->_mapper->initCategories( $this->_view->object );
 
         // Populate categories for the select field
         $this->_view->objectList = $this->_mapper->getAllCat();
@@ -142,9 +155,15 @@ class PostsController extends BaseController {
             $post = new PostsModel();
             $post->title = $inputData[ 'title' ];
             $post->intro = $inputData[ 'intro' ];
-            $post->post_text = $inputData[ 'post_text' ];
-            $post->category_id = $inputData[ 'category_id' ];
+            $post->post_text = $inputData[ 'post-text' ];
             $post->status = $inputData[ 'status' ];
+
+            if ( isset( $inputData[ 'cat' ] ) ) {
+                array_map( function( $catId ) use ( $post ) {
+                    $category = ( new CategoriesMapper() )->find( $catId );
+                    $post->categories[] = $category;
+                }, $inputData[ 'cat' ] );
+            }
 
             $this->_view->object = $post;
         }
@@ -161,8 +180,10 @@ class PostsController extends BaseController {
             throw new PermissionDeniedException();
         }
 
+        $request = Request::getInstance();
+
         // Get id from $_POST
-        $id = Request::getInstance()->getInput( 'id' );
+        $id = $request->getInput( 'id' );
 
         $validator = new Validator();
         if ( ! $validator->check( $_POST, $this->_model->rules ) ) {
@@ -170,22 +191,33 @@ class PostsController extends BaseController {
             H::flash( 'err-msg', $validator->getErrorsJson() );
 
             // Flash input data (the data the user had typed int he form)
-            H::flashInput( Request::getInstance()->getInput() );
+            H::flashInput( $request->getInput() );
 
             header( 'Location: ' . $this->_url->edit( $id ) );
         } else {
             $this->_model->id = $id;
-            $this->_model->title = Request::getInstance()->getInput( 'title' );
-            $this->_model->intro = Request::getInstance()->getInput( 'intro' );
-            $this->_model->post_text = Request::getInstance()->getInput( 'post-text' );
-            $this->_model->category_id = Request::getInstance()->getInput( 'category' );
-            $this->_model->status = Request::getInstance()->getInput( 'status' );
+            $this->_model->title = $request->getInput( 'title' );
+            $this->_model->intro = $request->getInput( 'intro' );
+            $this->_model->post_text = $request->getInput( 'post-text' );
+            $this->_model->status = $request->getInput( 'status' );
             $this->_model->user_id = $_SESSION[ 'user' ];
 
+            // Let us make sure no error will occur if the user changed the hidden id's manually
+            // and duplicated one
+            $categories = array_unique( $request->getInput( 'cat' ) );
+            array_map( function( $catId ) {
+                $category = ( new CategoriesMapper() )->find( $catId );
+                if ( ! $category ) {
+                    // Flash error messages
+                    H::flash( 'err-msg', "Categoria inválida: {$catId}" );
+                    header( 'Location: ' . $this->_url->create() );
+                    exit;
+                }
+                $this->_model->categories[] = $category;
+            }, $categories );
+
             $this->_mapper->save( $this->_model );
-
             H::flash( 'success-msg', 'Post atualizado com sucesso!' );
-
             header( 'Location: ' . $this->_url->index() );
         }
     }

@@ -225,4 +225,8 @@ CREATE TABLE posts_categories (
 ALTER TABLE categories ALTER COLUMN id DROP DEFAULT;
 DROP SEQUENCE IF EXISTS categories_id_seq;
 
-ALTER TABLE posts ALTER COLUMN category_id SET NOT NULL;
+ALTER TABLE posts DROP COLUMN category_id;
+
+ALTER TABLE posts_categories DROP CONSTRAINT posts_categories_category_id_fkey,
+  ADD CONSTRAINT posts_categories_category_id_fkey FOREIGN KEY (category_id) REFERENCES categories(id)
+   ON UPDATE CASCADE;

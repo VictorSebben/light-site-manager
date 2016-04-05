@@ -52,15 +52,9 @@ class Validator {
         }
 
         foreach ( $this->_items as $item => $rules ) {
-            // If the item to be checked is not present in the
-            // source array, just continue checking next items
-            if ( ! isset( $source[ $item ] ) ) {
-                continue;
-            }
-
             // If the value to be checked is actually an array
             // (checkbox), call $this->checkArray()
-            if ( is_array( $source[ $item ] ) ) {
+            if ( isset( $rules[ 'array' ] ) && $rules[ 'array' ] ) {
                 $this->checkArray( $item, $rules );
             } else {
                 $this->checkValue( $item, $rules );
@@ -75,6 +69,10 @@ class Validator {
     }
 
     protected function checkValue( $item, array $rules ) {
+        if ( ! isset( $this->_source[ $item ] ) ) {
+            return;
+        }
+
         $value = filter_var( $this->_source[ $item ], FILTER_SANITIZE_SPECIAL_CHARS );
 
         $fieldName = ( isset( $rules[ 'fieldName' ] ) ) ? $rules[ 'fieldName' ] : $item;
@@ -104,6 +102,13 @@ class Validator {
 
         // other rules for data validation
         $validationRules = isset( $rules[ 'rules' ] ) ? explode( '|', $rules[ 'rules' ] ) : array();
+
+        // Check if the field is mandatory and no data is set in the input array
+        // (this generally means that no checkboxes were checked by the user)
+        if ( in_array( 'required', $validationRules ) && ( ! isset( $this->_source[ $item ] ) ) ) {
+            $this->addError( ucfirst( $fieldName ) . ' é obrigatório.' );
+            return;
+        }
 
         foreach ( $this->_source[ $item ] as $value ) {
             $value = filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
@@ -140,6 +145,7 @@ class Validator {
         {
             if ( $rule == 'required' && empty( $value ) ) {
                 $this->addError( ucfirst( $fieldName ) . ' é obrigatório.' );
+                break;
             } else if ( $rule == 'password' ) {
                 $this->checkPassword( $value );
             } else {

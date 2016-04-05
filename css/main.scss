@@ -201,6 +201,16 @@ table td .icon img, table td .icon span {
     width: 20px;
 }
 
+table td {
+    li {
+        line-height: 1;
+        padding-bottom: 20px;
+    }
+    li:last-child {
+        padding-bottom: 0;
+    }
+}
+
 table td .icon span {
     font-size: $font-size1 + 4px;
 }
@@ -226,8 +236,8 @@ table td .status {
 
 .form-field-radio {
     padding: 20px 0;
-    border-top: 1px dotted #777;
     border-bottom: 1px dotted #777;
+    border-collapse: collapse;
 
     h3 {
         margin: 0;
@@ -345,7 +355,7 @@ input {
     .form-h-check {
         border-top: 1px dotted #777;
         border-bottom: 1px dotted #777;
-        margin: 30px 0;
+        border-collapse: collapse;
         padding: 20px 0;
 
         h3 {
@@ -359,6 +369,7 @@ input {
         label {
             font-weight: normal;
             font-size: $font-size1 + 1;
+            width: 20%;
         }
 
         input {
@@ -370,6 +381,8 @@ input {
             line-height: 30px;
         }
     }
+
+
 }
 
 .btn-edit {

@@ -3,7 +3,6 @@
 class PostsModel extends BaseModel {
 
     public $id;
-    public $category_id;
     public $user_id;
     public $title;
     public $intro;
@@ -13,9 +12,21 @@ class PostsModel extends BaseModel {
     public $status;
 
     /**
-     * @var array Array of gallery images associated to the post
+     * @var UsersModel
      */
-    public $galleries;
+    public $user;
+
+    /**
+     * Array to hold CategoriesModel objects.
+     * @var array
+     */
+    public $categories = array();
+
+    /**
+     * Array of gallery images associated with the post.
+     * @var array
+     */
+    public $galleries = array();
 
     public $tableName;
 
@@ -31,11 +42,21 @@ class PostsModel extends BaseModel {
         parent::__construct();
 
         $this->rules = array(
-            'category' => array( 'fieldName' => 'categoria', 'rules' => 'required', 'type' => 'int' ),
+            'cat' => array( 'fieldName' => 'categorias', 'rules' => 'required', 'array' => true ),
             'title' => array( 'fieldName' => 'título', 'rules' => 'required|max:200|min:3' ),
             'image' => array( 'fieldName' => 'imagem', 'rules' => 'max:80' ),
             'image_caption' => array( 'fieldName' => 'legenda da imagem', 'rules' => 'max:100' ),
             'status' => array( 'fieldName' => 'status', 'valueIn' => array( self::STATUS_INACTIVE, self::STATUS_ACTIVE ) ),
         );
+    }
+
+    public function hasCat( $catId ) {
+        if ( ! is_array( $this->categories ) ) {
+            return false;
+        }
+
+        return in_array( $catId, array_map( function( $cat ) {
+            return $cat->id;
+        }, $this->categories ) );
     }
 }

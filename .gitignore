@@ -23,3 +23,5 @@ vendor/
 /_tmp/*
 !/_tmp/.gitignore
 composer.lock
+
+/test.php
