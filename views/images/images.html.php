@@ -1,6 +1,6 @@
 <!-- TODO Mostrar imagem, se já tem, permitindo excluir -->
 <div id="container">
-    <form action="" method="post" enctype="multipart/form-data">
+    <form action="#" method="post" enctype="multipart/form-data">
 
         <!-- $w e $h são as dimensões da imagem para a categoria. Vem do DB.
              O tamanho do db é multiplicado por 3 antes de chegar aqui. -->
@@ -11,15 +11,11 @@
         <input type="hidden" id="extension"> <!-- To be set via ajax -->
         <input type="hidden" id="id" value="<?php echo $this->object->id; ?>">
 
-        <div id='new-img'>
-            <a href='<?= $this->Url->make( trim( Request::getInstance()->uri, '/' ) ); ?>'>Escolher outra imagem...</a>
-        </div>
         <div id='sel-img'>
             <label for='img'>Imagem:</label>
-            <input type='file' name='img' id='img'>
-            <!-- <input type='submit' name='submit' value='Upload'> -->
+            <input type='file' multiple name='img' id='img'>
         </div>
-        <div class='image' id='img-div'>
+        <div id='img-gallery-wrapper' class='img-gallery-wrapper cf'>
             <!-- <img id='crop'> -->
         </div>
 

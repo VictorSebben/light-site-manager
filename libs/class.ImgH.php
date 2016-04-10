@@ -4,34 +4,33 @@ class ImgH {
     private $_dir;
 
     public function __construct() {
-        $this->_dir = ROOT_DIR . '/public/_tmp';
+        $this->_dir = ROOT_DIR . '/../uploads/galleries';
     }
 
     /**
      * @throws Exception
      */
-    public function saveImg() {
+    public function save($file, $post_id, $image_id) {
         /**
          * If the image is too small, Medium and Big sizes
          * will be smaller than what specified in the DB or class
          */
 
-        $fileName = $_FILES[ 'img' ][ 'name' ];
+        $fileName = $file[ 'name' ];
         $ext = pathinfo( $fileName )[ 'extension' ];
 
-        // Let us make sure that different users will not disturb each other
-        $tmp = $_SESSION[ 'user' ] . '-tmp';
-        $tmpdir = '_' . $_SESSION[ 'user' ];
+        $prefixName = "{$post_id}-{$image_id}";
 
-        $this->_rmTmpDir( "{$this->_dir}/{$tmpdir}" );
-        $this->_mkTmpDir( "{$this->_dir}/{$tmpdir}" );
+        $this->_checkDir( $this->_dir );
 
-        if ( ! move_uploaded_file( $_FILES[ 'img' ][ 'tmp_name' ], "{$this->_dir}/{$tmpdir}/{$tmp}-orig.{$ext}" ) ) {
+        // Persist on DB and retrieve generated PK.
+
+        if ( ! move_uploaded_file( $_FILES[ 'image' ][ 'tmp_name' ], "{$this->_dir}/{$prefixName}-orig.{$ext}" ) ) {
             throw new Exception( 'Erro ao fazer upload de arquivo!' );
         }
 
         // Instantiate the upload class
-        $upload = new upload( "{$this->_dir}/{$tmpdir}/{$tmp}-orig.{$ext}" );
+        $upload = new upload( "{$this->_dir}/{$prefixName}-orig.{$ext}" );
         if ( ! $upload->uploaded ) {
             throw new Exception( 'Erro ao fazer upload de arquivo!' );
         }
@@ -39,12 +38,13 @@ class ImgH {
         // If the image is larger than 1000px x 800px, resize it on the larger side,
         // keeping the ration. The purpose of this is to
         $upload->image_resize = true;
-        $upload->image_ratio_no_zoom_in = true;
-        $upload->image_x = 1000;
-        $upload->image_y = 800;
-        $upload->file_new_name_body = "{$tmp}-tmpcrop";
+        $upload->image_ratio = true;
+        //$upload->image_ratio_no_zoom_in = true;
+        $upload->image_x = 180;
+        $upload->image_y = 120;
+        $upload->file_new_name_body = "{$prefixName}-thumb";
 
-        $upload->process( "{$this->_dir}/{$tmpdir}/" );
+        $upload->process( "{$this->_dir}/" );
 
         if ( ! $upload->processed ) {
             if ( DEBUG ) {
@@ -54,22 +54,26 @@ class ImgH {
             }
         }
 
-        $url = new Url();
+        // TODO: How will we check this other processing?
+        $upload->image_x = 900;
+        $upload->image_y = 600;
+        $upload->file_new_name_body = "{$prefixName}-large";
+        $upload->process( "{$this->_dir}" );
+    }
 
-        $arrImgData = [
-            'tmpdir' => $url->make( "_tmp/{$tmpdir}" ),
-            'tmpname' => $tmp,
-            'ext' => $ext
-        ];
-
-        echo json_encode( $arrImgData );
-        exit();
-
-        /**
-         * From this moment on, the JavaScript inserts the image on the page and
-         * calls the functionality for cropping it. After the image is cropped,
-         * the information is sent back to the PHP via Ajax.
-         */
+    /**
+     * Checks whether /site/uploads/galleries/ (or other dir) exists. If it does not, create it.
+     *
+     * NOTE: What if there is an error and we create a new dir overriding all
+     * images that could possibily be there already?
+     *
+     * @param string $path
+     * @return boolean
+     */
+    protected function _checkDir( $path ) {
+        // If exists and is writeable, we are fine.
+        if ( file_exists( $path ) && is_writeable ( $path ) ) return true;
+        return mkdir( $path, 0775, true );
     }
 
     /**
@@ -97,6 +101,7 @@ class ImgH {
     }
 
     protected function _mkTmpDir( $path ) {
+        echo $path;
         if ( ! mkdir( $path, 0775, true ) ) {
             throw new Exception( 'Erro ao criar diretório temporário para upload de arquivos!' );
         }

@@ -428,7 +428,7 @@ class PostsController extends BaseController {
         }
     }
 
-    public function uploadOneImg() {
+    public function images() {
         if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
             throw new PermissionDeniedException();
         }
@@ -437,7 +437,7 @@ class PostsController extends BaseController {
         // after she is done with the upload
         $this->flashRedirectTo( $_SERVER[ 'HTTP_REFERER' ] );
 
-        $this->_view->object = $this->_mapper->find( Request::getInstance()->pk );
+        $this->_view->object = $this->_mapper->find( Request::getInstance()->uriParts['pk'] );
 
         $category = ( new CategoriesMapper() )->find( $this->_view->object->category_id );
 
@@ -446,16 +446,66 @@ class PostsController extends BaseController {
 
         $this->_view->addExtraLink( 'font-awesome/css/font-awesome.min.css' );
         $this->_view->addExtraLink( 'imgup/css/imgareaselect-default.css' );
+        $this->_view->addExtraLink( 'imgup/css/images.css');
 
         $this->_view->addExtraScript( 'imgup/js/jquery.imgareaselect.min.js' );
-        $this->_view->addExtraScript( 'js/up-script.js' );
+        $this->_view->addExtraScript( 'js/images.js?v2' );
 
-        $this->_view->render( 'posts/form-crop' );
+        $this->_view->render( 'images/images' );
     }
 
-    public function saveImg() {
-        $imgH = new ImgH();
-        $imgH->saveImg();
+
+    /**
+     * Save image that come by ajax.
+     *
+     * Because we are using reflection in the router, the name of the formal parameter
+     * must be either $pk or $id. Something like $post_id producess errors.
+     *
+     * Each ajax call that send an image to the server will cause this method
+     * to be invoked once, so, even though the user selects multiple images
+     * on the client side, for our method, only one image comes at a single time.
+     *
+     * @param integer $pk
+     *
+     * @ajax
+     */
+    public function imagesSave( $pk ) {
+
+        /**
+         * TODO: Properly handle exceptions on the client side of ajax.
+         */
+        if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
+            throw new PermissionDeniedException();
+        }
+        $post_id = $pk;
+
+        // IMPORTANT: $pk in this case id post_id. We are saving an image
+        // that belongs to post with id post_id/$pk.
+
+        // If error code is not “OK”, keep calm, abort the mission and die a flaming death.
+        if ( ! $_FILES || $_FILES[ 'image' ][ 'error' ] !== UPLOAD_ERR_OK ) {
+            echo json_encode( [ 'error' => 'Error uploading the file.' ] );
+            return;
+        }
+
+        $file = $_FILES[ 'image' ];
+        $image = new GalleriesModel;
+        $image->post_id = $pk;
+
+        $galleriesMapper = new GalleriesMapper;
+
+        // $res is an assoc array with id and position keys.
+        $res = $galleriesMapper->save( $image );
+
+        // Now we have inserted id and position. We'll use post_id + id to name the image on
+        // disk. We'll also send id and position back to the ajax client so they update the
+        // underlying dom elements with id and position for each image sent through ajax.
+
+        $imgH = new ImgH;
+        $imgH->save($file, $post_id, $res['id']);
+
+        echo json_encode($res);
+
     }
 
     public function createVideoGal() {
