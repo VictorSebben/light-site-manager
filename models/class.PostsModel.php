@@ -10,7 +10,6 @@ class PostsModel extends BaseModel {
     public $image;
     public $image_caption;
     public $status;
-    public $category_id;
 
     /**
      * @var UsersModel
