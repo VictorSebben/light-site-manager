@@ -226,3 +226,14 @@ ALTER TABLE categories ALTER COLUMN id DROP DEFAULT;
 DROP SEQUENCE IF EXISTS categories_id_seq;
 
 ALTER TABLE posts ALTER COLUMN category_id SET NOT NULL;
+
+
+-- It was agreed upon naming the image with post_id + image_id + size + extension,
+-- like 103-1-thumb.jpg, 103-2-thumb.jpg, 103-1-large.jpg, 103-2-large.jpg, etc.
+ALTER TABLE galleries DROP COLUMN image;
+
+INSERT INTO galleries (post_id, position)
+    SELECT 27, COALESCE(MAX(position), 0) + 1 FROM galleries;
+
+
+

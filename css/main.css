@@ -33,6 +33,11 @@ a:hover {
 span {
   color: #555; }
 
+.cf:after, .cf:before {
+    display: block;
+    content: '';
+    clear: both; }
+
 .fit {
   max-width: 1200px;
   margin: 0 auto; }

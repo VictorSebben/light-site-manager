@@ -82,7 +82,7 @@
                 </a>
             </td>
             <td>
-                <a title="Galeria de Imagens" class="imgup icon" href="<?= $this->Url->make( "posts/{$post->id}/img-gal/" ); ?>">
+                <a title="Galeria de Imagens" class="imgup icon" href="<?= $this->Url->make( "posts/galeria-de-imagens/{$post->id}/images/" ); ?>">
                     <span class="fa fa-picture-o"></span>
                 </a>
             </td>

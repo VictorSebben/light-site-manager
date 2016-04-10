@@ -11,7 +11,9 @@
 
     <script>
         window.lsmConf = {
-            baseUrl: '<?= "{$this->_config[ 'base_url' ]}"; ?>'
+            baseUrl: '<?= "{$this->_config[ 'base_url' ]}"; ?>',
+            ctrl: '<?= Request::getInstance()->uriParts[ 'ctrl' ] ?>',
+            pk: '<?= Request::getInstance()->uriParts[ 'pk' ] ?>'
         };
     </script>
 </head>

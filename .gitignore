@@ -23,3 +23,10 @@ vendor/
 /_tmp/*
 !/_tmp/.gitignore
 composer.lock
+
+# It seems wiki for the project is a separate thing on bitbucket,
+# so, let's clone it as a separate project.
+wiki/
+
+_stuff/
+
