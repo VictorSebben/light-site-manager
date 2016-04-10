@@ -9,7 +9,7 @@ class PostsMapper extends Mapper {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
             "SELECT p.id, title, intro, 
-                    image, p.status, post_text
+                    image, p.status, post_text, category_id
                FROM posts p
               WHERE p.id = ?"
         );
@@ -43,7 +43,7 @@ class PostsMapper extends Mapper {
         $ord = 'id';
         $rs = self::$_pdo->query('
              SELECT id, user_id, title, intro, post_text,
-                    image, image_caption, status
+                    image, image_caption, status, category_id
                FROM posts
               LIMIT 0'
         );
@@ -57,9 +57,9 @@ class PostsMapper extends Mapper {
         // Set number of records in the pagination object
         $this->_setNumRecordsPagn( $catId );
 
-        $sql = "SELECT DISTINCT 
+        $sql = "SELECT DISTINCT
                        id, user_id, title, intro, post_text,
-                       image, image_caption, status
+                       image, image_caption, status, p.category_id
                   FROM posts p
                   LEFT JOIN posts_categories pc ON pc.post_id = p.id
                  WHERE TRUE ";
@@ -78,7 +78,7 @@ class PostsMapper extends Mapper {
         }
 
         if ( $catId ) {
-            $sql .= 'AND category_id = :cat ';
+            $sql .= 'AND p.category_id = :cat ';
         }
 
         $sql .= " ORDER BY {$ord} {$params['dir']}
