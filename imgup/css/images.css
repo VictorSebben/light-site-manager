@@ -1,14 +1,14 @@
-.img-gallery-wrapper .wrap {
+.image-list .wrap {
     width: 196px;
     float: left;
     margin: 10px;
     background-color: #fff;
     border: 1px solid #bababa;
 }
-.img-gallery-wrapper .tbl {
+.image-list .tbl {
     display: table;
 }
-.img-gallery-wrapper .tblcell {
+.image-list .tblcell {
     display: table-cell;
     vertical-align: middle;
     width: 196px;
@@ -24,43 +24,43 @@
     */
     border-radius: 4px 4px 0 0;
 }
-.img-gallery-wrapper .preview {
+.image-list .preview {
     max-width: 164px;
     max-height: 128px;
     vertical-align: middle;
 }
-.img-gallery-wrapper .wrap .actions,
-.img-gallery-wrapper .btn-action.position {
+.image-list .wrap .actions,
+.image-list .btn-action.position {
     font-size: 12px;
     background-color: #e9e9e9;
     text-align: center;
     line-height: 25px;
 }
-.img-gallery-wrapper .wrap .actions {
+.image-list .wrap .actions {
     cursor: pointer;
     border-top: 1px solid #bababa;
 }
-.img-gallery-wrapper .btn-action.position {
+.image-list .btn-action.position {
     border-bottom: 1px solid #bababa;
     color: #338d33;
     cursor: move;
 }
-.img-gallery-wrapper .wrap .actions .btn-action {
+.image-list .wrap .actions .btn-action {
     width: 50%;
     float: left;
     cursor: pointer;
 }
-.img-gallery-wrapper .wrap .actions .btn-action.crop {
+.image-list .wrap .actions .btn-action.crop {
     border-left: 1px solid #bababa;
 }
-.img-gallery-wrapper .wrap .actions .btn-action:hover {
+.image-list .wrap .actions .btn-action:hover {
     background-color: #f9f9f9;
     text-decoration: underline;
 }
-.img-gallery-wrapper .wrap .actions .btn-action.crop {
+.image-list .wrap .actions .btn-action.crop {
     color: #2378b6; /* blue */
 }
-.img-gallery-wrapper .wrap .actions .btn-action.remove {
+.image-list .wrap .actions .btn-action.remove {
     color: #e42626; /* red */
 }
 

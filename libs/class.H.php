@@ -11,6 +11,15 @@ class H {
         echo '</pre>';
     }
 
+    /**
+     * Helper function to help debugging objects or arrays but this time using var_dump.
+     */
+    public static function vd( $object ) {
+        echo '<pre>';
+        var_dump( $object );
+        echo '</pre>';
+    }
+
     public static function isSpecialChar( $char ){
         $strAscii = '\'"@#$%&*()-_+=´`^~<>/\\?!:;|[]{}çÇ¨';
 

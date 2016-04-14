@@ -439,17 +439,14 @@ class PostsController extends BaseController {
 
         $this->_view->object = $this->_mapper->find( Request::getInstance()->uriParts['pk'] );
 
-        $category = ( new CategoriesMapper() )->find( $this->_view->object->category_id );
-
-        $this->_view->w = H::ifnull( $category->img_w, CategoriesModel::IMG_WIDTH );
-        $this->_view->h = H::ifnull( $category->img_h, CategoriesModel::IMG_HEIGHT );
-
         $this->_view->addExtraLink( 'font-awesome/css/font-awesome.min.css' );
         $this->_view->addExtraLink( 'imgup/css/imgareaselect-default.css' );
         $this->_view->addExtraLink( 'imgup/css/images.css');
 
         $this->_view->addExtraScript( 'imgup/js/jquery.imgareaselect.min.js' );
         $this->_view->addExtraScript( 'js/images.js?v2' );
+
+        $this->_view->images = (new GalleriesMapper())->index(Request::getInstance()->uriParts[ 'pk' ]);
 
         $this->_view->render( 'images/images' );
     }

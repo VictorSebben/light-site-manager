@@ -12,6 +12,28 @@ class GalleriesMapper extends Mapper {
         );
     }
 
+
+    /**
+     * List all images from a given post.
+     */
+    public function index( $post_id ) {
+        $sql = "SELECT
+                      id
+                    , post_id
+                    , caption
+                    , position
+                FROM galleries
+                WHERE post_id = :post_id;";
+
+        $stmt = self::$_pdo->prepare( $sql );
+        $stmt->bindParam( ':post_id', $post_id, PDO::PARAM_INT );
+        $stmt->execute();
+        $stmt->setFetchMode( PDO::FETCH_CLASS, 'GalleriesModel' );
+        $images = $stmt->fetchAll();
+
+        return is_array( $images) ? $images : NULL;
+    }
+
     /**
      * @Override
      * Overrite save() because we need max(position) + 1 on insert, etc.

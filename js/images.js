@@ -29,7 +29,7 @@ var lsmImage = (function () {
     var l = console.log.bind(console);
 
     img = document.querySelector( '#img' );
-    imgPreviewList = document.querySelector( '#img-gallery-wrapper' );
+    imgPreviewList = document.querySelector( '#image-list' );
 
     img.addEventListener( 'change', function () {
         var i;

@@ -13,5 +13,9 @@ class GalleriesModel extends BaseModel {
         parent::__construct();
     }
 
+    public function path() {
+        $baseUrl = ( new Base() )->getConfig()[ 'base_url' ];
+        return "{$baseUrl}/../uploads/galleries/{$this->post_id}-{$this->id}-thumb.jpg?" . time();
+    }
 }
 
