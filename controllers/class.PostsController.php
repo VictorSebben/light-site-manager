@@ -486,8 +486,14 @@ class PostsController extends BaseController {
         }
 
         $file = $_FILES[ 'image' ];
+
+        // Let's assume there is an extension (for now).
+        $tmp = explode('.', $file['name']);
+        $extension = array_pop($tmp);
+
         $image = new GalleriesModel;
         $image->post_id = $pk;
+        $image->extension = $extension;
 
         $galleriesMapper = new GalleriesMapper;
 

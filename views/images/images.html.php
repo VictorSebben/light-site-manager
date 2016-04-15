@@ -20,7 +20,7 @@
                 there as well and vice-versa.
             -->
             <div class='wrap' data-image-id='<?= $img->id ?>' data-post-id='<?= $img->post_id ?>'
-                data-image-position='<?= $img->position ?>' <?PHP /* TODO: image extension */ ?>>
+                data-image-position='<?= $img->position ?>' data-image-extension='<?= $img->extension ?>'>
                 <div class='btn-action position'>posicionar</div>
                 <div class='tbl'>
                     <div class='tblcell'>

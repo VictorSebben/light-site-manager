@@ -22,6 +22,7 @@ class GalleriesMapper extends Mapper {
                     , post_id
                     , caption
                     , position
+                    , extension
                 FROM galleries
                 WHERE post_id = :post_id;";
 
@@ -52,18 +53,21 @@ class GalleriesMapper extends Mapper {
         // it “max(position) + 1”.
         $sql = "INSERT INTO galleries (
                   post_id
+                , extension
                 , position
                 , created_at)
                 (SELECT
                       :post_id
+                    , :extension
                     , COALESCE(MAX(position), 0) + 1
                     , CURRENT_TIMESTAMP
                     FROM galleries
                     WHERE post_id = :post_id)
-                    RETURNING id, position";
+                    RETURNING id, extension, position";
 
         $stmt = self::$_pdo->prepare( $sql );
         $stmt->bindParam( ':post_id', $image->post_id );
+        $stmt->bindParam( ':extension', $image->extension );
         $stmt->execute();
         return $stmt->fetch( PDO::FETCH_ASSOC );
     }

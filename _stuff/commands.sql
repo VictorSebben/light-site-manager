@@ -241,4 +241,5 @@ INSERT INTO galleries (post_id, position)
     SELECT 27, COALESCE(MAX(position), 0) + 1 FROM galleries;
 
 
+ALTER TABLE galleries ADD COLUMN extension VARCHAR(4);
 
