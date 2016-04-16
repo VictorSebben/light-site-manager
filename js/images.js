@@ -29,7 +29,7 @@ var lsmImage = (function () {
     var l = console.log.bind(console);
 
     img = document.querySelector( '#img' );
-    imgPreviewList = document.querySelector( '#image-list' );
+    imageListWrap = document.querySelector( '#image-list-wrap' );
 
     img.addEventListener( 'change', function () {
         var i;
@@ -56,6 +56,10 @@ var lsmImage = (function () {
         };
 
     }, false);
+
+
+    //$(imageL
+
 
     /**
      * Send the file through ajax.
@@ -93,11 +97,12 @@ var lsmImage = (function () {
     function addDataToUploadedPreviews( jsonData,  previewWrap ) {
         previewWrap.setAttribute( 'data-id', jsonData.id );
         previewWrap.setAttribute( 'data-position', jsonData.position );
+        previewWrap.setAttribute( 'data-extension', jsonData.extension );
 
-        // imgPreviewList is the container for the list of previews. We need to
+        // imageListWrap is the container for the list of previews. We need to
         // append the previews to that list based on the order of the
         // `position` column on DB given to each image.
-        imgPreviewList.appendChild( previewWrap );
+        imageListWrap.appendChild( previewWrap );
 
         // Show the preview at this point.
         previewWrap.style.display = 'block';
@@ -114,7 +119,7 @@ var lsmImage = (function () {
      */
     function createPreview(currentFile) {
         var template = "\
-            <div class='wrap'>\
+            <div class='preview-wrap'>\
                 <div class='btn-action position'>posicionar</div>\
                 <div class='tbl'>\
                     <div class='tblcell'>\
