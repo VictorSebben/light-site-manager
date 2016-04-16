@@ -4,7 +4,7 @@ class ImgH {
     private $_dir;
 
     public function __construct() {
-        $this->_dir = ROOT_DIR . '/../uploads/galleries';
+        $this->_dir = ROOT_DIR . '/../uploads/images';
     }
 
     /**

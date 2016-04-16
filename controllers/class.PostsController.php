@@ -439,12 +439,8 @@ class PostsController extends BaseController {
 
         $this->_view->images = $this->_mapper->find( Request::getInstance()->uriParts['pk'] );
 
-        $this->_view->addExtraLink( 'font-awesome/css/font-awesome.min.css' );
-        $this->_view->addExtraLink( 'imgup/css/imgareaselect-default.css' );
-        $this->_view->addExtraLink( 'imgup/css/images.css');
-
-        $this->_view->addExtraScript( 'imgup/js/jquery.imgareaselect.min.js' );
-        $this->_view->addExtraScript( 'js/images.js?v2' );
+        $this->_view->addExtraLink( 'css/images.css?' . time() );
+        $this->_view->addExtraScript( 'js/images.js?' . time() );
 
         $this->_view->images = (new ImagesMapper())->index(Request::getInstance()->uriParts[ 'pk' ]);
 
@@ -495,7 +491,7 @@ class PostsController extends BaseController {
 
         $image = new ImagesModel;
         $image->post_id = $pk;
-        $image->extension = $extension;
+        $image->extension = mb_strtolower($extension, 'UTF-8');
 
         $imagesMapper = new ImagesMapper;
 

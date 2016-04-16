@@ -16,7 +16,7 @@ class ImagesModel extends BaseModel {
 
     public function path() {
         $baseUrl = ( new Base() )->getConfig()[ 'base_url' ];
-        return "{$baseUrl}/../uploads/galleries/{$this->post_id}-{$this->id}-thumb.{$this->extension}?" . time();
+        return "{$baseUrl}/../uploads/images/{$this->post_id}-{$this->id}-thumb.{$this->extension}?" . time();
     }
 }
 
