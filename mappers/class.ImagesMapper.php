@@ -1,6 +1,6 @@
 <?php
 
-class GalleriesMapper extends Mapper {
+class ImagesMapper extends Mapper {
 
     /**
      * @throws Exception
@@ -23,13 +23,13 @@ class GalleriesMapper extends Mapper {
                     , caption
                     , position
                     , extension
-                FROM galleries
+                FROM images
                 WHERE post_id = :post_id;";
 
         $stmt = self::$_pdo->prepare( $sql );
         $stmt->bindParam( ':post_id', $post_id, PDO::PARAM_INT );
         $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'GalleriesModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, 'ImagesModel' );
         $images = $stmt->fetchAll();
 
         return is_array( $images) ? $images : NULL;
@@ -51,7 +51,7 @@ class GalleriesMapper extends Mapper {
         // SQL deals with the fact that if galleires table is empty and therefore the ‘position’
         // column is null (max(position) returns null), we make it 0 + 1. Otherwise, we make
         // it “max(position) + 1”.
-        $sql = "INSERT INTO galleries (
+        $sql = "INSERT INTO images (
                   post_id
                 , extension
                 , position
@@ -61,7 +61,7 @@ class GalleriesMapper extends Mapper {
                     , :extension
                     , COALESCE(MAX(position), 0) + 1
                     , CURRENT_TIMESTAMP
-                    FROM galleries
+                    FROM images
                     WHERE post_id = :post_id)
                     RETURNING id, extension, position";
 

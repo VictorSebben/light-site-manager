@@ -1,6 +1,6 @@
 <?php
 
-class GalleriesModel extends BaseModel {
+class ImagesModel extends BaseModel {
 
     public $id;
     public $post_id;

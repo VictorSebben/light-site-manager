@@ -437,7 +437,7 @@ class PostsController extends BaseController {
         // after she is done with the upload
         $this->flashRedirectTo( $_SERVER[ 'HTTP_REFERER' ] );
 
-        $this->_view->object = $this->_mapper->find( Request::getInstance()->uriParts['pk'] );
+        $this->_view->images = $this->_mapper->find( Request::getInstance()->uriParts['pk'] );
 
         $this->_view->addExtraLink( 'font-awesome/css/font-awesome.min.css' );
         $this->_view->addExtraLink( 'imgup/css/imgareaselect-default.css' );
@@ -446,8 +446,10 @@ class PostsController extends BaseController {
         $this->_view->addExtraScript( 'imgup/js/jquery.imgareaselect.min.js' );
         $this->_view->addExtraScript( 'js/images.js?v2' );
 
-        $this->_view->images = (new GalleriesMapper())->index(Request::getInstance()->uriParts[ 'pk' ]);
+        $this->_view->images = (new ImagesMapper())->index(Request::getInstance()->uriParts[ 'pk' ]);
 
+        // It is not `images/index` because will do more than just list images there. We'll add, remove
+        // reorder, crop, etc, from that single view.
         $this->_view->render( 'images/images' );
     }
 
@@ -491,14 +493,14 @@ class PostsController extends BaseController {
         $tmp = explode('.', $file['name']);
         $extension = array_pop($tmp);
 
-        $image = new GalleriesModel;
+        $image = new ImagesModel;
         $image->post_id = $pk;
         $image->extension = $extension;
 
-        $galleriesMapper = new GalleriesMapper;
+        $imagesMapper = new ImagesMapper;
 
         // $res is an assoc array with id and position keys.
-        $res = $galleriesMapper->save( $image );
+        $res = $imagesMapper->save( $image );
 
         // Now we have inserted id and position. We'll use post_id + id to name the image on
         // disk. We'll also send id and position back to the ajax client so they update the

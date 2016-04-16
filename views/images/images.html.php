@@ -3,8 +3,6 @@
 
     <form action="#" method="post" enctype="multipart/form-data">
 
-        <input type="hidden" id="id" value="<?php echo $this->object->id; ?>">
-
         <div id='sel-img'>
             <label for='img'>Imagem:</label>
             <input type='file' multiple name='img' id='img'>
