@@ -28,10 +28,10 @@ var lsmImage = (function () {
 
     var l = console.log.bind(console);
 
-    img = document.querySelector( '#img' );
-    imageListWrap = document.querySelector( '#image-list-wrap' );
+    $img = $( '#img' );
+    $imageListWrap = $( '#image-list-wrap' );
 
-    img.addEventListener( 'change', function () {
+    $img.on( 'change', function () {
         var i;
 
         for ( i = 0 ; i < this.files.length ; ++i ) {
@@ -49,16 +49,16 @@ var lsmImage = (function () {
                 reader.onload = (function ( someImg ) {
                     return function ( evt ) {
                         someImg.src = evt.target.result;
-                        sendFile( someImg.file, preview.wrap );
+                        sendFile( someImg.file, preview.previewWrap );
                     };
                 }( preview.img ));
             }( this.files[ i ] ) );
         };
 
-    }, false);
+    });
 
 
-    //$(imageL
+    //$(imageListWrap
 
 
     /**
@@ -74,16 +74,18 @@ var lsmImage = (function () {
         var xhr = new XMLHttpRequest();
         var formData = new FormData();
 
-        xhr.open( 'POST', uri, true );
-            xhr.onreadystatechange = function () {
-                if ( xhr.readyState === 4 && xhr.status === 200 ) {
-                    // In this case, the response is a json object.
-                    addDataToUploadedPreviews( JSON.parse( xhr.responseText ), previewWrap );
-                }
-            };
-
         formData.append( 'image', file );
-        xhr.send( formData );
+
+        jQuery.ajax({
+            type: 'POST',
+            url: uri,
+            processData: false, // Don't try to process data.
+            contentType: false, // Don't try to be smart about content-type.
+            data: formData,
+            success: function ( response ) {
+                addDataToUploadedPreviews( JSON.parse( response ), previewWrap );
+            }
+        });
     }
 
     /**
@@ -95,14 +97,17 @@ var lsmImage = (function () {
      * @param {Node} preview - o preview box daquela imagem.
      */
     function addDataToUploadedPreviews( jsonData,  previewWrap ) {
-        previewWrap.setAttribute( 'data-id', jsonData.id );
-        previewWrap.setAttribute( 'data-position', jsonData.position );
-        previewWrap.setAttribute( 'data-extension', jsonData.extension );
+
+        $(previewWrap).attr({
+            'data-id': jsonData.id,
+            'data-position': jsonData.position,
+            'data-extension': jsonData.extension
+        });
 
         // imageListWrap is the container for the list of previews. We need to
         // append the previews to that list based on the order of the
         // `position` column on DB given to each image.
-        imageListWrap.appendChild( previewWrap );
+        $imageListWrap.append( previewWrap );
 
         // Show the preview at this point.
         previewWrap.style.display = 'block';
@@ -137,16 +142,16 @@ var lsmImage = (function () {
         // break the layout in some situations.
         tmp.innerHTML = template.replace(/ +/, '');
 
-        var wrap = tmp.children[0];
+        var previewWrap = tmp.children[0];
 
         // Each preview is only shown after its image has been properly dealt with on the back-end.
-        wrap.style.display = 'none';
-        var img = wrap.getElementsByTagName('img')[0];
+        previewWrap.style.display = 'none';
+        var img = previewWrap.getElementsByTagName('img')[0];
         img.file = currentFile;
 
         return {
             img: img,
-            wrap: wrap
+            previewWrap: previewWrap
         };
     }
 
