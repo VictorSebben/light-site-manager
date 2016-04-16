@@ -11,7 +11,7 @@ API:
  - images-save  →  store one ore more images sent via ajax.
  - image-crop   →  crop a single image.
  - image-remove →  remove a single image.
- - image-position →  set a new position for the image (and return the new position of the other images).
+ - image-set-position →  set a new position for the image (and return the new position of the other images).
 
 NOTE: resize is done internally based on the layout of every project.
 
@@ -28,8 +28,11 @@ var lsmImage = (function () {
 
     var l = console.log.bind(console);
 
-    $img = $( '#img' );
-    $imageListWrap = $( '#image-list-wrap' );
+    var $img = $( '#img' );
+    var $imageListWrap = $( '#image-list-wrap' );
+
+    // For the sortable jquer ui plugin
+    var positionInfo = {};
 
     $img.on( 'change', function () {
         var i;
@@ -58,7 +61,32 @@ var lsmImage = (function () {
     });
 
 
-    //$(imageListWrap
+    // Invoke sortable to make items sortable ☺
+    $imageListWrap.sortable({
+
+        items: '.preview-wrap', // Make the preview boxes draggable, but...
+        handle: '.position',    // ...only drag if click happens on this child of the preview box.
+
+        // When dragging starts.
+        start: function (evt, ui) {
+            positionInfo.oldpos = parseInt(ui.item.attr('data-position'), 10);
+        },
+
+        // When dragging ends.
+        update: function ( evt, ui ) {
+
+            // index() + 1 because index is zero-based, but our DB thing starts with 1, not 0.
+            positionInfo.newpos = ui.item.index() + 1;
+
+            positionInfo.image_id = ui.item.attr( 'data-id' );
+
+            positionInfo.$draggedItem = ui.item;
+
+            // Gets needed values from positionInfo object.
+            repositionDb();
+        }
+
+    }).disableSelection(); // Prevents selecting text accidentaly.
 
 
     /**
@@ -111,6 +139,9 @@ var lsmImage = (function () {
 
         // Show the preview at this point.
         previewWrap.style.display = 'block';
+
+        // Causes the newly added previews to respond to drag/sort actions.
+        $imageListWrap.sortable( 'refresh' );
     }
 
     /**
@@ -153,6 +184,82 @@ var lsmImage = (function () {
             img: img,
             previewWrap: previewWrap
         };
+    }
+
+
+    /**
+     * @ajax. Reposition images on DB.
+     *
+     * @return {json} response json.true or json.false.
+     */
+    function repositionDb() {
+
+        // The post_id goes in the request url so we can keep our “routing protocol”.
+        var uri = lsmConf.baseUrl + '/' + lsmConf.ctrl + '/' + lsmConf.pk + '/' + 'image-set-position';
+
+        var data = {};
+
+        data.image_id = positionInfo.image_id;
+        data.oldpos = positionInfo.oldpos;
+        data.newpos = positionInfo.newpos;
+
+        l(data);
+
+        jQuery.ajax({
+            type: 'POST',
+            url: uri,
+            data: data,
+            success: function ( response ) {
+                response = JSON.parse( response );
+                if ( response[ 'status' ] === 'success' ) {
+                    repositionPreviewAttributes();
+                }
+                else {
+                    // If there was a problem repositioning images on DB, undo the
+                    // repositioning on the view as well.
+                    $imageListWrap.sortable( 'cancel' );
+                }
+            }
+        });
+    }
+
+
+    /**
+     * Called only after the reposition in DB has proven successfull.
+     *
+     * Gets params from an object scoped inside this “module”.
+     */
+    function repositionPreviewAttributes() {
+
+        // Sets the dragged item `data-positin` attribute to the position it
+        // was dragged to in the list of previews.
+        positionInfo.$draggedItem.attr( 'data-position', positionInfo.newpos );
+
+        $imageListWrap.children( '.preview-wrap' ).each( function () {
+
+            // The position of the dragged item inside the list of previews (+ 1 because
+            // the list is zero-based, but we used 1-based positions on DB.
+            var idx = $( this ).index() + 1;
+
+            // `this` is the current element of the iteration. Let's grab its value so
+            // we can more easily increment or decrement it according to what we need
+            // to do for each situation.
+            var pos = Number( $( this ).attr( 'data-position' ) );
+
+            // Move the increment or decrement data-position of each preview
+            // in the list accordingly.
+
+            if ( positionInfo.newpos < positionInfo.oldpos ) {
+                if ( idx > positionInfo.newpos && idx <= positionInfo.oldpos ) {
+                    this.setAttribute('data-position', pos + 1);
+                }
+            }
+            else if ( positionInfo.newpos > positionInfo.oldpos ) {
+                if ( idx >= positionInfo.oldpos && idx < positionInfo.newpos ) {
+                    this.setAttribute('data-position', pos - 1);
+                }
+            }
+        });
     }
 
 }());;

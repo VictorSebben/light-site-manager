@@ -440,6 +440,7 @@ class PostsController extends BaseController {
         $this->_view->images = $this->_mapper->find( Request::getInstance()->uriParts['pk'] );
 
         $this->_view->addExtraLink( 'css/images.css?' . time() );
+        $this->_view->addExtraScript( 'js/jquery-ui.min.js' );
         $this->_view->addExtraScript( 'js/images.js?' . time() );
 
         $this->_view->images = (new ImagesMapper())->index(Request::getInstance()->uriParts[ 'pk' ]);
@@ -507,6 +508,35 @@ class PostsController extends BaseController {
 
         echo json_encode($res);
 
+    }
+
+
+    /**
+     * @ajax. Reposition images on DB.
+     *
+     * @param integer $id - the post id (not the image id)
+     */
+    public function imageSetPosition( $id ) {
+
+        // Comes from the request url by default (assigning to new identifier to avoid confusion).
+        $post_id = $id;
+
+        $image_id = filter_input( INPUT_POST, 'image_id', FILTER_SANITIZE_NUMBER_INT );
+        $oldpos = filter_input( INPUT_POST, 'oldpos', FILTER_SANITIZE_NUMBER_INT );
+        $newpos = filter_input( INPUT_POST, 'newpos', FILTER_SANITIZE_NUMBER_INT );
+
+        $image = new ImagesModel;
+        $image->id = $image_id;
+        $image->post_id = $post_id;
+
+        $imagesMapper = new ImagesMapper;
+
+        // Image has the position attribute. Still, in this case, we are dealing
+        // with newpos and oldpos. How to properly handle this? I'll pass these two
+        // as separate params for now...
+        $status = $imagesMapper->setPosition( $image, $oldpos, $newpos );
+
+        echo json_encode( $status );
     }
 
     public function createVideoGal() {

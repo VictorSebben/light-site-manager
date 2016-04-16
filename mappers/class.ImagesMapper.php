@@ -24,7 +24,8 @@ class ImagesMapper extends Mapper {
                     , position
                     , extension
                 FROM images
-                WHERE post_id = :post_id;";
+                WHERE post_id = :post_id
+                ORDER BY position ASC;";
 
         $stmt = self::$_pdo->prepare( $sql );
         $stmt->bindParam( ':post_id', $post_id, PDO::PARAM_INT );
@@ -70,6 +71,92 @@ class ImagesMapper extends Mapper {
         $stmt->bindParam( ':extension', $image->extension );
         $stmt->execute();
         return $stmt->fetch( PDO::FETCH_ASSOC );
+    }
+
+
+    public function setPosition( $image, $oldpos, $newpos ) {
+
+        if ( $newpos < $oldpos ) {
+            $res = $this->_moveUpToPos( $image, $oldpos, $newpos );
+        }
+        else {
+            $res = $this->_moveDownToPos( $image, $oldpos, $newpos );
+        }
+
+        return $res;
+    }
+
+
+    public function _moveUpToPos( $image, $oldpos, $newpos ) {
+
+        // TODO: What about using BETWEEN?
+
+        try {
+            $sql1 = 'UPDATE images SET
+                        position = position + 1
+                        WHERE post_id = :post_id
+                        AND position >= :newpos
+                        AND position < :oldpos';
+
+            $stmt1 = self::$_pdo->prepare( $sql1 );
+
+            $stmt1->bindParam( ':post_id', $image->post_id, PDO::PARAM_INT );
+            $stmt1->bindParam( ':newpos', $newpos, PDO::PARAM_INT );
+            $stmt1->bindParam( ':oldpos', $oldpos, PDO::PARAM_INT );
+
+            $sql2 = 'UPDATE images SET position = :newpos WHERE id = :image_id';
+
+            $stmt2 = self::$_pdo->prepare( $sql2 );
+            $stmt2->bindParam( ':newpos', $newpos, PDO::PARAM_INT );
+            $stmt2->bindParam( ':image_id', $image->id, PDO::PARAM_INT );
+
+            self::$_pdo->beginTransaction();
+            $stmt1->execute();
+            $stmt2->execute();
+            self::$_pdo->commit();
+
+            return [ 'status' => 'success' ];
+        }
+        catch ( PDOException $err ) {
+            self::$_pdo->rollback();
+            return [ 'status' => 'error' ];
+        }
+
+    }
+
+
+    public function _moveDownToPos( $image, $oldpos, $newpos ) {
+
+        try {
+            $sql1 = 'UPDATE images SET
+                        position = position - 1
+                        WHERE post_id = :post_id
+                        AND position <= :newpos
+                        AND position > :oldpos';
+
+            $stmt1 = self::$_pdo->prepare( $sql1 );
+
+            $stmt1->bindParam( ':post_id', $image->post_id, PDO::PARAM_INT );
+            $stmt1->bindParam( ':newpos', $newpos, PDO::PARAM_INT );
+            $stmt1->bindParam( ':oldpos', $oldpos, PDO::PARAM_INT );
+
+            $sql2 = 'UPDATE images SET position = :newpos WHERE id = :image_id';
+
+            $stmt2 = self::$_pdo->prepare( $sql2 );
+            $stmt2->bindParam( ':newpos', $newpos, PDO::PARAM_INT );
+            $stmt2->bindParam( ':image_id', $image->id, PDO::PARAM_INT );
+
+            self::$_pdo->beginTransaction();
+            $stmt1->execute();
+            $stmt2->execute();
+            self::$_pdo->commit();
+
+            return [ 'status' => 'success' ];
+        }
+        catch ( PDOException $err ) {
+            self::$_pdo->rollback();
+            return [ 'status' => 'error' ];
+        }
     }
 
     /**
