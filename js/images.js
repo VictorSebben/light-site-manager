@@ -10,7 +10,7 @@ API:
  - images       →  list and present form to upload one ore more images at once.
  - images-save  →  store one ore more images sent via ajax.
  - image-crop   →  crop a single image.
- - image-remove →  remove a single image.
+ - image-destroy →  remove a single image.
  - image-set-position →  set a new position for the image (and return the new position of the other images).
 
 NOTE: resize is done internally based on the layout of every project.
@@ -42,6 +42,10 @@ var lsmImage = (function () {
     // For the sortable jquery ui plugin
     var positionInfo = {};
 
+    // Some actions require that we set the current “preview” that is being dealt with.
+    var $currentPreview;
+
+
     $img.on( 'change', function () {
         var i;
 
@@ -72,6 +76,55 @@ var lsmImage = (function () {
             }( this.files[ i ] ) );
         };
 
+    });
+
+
+    // When user clicks on “remover” inside a preview.
+    $imageListWrap.on( 'click', '.preview-wrap .remove', function ( evt ) {
+        $currentPreview = $( this ).closest( '.preview-wrap' );
+        showConfirmRemove( this );
+    });
+
+    // Closes `remove` confirmation box upon hitting <Esc>.
+    $( document ).on( 'keyup', function ( evt ) {
+        // Se for Esc
+        if ( evt.keyCode === 27 ) {
+            $imageListWrap.find( '.preview-wrap .remove-confirm' ).remove();
+        }
+    });
+
+    // Closes `remove` confirmation box upon clicking `Cancelar`.
+    $imageListWrap.on( 'click', '.preview-wrap .del-no', function ( evt ) {
+        evt.stopPropagation();
+        $( this ).closest( '.remove-confirm' ).remove();
+    });
+
+    // Actually removes the image when user clicks on “Sim, remover”.
+    $imageListWrap.on( 'click', '.preview-wrap .del-yes', function ( evt ) {
+
+        evt.stopPropagation();
+
+        $currentPreview = $( this ).closest( '.preview-wrap' );
+
+        var uri = lsmConf.baseUrl + '/' + lsmConf.ctrl + '/' + lsmConf.pk + '/' + 'image-destroy';
+        var data = getPreviewData( $currentPreview );
+
+        jQuery.ajax({
+            type: 'POST',
+            url: uri,
+            data: data,
+            success: function ( response ) {
+                response = JSON.parse( response );
+                if ( response[ 'status' ] === 'success' ) {
+                    repositionAfterDestroy( $currentPreview.attr( 'data-position' ) );
+                    $currentPreview.remove();
+                    $imagesMessages.html( '<div>Imagem removida</div>' );
+                    setTimeout( function () {
+                        $imagesMessages.html( '' );
+                    }, 10000);
+                }
+            }
+        });
     });
 
 
@@ -329,6 +382,73 @@ var lsmImage = (function () {
         else {
             $imagesMessages.find( '.text' ).text( msg );
         }
+    }
+
+
+    /**
+     * When the user clicks on `remover`, first show a confirmation message.
+     *
+     * @param {DOMElement} elem - the element that was clicked. We add the confirmation box
+     * inside the `elem` so the box always pops up near the mouse pointer.
+     */
+    function showConfirmRemove( elem ) {
+        var html = "\
+            <div class='remove-confirm'>\
+                <div class='txt'>Tem certeza?</div>\
+                <div class='btns'>\
+                    <span class='del-no'>Cancelar</span>\
+                    <span class='del-yes'>Sim, remover!</span>\
+                </div>\
+            </div>";
+
+        // Removes any existing boxes (even if it is from other previews ).
+        $imageListWrap.find( '.preview-wrap .remove-confirm' ).remove();
+
+        // Adds this one
+        $( elem ).append( html );
+    }
+
+
+    /**
+     * Retrieves relevant preview data from a $preview.
+     *
+     * @param {jQueryObject} $preview - o container/preview as a jQuery object.
+     * @return {object}
+     */
+    function getPreviewData( $preview ) {
+        var data = {
+            image_id: $preview.attr( 'data-id' ),
+            post_id: lsmConf.pk,
+            position: $preview.attr( 'data-position' ),
+            extension: $preview.attr( 'data-extension' )
+        };
+
+        // We need other info before we can compose the image path.
+        data.imagePath = '../uploads/images/' + data.post_id + '-' + data.image_id + '-orig.' + data.extension;
+
+        return data;
+    }
+
+
+    /**
+     * After destroying an image, update the preview's `data-position` attribute accordingly.
+     *
+     * @param {Integer} pos - the value of `data-position` of the removed image.
+     */
+    function repositionAfterDestroy( posOfRemovedOne ) {
+
+        $imageListWrap.children( '.preview-wrap' ).each( function () {
+
+            // Index of “this” element in the list of previews.
+            var idx = $(this).index() + 1;
+
+            // If “this” preview comes after of the one destroyed, decrements
+            // its `data-position` by 1.
+            if (idx > posOfRemovedOne) {
+                var pos = Number(this.getAttribute( 'data-position' ) );
+                this.setAttribute( 'data-position', pos - 1 );
+            }
+        });
     }
 
 }());;

@@ -539,6 +539,41 @@ class PostsController extends BaseController {
         echo json_encode( $status );
     }
 
+
+    /**
+     * @ajax destroys an image (DB / HD).
+     *
+     * @param Integer $id - the id of the post the image belongs to. The other
+     * params (like image_id) come from the ajax params.
+     *
+     * @return Json.
+     */
+    public function imageDestroy( $id ) {
+
+        $image = new ImagesModel;
+        $image->id = H::param( 'image_id', 'POST' );
+        $image->post_id = Request::getInstance()->uriParts[ 'pk' ];
+        $image->position = H::param( 'position', 'POST' );
+        $image->extension = H::param( 'extension', 'POST' );
+
+        $imagesMapper = new ImagesMapper;
+        $status = $imagesMapper->destroy( $image );
+
+        if ( ! $status ) {
+            echo json_encode( [ 'status' => 'error' ] );
+            return;
+        }
+
+        $imgH = new ImgH;
+        // How can we properly check whether `unlink` worked fine? Let's
+        // assume it was able to delete the images for now.
+        $imgH->destroy( $image );
+
+        echo json_encode( [ 'status' => 'success' ] );
+    }
+
+
+
     public function createVideoGal() {
         if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
             throw new PermissionDeniedException();

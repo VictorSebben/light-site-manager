@@ -61,6 +61,19 @@ class ImgH {
         $upload->process( "{$this->_dir}" );
     }
 
+
+    public function destroy( $image ) {
+
+        // TODO: Use glob to remove all iamges that match <post_id>-<image_id>.
+
+        $base = "{$image->post_id}-{$image->id}";
+
+        if ( file_exists( "{$this->_dir}/{$base}-orig.{$image->extension}" ) ) {
+            // Removes orig, large and thumb.
+            array_map( 'unlink', glob( "{$this->_dir}/{$base}-*.{$image->extension}" ) );
+        }
+    }
+
     /**
      * Checks whether /site/uploads/galleries/ (or other dir) exists. If it does not, create it.
      *

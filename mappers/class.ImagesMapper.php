@@ -74,6 +74,48 @@ class ImagesMapper extends Mapper {
     }
 
 
+    /**
+     * Destroy an image from DB and HD.
+     *
+     * @param ImagesModel $image.
+     * @return Json.
+     */
+    public function destroy( $image ) {
+
+        $sql = 'DELETE FROM images WHERE id = :image_id AND post_id = :post_id';
+
+        $stmt = self::$_pdo->prepare( $sql );
+
+        $stmt->bindParam( ':image_id', $image->id, PDO::PARAM_INT );
+        $stmt->bindParam( ':post_id', $image->post_id, PDO::PARAM_INT );
+
+        $status = $stmt->execute();
+
+        if ( ! $status ) {
+            return false;
+        }
+
+        return $this->repositionAfterDestroy( $image->position, $image->post_id );
+    }
+
+
+    // É necessário saber a posição do elemento que foi removido para atualizar
+    // as posições de todos os elementos posicionados após ao que foi removido.
+    // IMPORTANTE: Somente autalizar as posições dos conteúdos do produto em questão.
+    protected function repositionAfterDestroy( $position, $post_id ) {
+
+        $sql = "UPDATE images SET
+            position = position - 1
+            WHERE post_id = :post_id
+            AND position > :position";
+
+        $stmt = self::$_pdo->prepare( $sql );
+        $stmt->bindParam( ':post_id', $post_id, PDO::PARAM_INT );
+        $stmt->bindParam( ':position', $position, PDO::PARAM_INT );
+
+        return $stmt->execute();
+    }
+
     public function setPosition( $image, $oldpos, $newpos ) {
 
         if ( $newpos < $oldpos ) {
