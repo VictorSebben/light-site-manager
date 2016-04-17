@@ -1,7 +1,39 @@
+.images-wrapper .row1 {
+    border: 2px solid #DDF0FD;
+    background-color: #fff;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+.images-wrapper .row1 [type='file'] {
+    display: none;
+}
+.images-wrapper .row1 .col1 {
+    width: 30%;
+    float: left;
+}
+.images-wrapper .row1 .col1 [for='img'] {
+    /* Setting height here automatically causes the bg image to be centered vertically. */
+    background: transparent url('../img/icons/ic_file_upload_black_36px.svg') no-repeat right center;
+    line-height: 40px;
+    display: block;
+    cursor: pointer;
+}
+.images-wrapper .row1 .col2 {
+    width: 68%;
+    float: right;
+    line-height: 40px;
+    text-align: center;
+}
+.images-wrapper .row1 .col2 img {
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 26px;
+}
+
 .image-list-wrap .preview-wrap {
     width: 196px;
     float: left;
-    margin: 10px;
+    margin: 10px 10px 10px 0;
     background-color: #fff;
     border: 1px solid #bababa;
 }

@@ -31,11 +31,25 @@ var lsmImage = (function () {
     var $img = $( '#img' );
     var $imageListWrap = $( '#image-list-wrap' );
 
-    // For the sortable jquer ui plugin
+    // Messages that rise from performing image actions.
+    var $imagesMessages = $( '#images-messages' );
+
+    // The number of images the user selects for upload.
+    var totalImages;
+    // How many images have already been processed for this upload.
+    var totalImagesProcessed;
+
+    // For the sortable jquery ui plugin
     var positionInfo = {};
 
     $img.on( 'change', function () {
         var i;
+
+        // Both used to update the user on the status of the uploads.
+        totalImages = this.files.length;
+        totalImagesProcessed = 0;
+
+        updateViewImagesRemaining( 'Iniciando o upload...' );
 
         for ( i = 0 ; i < this.files.length ; ++i ) {
 
@@ -112,6 +126,9 @@ var lsmImage = (function () {
             data: formData,
             success: function ( response ) {
                 addDataToUploadedPreviews( JSON.parse( response ), previewWrap );
+
+                totalImagesProcessed += 1;
+                updateViewImagesRemaining();
             }
         });
     }
@@ -260,6 +277,58 @@ var lsmImage = (function () {
                 }
             }
         });
+    }
+
+
+    /**
+     * Shows the status of the upload to the user.
+     *
+     * If `msg` is passed, it is because this function was called on the `change`
+     * event when the user selects the image. In this case, shows a spinner and some
+     * initial text. On the other times we show a new message saying how many images
+     * have already been processed.
+     */
+    function updateViewImagesRemaining( msg ) {
+
+
+        // Shows that the process has begun and displays the spinner.
+        if ( msg ) {
+            // If we don't yet have the spinner there.
+            if ( $imagesMessages.has( 'img' ).length === 0 ) {
+                l( 'hey' );
+                var img = document.createElement( 'img' );
+                $imagesMessages.append( "<img class='icon'>" );
+                $imagesMessages.append( "<span class='text'></span>" );
+            }
+
+            // In one way or another we now have the Nodes to add the spinner and the text.
+            $imagesMessages.find( '.icon' ).attr( 'src', 'img/icons/ajax-loader.gif' );
+            $imagesMessages.find( '.text' ).text( msg );
+
+            return;
+        }
+
+        // At this point the spinner is visible and we update the status about
+        // the number of images already processed.
+
+        msg = totalImagesProcessed + ' de ' + totalImages + ' imagens processadas';
+
+        l( totalImagesProcessed, totalImages );
+
+        // If all images have been processed, change the icon and change the text a little bit.
+        if ( totalImagesProcessed === totalImages ) {
+            $imagesMessages.find( 'img' ).attr( 'src', 'img/icons/checked-ok.svg' );
+            $imagesMessages.find( '.text' ).text( msg + ' (concluído)' );
+
+            // Now, wait for some time and remove the message.
+            setTimeout( function () {
+                $imagesMessages.html( '' );
+            }, 15000);
+        }
+        // If there are more images to be processed, just update the processed count.
+        else {
+            $imagesMessages.find( '.text' ).text( msg );
+        }
     }
 
 }());;
