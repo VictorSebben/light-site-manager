@@ -53,6 +53,9 @@ var lsmImage = (function () {
         totalImages = this.files.length;
         totalImagesProcessed = 0;
 
+        // Inits it here, and remove on updateViewImagesRemaining() when the
+        // last image is processed.
+        lsm.addOverlay();
         updateViewImagesRemaining( 'Iniciando o upload...' );
 
         for ( i = 0 ; i < this.files.length ; ++i ) {
@@ -104,6 +107,10 @@ var lsmImage = (function () {
 
         evt.stopPropagation();
 
+        // This one is removed after repositionAfterDestroy() that updates the data-position
+        // attributes of the previews after the image has been repositioned on DB.
+        lsm.addOverlay();
+
         $currentPreview = $( this ).closest( '.preview-wrap' );
 
         var uri = lsmConf.baseUrl + '/' + lsmConf.ctrl + '/' + lsmConf.pk + '/' + 'image-destroy';
@@ -118,11 +125,11 @@ var lsmImage = (function () {
                 if ( response[ 'status' ] === 'success' ) {
                     repositionAfterDestroy( $currentPreview.attr( 'data-position' ) );
                     $currentPreview.remove();
-                    $imagesMessages.html( '<div>Imagem removida</div>' );
-                    setTimeout( function () {
-                        $imagesMessages.html( '' );
-                    }, 10000);
+                    addMessage( '<div>Imagem removida</div>' );
                 }
+                setTimeout( function () {
+                    $imagesMessages.html( '' );
+                }, 10000);
             }
         });
     });
@@ -141,6 +148,10 @@ var lsmImage = (function () {
 
         // When dragging ends.
         update: function ( evt, ui ) {
+
+            // Inits it here and removes it on the repositionPreviewAttributes() after
+            // the repositionDb() has been performed.
+            lsm.addOverlay();
 
             // index() + 1 because index is zero-based, but our DB thing starts with 1, not 0.
             positionInfo.newpos = ui.item.index() + 1;
@@ -273,8 +284,6 @@ var lsmImage = (function () {
         data.oldpos = positionInfo.oldpos;
         data.newpos = positionInfo.newpos;
 
-        l(data);
-
         jQuery.ajax({
             type: 'POST',
             url: uri,
@@ -283,6 +292,7 @@ var lsmImage = (function () {
                 response = JSON.parse( response );
                 if ( response[ 'status' ] === 'success' ) {
                     repositionPreviewAttributes();
+                    addMessage('Imagem reposicionada');
                 }
                 else {
                     // If there was a problem repositioning images on DB, undo the
@@ -329,6 +339,11 @@ var lsmImage = (function () {
                     this.setAttribute('data-position', pos - 1);
                 }
             }
+
+            setTimeout(function () {
+                // This overlay was initialized on the sortable initializer on its `update` method.
+                lsm.removeOverlay();
+            }, 1000);
         });
     }
 
@@ -348,7 +363,6 @@ var lsmImage = (function () {
         if ( msg ) {
             // If we don't yet have the spinner there.
             if ( $imagesMessages.has( 'img' ).length === 0 ) {
-                l( 'hey' );
                 var img = document.createElement( 'img' );
                 $imagesMessages.append( "<img class='icon'>" );
                 $imagesMessages.append( "<span class='text'></span>" );
@@ -366,8 +380,6 @@ var lsmImage = (function () {
 
         msg = totalImagesProcessed + ' de ' + totalImages + ' imagens processadas';
 
-        l( totalImagesProcessed, totalImages );
-
         // If all images have been processed, change the icon and change the text a little bit.
         if ( totalImagesProcessed === totalImages ) {
             $imagesMessages.find( 'img' ).attr( 'src', 'img/icons/checked-ok.svg' );
@@ -377,6 +389,9 @@ var lsmImage = (function () {
             setTimeout( function () {
                 $imagesMessages.html( '' );
             }, 15000);
+
+            // Called on change of $img.
+            lsm.removeOverlay();
         }
         // If there are more images to be processed, just update the processed count.
         else {
@@ -448,7 +463,20 @@ var lsmImage = (function () {
                 var pos = Number(this.getAttribute( 'data-position' ) );
                 this.setAttribute( 'data-position', pos - 1 );
             }
+
+            // It was added on the confirmation to delete an image.
+            lsm.removeOverlay();
         });
     }
 
+
+    /**
+     * Adds a message to “space” to the right of the upload button./
+     */
+    function addMessage( msg ) {
+        $imagesMessages.html( msg );
+        setTimeout(function () {
+            $imagesMessages.html( '' );
+        }, 10000);
+    }
 }());;
