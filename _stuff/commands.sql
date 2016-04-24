@@ -240,5 +240,7 @@ ALTER TABLE galleries DROP COLUMN image;
 INSERT INTO galleries (post_id, position)
     SELECT 27, COALESCE(MAX(position), 0) + 1 FROM galleries;
 
+ALTER TABLE video_galleries RENAME COLUMN video_iframe TO iframe;
+
 
 

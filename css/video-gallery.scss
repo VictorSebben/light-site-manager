@@ -2,6 +2,10 @@ table {
     width: 80%;
 }
 
+.edit-hover {
+    background-color: #a7fcf5;
+}
+
 .info {
     font-size: 17px;
 }
@@ -20,10 +24,13 @@ table {
         }
 
         .msg {
-            color: #f00;
-            margin-left: 20px;
-            font-weight: 700;
+            margin-left: 10px;
+            padding: 5px;
             display: none;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+            border-radius: 3px;
+            color: #a94442;
         }
     }
 
@@ -71,10 +78,15 @@ table {
 .video-item {
     padding: 1%;
 
-    .info #title, .info #position {
-        background-color: #eee;
-        padding: 3px;
-        border-radius: 5px;
+    .info {
+        display: inline;
+        margin-bottom: 15px;
+
+        span {
+            padding: 2px;
+            background-color: #eee;
+            border-radius: 5px;
+        }
     }
 
     .video-preview {
@@ -94,6 +106,7 @@ table {
     }
 
     .info-title-pos {
+        width: 55%;
         margin: 0 30px 0 0;
         float: left;
 
@@ -101,13 +114,11 @@ table {
             display: block;
         }
 
-        #title {
+        .title {
             display: inline-block;
-            width: 200px;
-            margin-bottom: 15px;
         }
 
-        #position {
+        .position {
             display: inline-block;
             width: 50px;
         }
@@ -118,9 +129,38 @@ table {
         float: right;
     }
 
-    .iframe div {
+    .iframe {
         height: 70px;
-        width: 98%;
         background-color: #eee;
+    }
+
+    input.title {
+        width: 300px;
+    }
+
+    input.position {
+        width: 50px;
+    }
+
+    input {
+        border-radius: 3px;
+        padding: 2px;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 70px;
+    }
+
+    .err-msg-tooltip {
+        position: absolute;
+        background-color: #f2dede;
+        border-color: #ebccd1;
+        border-radius: 3px;
+        color: #a94442;
+        text-align: center;
+        font-size: 15px;
+        height: 20px;
+        opacity: 0.8;
     }
 }

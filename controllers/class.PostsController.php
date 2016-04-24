@@ -468,6 +468,7 @@ class PostsController extends BaseController {
      * @param integer $pk
      *
      * @ajax
+     * @throws PermissionDeniedException
      */
     public function imagesSave( $pk ) {
 
@@ -508,52 +509,41 @@ class PostsController extends BaseController {
 
     }
 
-    public function createVideoGal() {
+    public function videos( $pk ) {
         if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
             throw new PermissionDeniedException();
         }
 
-        // Store URL in session so we can redirect the user
-        // after she is done with the upload
-        $this->flashRedirectTo( $_SERVER[ 'HTTP_REFERER' ] );
-
-        $pagination = new Pagination();
-
         $videoGalleryMapper = new VideoGalleryMapper();
-        $videoGalleryMapper->pagination = $pagination;
 
-        $this->_view->pagination = $pagination;
         $this->_view->objectList = $videoGalleryMapper->index();
-        $this->_view->object = $this->_mapper->find( Request::getInstance()->pk );
-
-        $category = ( new CategoriesMapper() )->find( $this->_view->object->category_id );
+        $this->_view->object = $this->_mapper->find( $pk );
 
         $this->_view->addExtraLink( 'css/video-gallery.css' );
-        $this->_view->addExtraScript( 'js/video-gallery.js' );
+        $this->_view->addExtraScript( 'js/videos.js' );
 
-        $this->_view->render( 'posts/video-gallery', 'pagination' );
+        $this->_view->render( 'posts/videos' );
     }
 
-    public function insertVideo( $postId ) {
+    public function insertVideo( $pk ) {
         // Initialize error message (to be used if update fails) and the $isOk flag
         $errorMsg = '';
         $isOk = false;
 
         try {
             // Validate permission to edit contents
-            if ( !$this->_user->hasPrivilege( 'edit_contents' ) ) {
+            if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
                 $errorMsg = 'Permissão Negada';
             } else {
                 $mapper = new VideoGalleryMapper();
 
                 $videoGallery = new VideoGalleryModel();
-                $videoGallery->post_id = $postId;
+                $videoGallery->post_id = $pk;
                 $videoGallery->title = Request::getInstance()->getInput( 'title' );
-                $videoGallery->video_iframe = Request::getInstance()->getInput( 'iframe' );
+                $videoGallery->iframe = Request::getInstance()->getInput( 'iframe' );
                 $videoGallery->position = Request::getInstance()->getInput( 'position' );
 
                 $mapper->save( $videoGallery );
-                H::flash( 'success-msg', 'Vídeo inserido com sucesso!' );
                 $isOk = true;
             }
 
@@ -564,6 +554,52 @@ class PostsController extends BaseController {
                 echo json_encode( array( 'isOk' => false, 'error' => $e->getMessage() ) );
             } else {
                 echo json_encode( array( 'isOk' => false, 'error' => 'Não foi possível inserir o vídeo. Contate o suporte.' ) );
+            }
+        }
+    }
+
+    public function updateVideo( $pk ) {
+        // Initialize error message (to be used if update fails) and the $isOk flag
+        $errorMsg = '';
+        $isOk = false;
+
+        try {
+            // Validate permission to edit contents
+            if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
+                $errorMsg = 'Permissão Negada';
+            } else {
+                $mapper = new VideoGalleryMapper();
+
+                $videoGallery = new VideoGalleryModel();
+                $videoGallery->post_id = $pk;
+
+                $arrObjProp = get_object_vars( $videoGallery );
+
+                array_walk( $arrObjProp, function( $key, $prop ) use ( $videoGallery ) {
+                    $request = Request::getInstance();
+                    if ( isset( $_POST[ $prop ] ) )
+                        $videoGallery->$prop = $request->getInput( $prop );
+                } );
+
+                if ( ! $videoGallery->id ) {
+                    $errorMsg = 'Ocorreu um erro ao processar a requisição (ID do vídeo não foi encontrado). Contate o suporte.';
+                    $isOk = false;
+                } else {
+                    $mapper->save( $videoGallery );
+
+                    // Since this is an in-place edition view, we need not
+                    // give the user a success message.
+                    $isOk = true;
+                }
+            }
+
+            echo json_encode( array( 'isOk' => $isOk, 'error' => $errorMsg ) );
+
+        } catch ( Exception $e ) {
+            if ( DEBUG ) {
+                echo json_encode( array( 'isOk' => false, 'error' => $e->getMessage() ) );
+            } else {
+                echo json_encode( array( 'isOk' => false, 'error' => 'Não foi possível atualizar o vídeo. Contate o suporte.' ) );
             }
         }
     }

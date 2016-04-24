@@ -41,9 +41,7 @@
         <th><?= $this->makeOrderByLink( 'Título', 'title' ); ?></th>
         <th>Categorias</th>
         <th>Imagem</th>
-        <th>Upload</th>
-        <th>Galeria de Img.</th>
-        <th>Galeria de Vídeos</th>
+        <th>Vídeos</th>
         <th>Status</th>
         <?php if ( $this->editContents ) : ?>
             <th>Editar</th>
@@ -78,22 +76,12 @@
                 </ul>
             </td>
             <td>
-                <a class="icon preview-colorbox" href="<?= $img ?>">
-                    <img src="<?= $imgThumb ?>">
-                </a>
-            </td>
-            <td>
-                <a title="Upload Imagem" class="imgup icon" href="<?= $this->Url->make( "posts/{$post->id}/upload/" ); ?>">
-                    <span class="fa fa-upload"></span>
-                </a>
-            </td>
-            <td>
-                <a title="Galeria de Imagens" class="imgup icon" href="<?= $this->Url->make( "posts/galeria-de-imagens/{$post->id}/images/" ); ?>">
+                <a title="Imagens" class="imgup icon" href="<?= $this->Url->make( "posts/galeria-de-imagens/{$post->id}/images/" ); ?>">
                     <span class="fa fa-picture-o"></span>
                 </a>
             </td>
             <td>
-                <a title="Galeria de Vídeos" class="imgup icon" href="<?= $this->Url->make( "posts/{$post->id}/vid-gal/" ); ?>">
+                <a title="Vídeos" class="imgup icon" href="<?= $this->Url->make( "posts/{$post->id}/videos/" ); ?>">
                     <span class="fa fa-youtube"></span>
                 </a>
             </td>

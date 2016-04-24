@@ -29,20 +29,20 @@
                     <div id="video-item-<?= $video->id ?>" class="video-item">
                         <div class="video-info">
                             <div class="info-title-pos">
-                                <span class="info">Título: <span id="title"><?= $video->title; ?></span></span>
-                                <span class="info">Posição: <span id="position"><?= $video->position; ?></span></span>
+                                <div class="info">Título: <span id="title-<?= $video->id; ?>" class="title"><?= $video->title; ?></span></div>
+                                <div class="info">Posição: <span id="position-<?= $video->id; ?>" class="position"><?= $video->position; ?></span></div>
                             </div>
                             <div class="video-preview">
-                                <span id="preview" class="preview">Preview</span>
+                                <?= $video->getVideoIframe(); ?>
                             </div>
                             <span class="remove"><button title="Remover" class="btn-red input-submit fa fa-times"></button></span>
                         </div>
-                        <div class="iframe">
+                        <div>
                             <span class="info">iframe:</span>
-                            <div></div>
+                            <div id="iframe-<?= $video->id; ?>" class="iframe"><?= $video->iframe; ?></div>
                         </div>
 
-                        <input type="hidden" id="<?= $video->id ?>" value="<?= $video->id ?>" name="id-<?= $video->id ?>">
+                        <input type="hidden" class="video-id" value="<?= $video->id ?>" name="id-<?= $video->id ?>">
                     </div>
                 </td>
             </tr>

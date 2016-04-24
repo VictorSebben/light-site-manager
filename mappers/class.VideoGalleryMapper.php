@@ -8,47 +8,17 @@ class VideoGalleryMapper extends Mapper {
     public function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT id, post_id, video_iframe, position FROM video_galleries WHERE id = ?"
+            "SELECT id, post_id, iframe, position FROM video_galleries WHERE id = ?"
         );
     }
 
     public function index() {
-        // set additional parameters for the pagination
-        // in the request object
-        $this->request->setPagParams();
-        $params = $this->request->pagParams;
-
-        $offset = $this->pagination->getOffset();
-
-        // validate $params[ 'dir' ] to make sure it contains a valid value
-        if ( $params[ 'dir' ] !== 'ASC' && $params[ 'dir' ] !== 'DESC' ) {
-            $params[ 'dir' ] = 'ASC';
-        }
-
-        $ord = 'id';
-        $rs = self::$_pdo->query( 'SELECT id, title FROM video_galleries LIMIT 0' );
-        for ( $i = 0; $i < $rs->columnCount(); $i++ ) {
-            if ( $rs->getColumnMeta( $i )[ 'name' ] == $params[ 'ord' ] ) {
-                $ord = $params[ 'ord' ];
-                break;
-            }
-        }
-
-        // Set number of records in the pagination object
-        $this->_setNumRecordsPagn();
-
         $stmt = self::$_pdo->prepare(
-            "SELECT id, post_id, video_iframe, title, position
+            "SELECT id, post_id, iframe, title, position
                FROM video_galleries
-              ORDER BY {$ord} {$params[ 'dir' ]}
-              LIMIT :lim
-             OFFSET :offset"
+              ORDER BY position"
         );
 
-        $lim = $this->pagination->getLimit();
-
-        $stmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
-        $stmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $stmt->execute();
         $stmt->setFetchMode( PDO::FETCH_CLASS, 'VideoGalleryModel' );
         $videos = $stmt->fetchAll();
@@ -69,16 +39,22 @@ class VideoGalleryMapper extends Mapper {
         $selectStmt->closeCursor();
     }
 
-    public function save( $model, $overrideNullData = false ) {
+    public function save( $model, $overrideNullData = false, $oldPKValue = null ) {
         self::$_pdo->beginTransaction();
 
         try {
             // Adjust the position of the other videos according to
-            // the position set for the video being saved
-            $this->_updatePositions( $model );
+            // the position set for the video being saved: we will only
+            // adjust the positions if the model being saved has a position
+            // set, or if it is an insert operation (in which case a null
+            // value indicates that the user wants to insert in the default
+            // position for new data, which is the last position).
+            if ( $model->position || ( ! $model->id ) ) {
+                $this->_updatePositions( $model );
+            }
 
             // Call parent method to save video
-            parent::save( $model, $overrideNullData );
+            parent::save( $model, $overrideNullData, $oldPKValue );
 
             self::$_pdo->commit();
         } catch ( Exception $e ) {
