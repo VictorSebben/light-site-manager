@@ -243,4 +243,10 @@ INSERT INTO galleries (post_id, position)
 ALTER TABLE video_galleries RENAME COLUMN video_iframe TO iframe;
 
 
+ALTER TABLE galleries ADD COLUMN extension VARCHAR(4);
+
+
+-- Refactored PHP to use “Images” instead of “Galleries”.
+ALTER TABLE galleries RENAME TO images;
+
 

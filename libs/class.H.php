@@ -11,6 +11,15 @@ class H {
         echo '</pre>';
     }
 
+    /**
+     * Helper function to help debugging objects or arrays but this time using var_dump.
+     */
+    public static function vd( $object ) {
+        echo '<pre>';
+        var_dump( $object );
+        echo '</pre>';
+    }
+
     public static function isSpecialChar( $char ){
         $strAscii = '\'"@#$%&*()-_+=´`^~<>/\\?!:;|[]{}çÇ¨';
 
@@ -139,4 +148,27 @@ class H {
 
         return $clean;
     }
+
+    /**
+     * Just return the parameter value if it exists or NULL. Values are not sanitized
+     * or anything. Be careful when you use this.
+     *
+     * @param String $paramName - The name of the parameter to find in get, post or request.
+     * @return NULL/String - The value as a string or NULL.
+     */
+    public static function param( $paramName, $method = 'REQUEST' ) {
+        $arg = NULL;
+        if ( $method === 'GET' ) {
+            $arg = $_GET[ $paramName ];
+        }
+        else if ( $method === 'POST' ) {
+            $arg = $_POST[ $paramName ];
+        }
+        else {
+            $arg = $_REQUEST[ $paramName ];
+        }
+
+        return $arg;
+    }
+
 }

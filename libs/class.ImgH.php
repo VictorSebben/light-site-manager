@@ -4,13 +4,14 @@ class ImgH {
     private $_dir;
 
     public function __construct() {
-        $this->_dir = ROOT_DIR . '/../uploads/galleries';
+        $this->_dir = ROOT_DIR . '/../uploads/images';
     }
 
     /**
      * @throws Exception
      */
     public function save($file, $post_id, $image_id) {
+
         /**
          * If the image is too small, Medium and Big sizes
          * will be smaller than what specified in the DB or class
@@ -28,6 +29,8 @@ class ImgH {
         if ( ! move_uploaded_file( $_FILES[ 'image' ][ 'tmp_name' ], "{$this->_dir}/{$prefixName}-orig.{$ext}" ) ) {
             throw new Exception( 'Erro ao fazer upload de arquivo!' );
         }
+
+        // TODO: Stop using class.upload.php and use wide image to resize and crop the image.
 
         // Instantiate the upload class
         $upload = new upload( "{$this->_dir}/{$prefixName}-orig.{$ext}" );
@@ -59,6 +62,44 @@ class ImgH {
         $upload->image_y = 600;
         $upload->file_new_name_body = "{$prefixName}-large";
         $upload->process( "{$this->_dir}" );
+    }
+
+
+    public function crop( $post_id, $image_id, $extension, $x, $y, $w, $h ) {
+
+        require_once ROOT_DIR . '/vendor/WideImage/WideImage.php';
+
+        $base = "{$post_id}-{$image_id}";
+        $origPathName = "{$this->_dir}/{$base}-orig.{$extension}";
+
+        $wi_orig = WideImage::load( $origPathName );
+
+        // The large image will have proportions as defined in the crop selection,
+        // and the crop selection itself has a proper aspect ratio set.
+        $wi_large = $wi_orig->crop($x, $y, $w, $h);
+        $wi_large->saveToFile( "{$this->_dir}/{$base}-large.{$extension}" );
+
+        $wi_thumb = $wi_large->resize( 180, 120 );
+        $wi_thumb->saveToFile( "{$this->_dir}/{$base}-thumb.{$extension}" );
+
+        // TODO: WideImage->saveToFile() doesn't return anything... How to check if operation succeeded.
+    }
+
+
+    /**
+     * Removes all versions/sizes of a image based on its ID and Post_ID.
+     *
+     * @param ImagesModel $image
+     */
+    public function destroy( $image ) {
+
+        $base = "{$image->post_id}-{$image->id}";
+
+        // We check if the original image exists, and from that, we removed all variations of the image.
+        if ( file_exists( "{$this->_dir}/{$base}-orig.{$image->extension}" ) ) {
+            // Removes orig, large and thumb, etc. (post_id-image_id-<*anything*>.extension)
+            array_map( 'unlink', glob( "{$this->_dir}/{$base}-*.{$image->extension}" ) );
+        }
     }
 
     /**

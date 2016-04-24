@@ -437,20 +437,19 @@ class PostsController extends BaseController {
         // after she is done with the upload
         $this->flashRedirectTo( $_SERVER[ 'HTTP_REFERER' ] );
 
-        $this->_view->object = $this->_mapper->find( Request::getInstance()->uriParts['pk'] );
+        $this->_view->images = $this->_mapper->find( Request::getInstance()->uriParts['pk'] );
 
-        $category = ( new CategoriesMapper() )->find( $this->_view->object->category_id );
+        $this->_view->addExtraLink( 'css/images.css?' . time() );
+        $this->_view->addExtraLink( 'js/cropperjs/cropper.min.css' );
+        $this->_view->addExtraScript( 'js/jquery-ui.min.js' );
+        $this->_view->addExtraScript( 'js/cropperjs/cropper.min.js ');
+        $this->_view->addExtraScript( 'js/images.js?' . time() );
 
-        $this->_view->w = H::ifnull( $category->img_w, CategoriesModel::IMG_WIDTH );
-        $this->_view->h = H::ifnull( $category->img_h, CategoriesModel::IMG_HEIGHT );
 
-        $this->_view->addExtraLink( 'font-awesome/css/font-awesome.min.css' );
-        $this->_view->addExtraLink( 'imgup/css/imgareaselect-default.css' );
-        $this->_view->addExtraLink( 'imgup/css/images.css');
+        $this->_view->images = (new ImagesMapper())->index(Request::getInstance()->uriParts[ 'pk' ]);
 
-        $this->_view->addExtraScript( 'imgup/js/jquery.imgareaselect.min.js' );
-        $this->_view->addExtraScript( 'js/images.js?v2' );
-
+        // It is not `images/index` because will do more than just list images there. We'll add, remove
+        // reorder, crop, etc, from that single view.
         $this->_view->render( 'images/images' );
     }
 
@@ -490,13 +489,19 @@ class PostsController extends BaseController {
         }
 
         $file = $_FILES[ 'image' ];
-        $image = new GalleriesModel;
-        $image->post_id = $pk;
 
-        $galleriesMapper = new GalleriesMapper;
+        // Let's assume there is an extension (for now).
+        $tmp = explode('.', $file['name']);
+        $extension = array_pop($tmp);
+
+        $image = new ImagesModel;
+        $image->post_id = $pk;
+        $image->extension = mb_strtolower($extension, 'UTF-8');
+
+        $imagesMapper = new ImagesMapper;
 
         // $res is an assoc array with id and position keys.
-        $res = $galleriesMapper->save( $image );
+        $res = $imagesMapper->save( $image );
 
         // Now we have inserted id and position. We'll use post_id + id to name the image on
         // disk. We'll also send id and position back to the ajax client so they update the
@@ -508,6 +513,85 @@ class PostsController extends BaseController {
         echo json_encode($res);
 
     }
+
+    /**
+     * @ajax. Reposition images on DB.
+     *
+     * @param integer $id - the post id (not the image id)
+     */
+    public function imageSetPosition( $id ) {
+
+        // Comes from the request url by default (assigning to new identifier to avoid confusion).
+        $post_id = $id;
+
+        $image_id = filter_input( INPUT_POST, 'image_id', FILTER_SANITIZE_NUMBER_INT );
+        $oldpos = filter_input( INPUT_POST, 'oldpos', FILTER_SANITIZE_NUMBER_INT );
+        $newpos = filter_input( INPUT_POST, 'newpos', FILTER_SANITIZE_NUMBER_INT );
+
+        $image = new ImagesModel;
+        $image->id = $image_id;
+        $image->post_id = $post_id;
+
+        $imagesMapper = new ImagesMapper;
+
+        // Image has the position attribute. Still, in this case, we are dealing
+        // with newpos and oldpos. How to properly handle this? I'll pass these two
+        // as separate params for now...
+        $status = $imagesMapper->setPosition( $image, $oldpos, $newpos );
+
+        echo json_encode( $status );
+    }
+
+
+    /**
+     * @ajax destroys an image (DB / HD).
+     *
+     * @param Integer $id - the id of the post the image belongs to. The other
+     * params (like image_id) come from the ajax params.
+     *
+     * @return Json.
+     */
+    public function imageDestroy( $id ) {
+
+        $image = new ImagesModel;
+        $image->id = H::param( 'image_id', 'POST' );
+        $image->post_id = Request::getInstance()->uriParts[ 'pk' ];
+        $image->extension = H::param( 'extension', 'POST' );
+
+        $imagesMapper = new ImagesMapper;
+        $status = $imagesMapper->destroy( $image );
+
+        if ( ! $status ) {
+            echo json_encode( [ 'status' => 'error' ] );
+            return;
+        }
+
+        $imgH = new ImgH;
+        // How can we properly check whether `unlink` worked fine? Let's
+        // assume it was able to delete the images for now.
+        $imgH->destroy( $image );
+
+        echo json_encode( [ 'status' => 'success' ] );
+    }
+
+
+    /**
+     * @ajax
+     */
+    public function imageCrop() {
+
+        $post_id = Request::getInstance()->uriParts[ 'pk' ];
+        $image_id = Request::getInstance()->getInput( 'image_id', true );
+        $extension = Request::getInstance()->getInput( 'extension', true );
+        $crop_x = Request::getInstance()->getInput( 'crop_x', true );
+        $crop_y = Request::getInstance()->getInput( 'crop_y', true );
+        $crop_w = Request::getInstance()->getInput( 'crop_w', true );
+        $crop_h = Request::getInstance()->getInput( 'crop_h', true );
+
+        $imgH = new ImgH;
+        $imgH->crop( $post_id, $image_id, $extension, $crop_x, $crop_y, $crop_w, $crop_h );
+    }
+
 
     public function videos( $pk ) {
         if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {

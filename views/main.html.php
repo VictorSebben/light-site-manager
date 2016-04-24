@@ -13,7 +13,8 @@
         window.lsmConf = {
             baseUrl: '<?= "{$this->_config[ 'base_url' ]}"; ?>',
             ctrl: '<?= Request::getInstance()->uriParts[ 'ctrl' ] ?>',
-            pk: '<?= Request::getInstance()->uriParts[ 'pk' ] ?>'
+            pk: '<?= Request::getInstance()->uriParts[ 'pk' ] ?>',
+            cats: [<?= Request::getInstance()->javascriptConfGetCategories() ?>]
         };
     </script>
 </head>

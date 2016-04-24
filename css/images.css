@@ -1,0 +1,191 @@
+.images-wrapper .row1 {
+    border: 2px solid #DDF0FD;
+    background-color: #fff;
+    margin-bottom: 20px;
+    padding: 10px;
+}
+.images-wrapper .row1 [type='file'] {
+    display: none;
+}
+.images-wrapper .row1 .col1 {
+    width: 30%;
+    float: left;
+}
+.images-wrapper .row1 .col1 [for='img'] {
+    /* Setting height here automatically causes the bg image to be centered vertically. */
+    background: transparent url('../img/icons/ic_file_upload_black_36px.svg') no-repeat right center;
+    line-height: 40px;
+    display: block;
+    cursor: pointer;
+}
+.images-wrapper .row1 .col2 {
+    width: 68%;
+    float: right;
+    line-height: 40px;
+    text-align: center;
+}
+.images-wrapper .row1 .col2 img {
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 26px;
+}
+
+.image-list-wrap .preview-wrap {
+    width: 196px;
+    float: left;
+    margin: 10px 10px 10px 0;
+    background-color: #fff;
+    border: 1px solid #bababa;
+}
+.image-list-wrap .tbl {
+    display: table;
+}
+.image-list-wrap .tblcell {
+    display: table-cell;
+    vertical-align: middle;
+    width: 196px;
+    height: 128px;
+    text-align: center;
+    background-color: #f9f9f9;
+
+    /*
+    border-left: 1px solid #bababa;
+    border-top: 1px solid #bababa;
+    border-right: 1px solid #bababa;
+    border-bottom: 1px solid #bababa;
+    */
+    border-radius: 4px 4px 0 0;
+}
+.image-list-wrap .preview {
+    max-width: 164px;
+    max-height: 128px;
+    vertical-align: middle;
+}
+.image-list-wrap .preview-wrap .actions,
+.image-list-wrap .btn-action.position {
+    font-size: 12px;
+    background-color: #e9e9e9;
+    text-align: center;
+    line-height: 25px;
+}
+.image-list-wrap .preview-wrap .actions {
+    cursor: pointer;
+    border-top: 1px solid #bababa;
+}
+.image-list-wrap .btn-action.position {
+    border-bottom: 1px solid #bababa;
+    color: #338d33;
+    cursor: move;
+}
+.image-list-wrap .preview-wrap .actions .btn-action {
+    position: relative;
+    width: 50%;
+    float: left;
+    cursor: pointer;
+}
+.image-list-wrap .preview-wrap .actions .btn-action.crop {
+    border-left: 1px solid #bababa;
+}
+.image-list-wrap .preview-wrap .actions .btn-action:hover {
+    background-color: #f9f9f9;
+    text-decoration: underline;
+}
+.image-list-wrap .preview-wrap .actions .btn-action.crop {
+    color: #2378b6; /* blue */
+}
+.image-list-wrap .preview-wrap .actions .btn-action.remove {
+    color: #e42626; /* red */
+}
+
+
+
+
+
+.preview-wrap .remove-confirm {
+    position: absolute;
+    z-index: 1;
+    left: -22px;
+    top: -25px;
+    width: 200px;
+    background-color: #f1f1f1;
+    border: 1px solid #eee;
+    box-shadow: 2px 2px 13px 0 rgba(68, 68, 68, 0.5);
+}
+.preview-wrap .remove-confirm .txt {
+    color: #555;
+    padding: 5px;
+    border-bottom: 1px solid #aaa;
+}
+.preview-wrap .remove-confirm .btns {
+    color: #555;
+    border-top: 1px solid #fff;
+}
+.preview-wrap .remove-confirm .btns > span {
+    padding: 5px;
+    width: 50%;
+    display: inline-block;
+    float: left;
+}.preview-wrap .remove-confirm .btns > span:hover {
+    /* text-decoration: underline; */
+    opacity: 0.85;
+}
+.preview-wrap .remove-confirm .btns > .del-no {
+    color: #136013;
+}
+.preview-wrap .remove-confirm .btns > .del-yes {
+    border-left: 1px solid #aaa;
+    color: #bf2424;
+}
+
+
+
+
+.image-crop-wrap {
+    display: none;
+    background-color: lightyellow;
+    padding: 5px;
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 5px solid #555;
+    z-index: 2;
+}
+.image-crop-wrap .table {
+    display: table;
+    width: calc(100% - 95px);
+}
+.image-crop-wrap .td {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+.image-crop-wrap img {
+    max-width: 95%;
+    max-height: 95%;
+    vertical-align: middle;
+    text-align: center;
+}
+.image-crop-wrap .buttons {
+    float: left;
+    margin: 0 10px 0 0;
+}
+
+.image-crop-wrap .buttons input {
+    padding: 5px;
+    display: block;
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    width: 80px;
+    background-color: #f9f9f9;
+    background-image: linear-gradient(to bottom, #f9f9f9, #d2d2d2);
+    border: 1px solid #D2D2D2;
+    border-radius: 2px;
+    cursor: pointer;
+}
+.image-crop-wrap .buttons input:hover {
+    background-image: linear-gradient(to bottom, #f9f9f9, #e4e4e4);
+}
+
+

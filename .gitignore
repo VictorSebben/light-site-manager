@@ -30,4 +30,8 @@ composer.lock
 # so, let's clone it as a separate project.
 wiki/
 
+_stuff/MYNOTES.txt
+_stuff/INSTALL.md
+_stuff/ISSUES.md
+_stuff/bootstrap_components.org
 
