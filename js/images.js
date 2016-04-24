@@ -45,6 +45,8 @@ var lsmImage = (function () {
     // Some actions require that we set the current “preview” that is being dealt with.
     var $currentPreview;
 
+    // The crop object so whe can data when the user clicks “Recortar”.
+    var cropper;
 
     $img.on( 'change', function () {
         var i;
@@ -89,10 +91,14 @@ var lsmImage = (function () {
     });
 
     // Closes `remove` confirmation box upon hitting <Esc>.
+    // Closes crop UI view.
     $( document ).on( 'keyup', function ( evt ) {
         // Se for Esc
         if ( evt.keyCode === 27 ) {
             $imageListWrap.find( '.preview-wrap .remove-confirm' ).remove();
+            $( '#image-crop-wrap' ).fadeOut( 1000, function () {
+                $( this ).remove();
+            });
         }
     });
 
@@ -131,6 +137,68 @@ var lsmImage = (function () {
                     $imagesMessages.html( '' );
                 }, 10000);
             }
+        });
+    });
+
+
+    // Opens crop UI.
+    $imageListWrap.on( 'click', '.preview-wrap .crop', function ( evt ) {
+
+        $currentPreview = $( this ).closest( '.preview-wrap' );
+
+        // Adds the crop view to the page and returns a cropable object from cropperjs.
+        insertCropper({
+            imagePath: getPreviewData( $currentPreview )['imagePath']
+        });
+
+        l(getPreviewData($currentPreview));
+
+    });
+
+
+    // Sends ajax with crop data.
+    $( document.body ).on( 'click', '#btn-crop-perform', function ( evt ) {
+
+        var cropData = cropper.getData( true );
+        var previewData = getPreviewData( $currentPreview );
+
+        // .../lsm/posts/NN/image-crop
+        var uri = lsmConf.baseUrl + '/' + lsmConf.ctrl + '/' + lsmConf.pk + '/' + 'image-crop';
+
+        jQuery.ajax({
+            method: 'POST',
+            url: uri,
+            data: {
+                post_id: previewData.post_id,
+                image_id: previewData.image_id,
+                extension: previewData.extension,
+                crop_x: cropData.x,
+                crop_y: cropData.y,
+                crop_w: cropData.width,
+                crop_h: cropData.height
+            },
+            success: function ( response ) {
+
+                // Removes the crop UI.
+                $( '#image-crop-wrap' ).remove();
+
+                // date.getTime() is to avoid cache.
+                var imgpath = lsmConf.baseUrl + '/../uploads/images/' + previewData.post_id + '-'
+                            + previewData.image_id + '-thumb.' + previewData.extension + '?' + (new Date()).getTime();
+
+                l(imgpath);
+
+                // Places the cropped image in the preview.
+                $currentPreview.find( 'img' ).attr( 'src', imgpath );
+            }
+        });
+    });
+
+
+    // Cancel crop and do nothing else.
+    $( document.body ).on( 'click', '#btn-crop-cancel', function ( evt ) {
+        $( this ).closest( '#image-crop-wrap' ).fadeOut( 1000, function () {
+            $( this ).remove();
         });
     });
 
@@ -467,6 +535,69 @@ var lsmImage = (function () {
             // It was added on the confirmation to delete an image.
             lsm.removeOverlay();
         });
+    }
+
+
+    /**
+     * Finds relevant data of a preview.
+     *
+     * @param {jQueryObject} $preview - The image preview “box”.
+     * @return {object}
+     */
+    function getPreviewData( $preview ) {
+        var obj = {
+            image_id: $preview.attr( 'data-id' ),
+            post_id: lsmConf.pk, // The pk of the post the image belongs to.
+            extension: $preview.attr( 'data-extension' )
+        };
+
+        // Precisamos de outras infos antes de poder compor o path da imagem.
+        obj.imagePath = '../uploads/images/' + obj.post_id + '-' + obj.image_id + '-orig.' + obj.extension;
+
+        return obj;
+    }
+
+
+    /**
+     * Insert the cropper with image and shows to the user.
+     * @param {object} opts - Options to use when creating/inserting the cropper
+     *
+     *  { imagePath: '../uploads/produtos/130-28-orig.jpg', foo: 'foo', etc... };
+     */
+    function insertCropper( opts ) {
+        var html = "\
+            <div id='image-crop-wrap' class='image-crop-wrap'>\
+                <div class='buttons'>\
+                    <input type='button' id='btn-crop-perform' value='Recortar'>\
+                    <input type='button' id='btn-crop-cancel' value='Cancelar'>\
+                </div>\
+                <div class='table'>\
+                    <div class='td'>\
+                        <img id='crop-me' alt='image for cropping'>\
+                    </div>\
+                </div>\
+            </div>";
+
+        jQuery( 'body' ).append( html );
+
+        var $imageCropWrap = $( '#image-crop-wrap' );
+
+        $imageCropWrap.find( '#crop-me' ).attr( 'src', opts.imagePath );
+        $imageCropWrap.find( '#crop-me' ).css({
+            'max-height': $imageCropWrap.height()
+        });
+
+        $imageCropWrap.css({
+            'display': 'block'
+        });
+
+        var cropMe = document.querySelector('#crop-me');
+        cropper = new Cropper(cropMe, {
+            viewMode: 1, // Limit crop inside the image boundaries.
+            aspectRatio: 180 / 120 // Let's base it on the thumbnail size.
+        });
+
+        jQuery( 'body' ).animate( { scrollTop: 0 }, 300 );
     }
 
 

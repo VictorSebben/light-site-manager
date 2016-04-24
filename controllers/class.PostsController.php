@@ -440,8 +440,11 @@ class PostsController extends BaseController {
         $this->_view->images = $this->_mapper->find( Request::getInstance()->uriParts['pk'] );
 
         $this->_view->addExtraLink( 'css/images.css?' . time() );
+        $this->_view->addExtraLink( 'js/cropperjs/cropper.min.css' );
         $this->_view->addExtraScript( 'js/jquery-ui.min.js' );
+        $this->_view->addExtraScript( 'js/cropperjs/cropper.min.js ');
         $this->_view->addExtraScript( 'js/images.js?' . time() );
+
 
         $this->_view->images = (new ImagesMapper())->index(Request::getInstance()->uriParts[ 'pk' ]);
 
@@ -572,6 +575,23 @@ class PostsController extends BaseController {
         echo json_encode( [ 'status' => 'success' ] );
     }
 
+
+    /**
+     * @ajax
+     */
+    public function imageCrop() {
+
+        $post_id = Request::getInstance()->uriParts[ 'pk' ];
+        $image_id = Request::getInstance()->getInput( 'image_id', true );
+        $extension = Request::getInstance()->getInput( 'extension', true );
+        $crop_x = Request::getInstance()->getInput( 'crop_x', true );
+        $crop_y = Request::getInstance()->getInput( 'crop_y', true );
+        $crop_w = Request::getInstance()->getInput( 'crop_w', true );
+        $crop_h = Request::getInstance()->getInput( 'crop_h', true );
+
+        $imgH = new ImgH;
+        $imgH->crop( $post_id, $image_id, $extension, $crop_x, $crop_y, $crop_w, $crop_h );
+    }
 
 
     public function createVideoGal() {
