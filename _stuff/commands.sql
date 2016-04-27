@@ -249,4 +249,6 @@ ALTER TABLE galleries ADD COLUMN extension VARCHAR(4);
 -- Refactored PHP to use “Images” instead of “Galleries”.
 ALTER TABLE galleries RENAME TO images;
 
+ALTER TABLE video_galleries RENAME TO videos;
+
 

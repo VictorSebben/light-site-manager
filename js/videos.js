@@ -8,6 +8,12 @@
 var lsmVideo = ( function () {
     var l = console.log.bind(console);
 
+    function htmlencode(str) {
+        return str.replace(/[&<>"']/g, function($0) {
+            return "&" + {"&":"amp", "<":"#60", ">":"#62", '"':"#34", "'":"#39"}[$0] + ";";
+        });
+    }
+
     function showErrMsgInsert( errMsg ) {
         // Show error message on page for 10 seconds
         var btn = $( '#btn-insert' );
@@ -243,9 +249,17 @@ var lsmVideo = ( function () {
         var parent = obj.parent();
         parent.css( 'background-color', '' );
         parent.bind( 'dblclick', text2input );
-        parent.html( parent.attr( 'data-db' ) );
-    }
 
+        var data = parent.attr( 'data-db' );
+
+        if ( obj.attr( 'class' ).indexOf( 'iframe' ) !== -1 ) {
+            data = htmlencode( data );
+        }
+
+        parent.html( data );
+    }
+// TODO UPDATE PREVIEW ON CHANGE OF THE IFRAME FIELD
+// FIXME ON ESC ON IFRAME FIELD, IT IS TURING CHARS INTO ENTITIES
     /*
      * When the user hits ESC, we'll cancel all the open in-place edition fields,
      * and turn them into pure text again

@@ -8,7 +8,7 @@ class ImagesMapper extends Mapper {
     function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT id, post_id, position, caption, created, updated FROM galleries WHERE id = ?"
+            "SELECT id, post_id, position, caption, created, updated FROM images WHERE id = ?"
         );
     }
 
@@ -40,16 +40,16 @@ class ImagesMapper extends Mapper {
      * @Override
      * Overrite save() because we need max(position) + 1 on insert, etc.
      *
-     * @param GalleryMode $image
+     * @param ImagesModel $image
      * @param boolean $overrideNullData
-     * @param mixed oldPKValue
-     * @return AssociativeArray containing insertd `id` and inserted `position` columns.
+     * @param mixed $oldPKValue
+     * @return array AssociativeArray containing insertd `id` and inserted `position` columns.
      */
     public function save( $image, $overrideNullData = false, $oldPKValue = null ) {
 
         // 160wx100h
 
-        // SQL deals with the fact that if galleires table is empty and therefore the ‘position’
+        // SQL deals with the fact that if images table is empty and therefore the ‘position’
         // column is null (max(position) returns null), we make it 0 + 1. Otherwise, we make
         // it “max(position) + 1”.
         $sql = "INSERT INTO images (
@@ -227,13 +227,13 @@ class ImagesMapper extends Mapper {
                 , caption
                 , created
                 , updated
-             FROM galleries
+             FROM images
              WHERE post_id = :post_id"
         );
 
         $selectStmt->bindParam( ':post_id', $post_id, PDO::PARAM_INT );
         $selectStmt->execute();
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'GalleriesModel' );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'ImagesModel' );
         $users = $selectStmt->fetch();
         $selectStmt->closeCursor();
 
@@ -245,4 +245,3 @@ class ImagesMapper extends Mapper {
     }
 
 }
-

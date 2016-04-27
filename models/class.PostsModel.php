@@ -26,7 +26,7 @@ class PostsModel extends BaseModel {
      * Array of gallery images associated with the post.
      * @var array
      */
-    public $galleries = array();
+    public $images = array();
 
     public $tableName;
 

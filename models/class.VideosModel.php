@@ -1,6 +1,6 @@
 <?php
 
-class VideoGalleryModel extends BaseModel {
+class VideosModel extends BaseModel {
 
     public $id;
     public $post_id;
@@ -14,7 +14,7 @@ class VideoGalleryModel extends BaseModel {
     public function __construct() {
         parent::__construct();
 
-        $this->tableName = 'video_galleries';
+        $this->tableName = 'videos';
     }
 
     public function getVideoIframe() {

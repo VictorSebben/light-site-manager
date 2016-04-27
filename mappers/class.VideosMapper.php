@@ -1,6 +1,6 @@
 <?php
 
-class VideoGalleryMapper extends Mapper {
+class VideosMapper extends Mapper {
 
     /**
      * @throws Exception
@@ -8,19 +8,19 @@ class VideoGalleryMapper extends Mapper {
     public function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT id, post_id, iframe, position FROM video_galleries WHERE id = ?"
+            "SELECT id, post_id, iframe, position FROM videos WHERE id = ?"
         );
     }
 
     public function index() {
         $stmt = self::$_pdo->prepare(
             "SELECT id, post_id, iframe, title, position
-               FROM video_galleries
+               FROM videos
               ORDER BY position"
         );
 
         $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'VideoGalleryModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, 'VideosModel' );
         $videos = $stmt->fetchAll();
         $stmt->closeCursor();
 
@@ -31,7 +31,7 @@ class VideoGalleryMapper extends Mapper {
 
     protected function _setNumRecordsPagn() {
         $sql = "SELECT count(*) AS count
-                  FROM video_galleries ";
+                  FROM videos ";
 
         $selectStmt = self::$_pdo->prepare( $sql );
         $selectStmt->execute();
@@ -83,9 +83,9 @@ class VideoGalleryMapper extends Mapper {
     }
 
     // TODO PUBLIC TEST
-    public function _updatePositions( VideoGalleryModel $model, $destroy = false ) {
+    public function _updatePositions( VideosModel $model, $destroy = false ) {
         if ( ! $model->post_id ) {
-            throw new Exception( 'Error at VideoGalleryMapper::_updatePositions(): No Post id specified!' );
+            throw new Exception( 'Error at VideosMapper::_updatePositions(): No Post id specified!' );
         }
 
         /*
@@ -96,7 +96,7 @@ class VideoGalleryMapper extends Mapper {
          */
 
         // Get rowCount (to see how many videos there are in this gallery)
-        $stmt = self::$_pdo->prepare( 'SELECT id FROM video_galleries WHERE post_id = :post_id' );
+        $stmt = self::$_pdo->prepare( 'SELECT id FROM videos WHERE post_id = :post_id' );
         $stmt->bindParam( ':post_id', $model->post_id, PDO::PARAM_INT );
         $stmt->execute();
 
@@ -114,7 +114,7 @@ class VideoGalleryMapper extends Mapper {
                 $model->position = $rowCount + 1;
             }
 
-            $sql = "UPDATE video_galleries SET position = position + 1
+            $sql = "UPDATE videos SET position = position + 1
                      WHERE position >= :position
                        AND post_id = :post_id ";
 
@@ -129,7 +129,7 @@ class VideoGalleryMapper extends Mapper {
         else {
             // Destroy
             if ( $destroy ) {
-                $sql = "UPDATE video_galleries SET position = position - 1
+                $sql = "UPDATE videos SET position = position - 1
                          WHERE position >= :position
                            AND post_id = :post_id";
 
@@ -144,7 +144,7 @@ class VideoGalleryMapper extends Mapper {
             // If it changed, we will process all the changes
             else {
                 // Get the previous position of the object
-                $stmt = self::$_pdo->prepare( 'SELECT position FROM video_galleries WHERE id = :id' );
+                $stmt = self::$_pdo->prepare( 'SELECT position FROM videos WHERE id = :id' );
                 $stmt->bindParam( ':id', $model->id );
                 $stmt->execute();
 
@@ -164,13 +164,13 @@ class VideoGalleryMapper extends Mapper {
                 if ( $model->position < $oldPosition ) {
                     // Increment the positions of the videos whose position is greater than
                     // or equal to the new position and lesser than the old position
-                    $sql = 'UPDATE video_galleries SET position = position + 1
+                    $sql = 'UPDATE videos SET position = position + 1
                              WHERE position >= :new_position
                                AND position < :old_position
                                AND post_id = :post_id';
                 } // Upper to Lower position, i.g. 1 to 5
                 else {
-                    $sql = 'UPDATE video_galleries SET position = position - 1
+                    $sql = 'UPDATE videos SET position = position - 1
                              WHERE position > :old_position
                                AND position <= :new_position
                                AND post_id = :post_id';

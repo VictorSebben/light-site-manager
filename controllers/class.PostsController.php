@@ -598,9 +598,9 @@ class PostsController extends BaseController {
             throw new PermissionDeniedException();
         }
 
-        $videoGalleryMapper = new VideoGalleryMapper();
+        $videosMapper = new VideosMapper();
 
-        $this->_view->objectList = $videoGalleryMapper->index();
+        $this->_view->objectList = $videosMapper->index();
         $this->_view->object = $this->_mapper->find( $pk );
 
         $this->_view->addExtraLink( 'css/video-gallery.css' );
@@ -619,15 +619,15 @@ class PostsController extends BaseController {
             if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
                 $errorMsg = 'Permissão Negada';
             } else {
-                $mapper = new VideoGalleryMapper();
+                $mapper = new VideosMapper();
 
-                $videoGallery = new VideoGalleryModel();
-                $videoGallery->post_id = $pk;
-                $videoGallery->title = Request::getInstance()->getInput( 'title' );
-                $videoGallery->iframe = Request::getInstance()->getInput( 'iframe' );
-                $videoGallery->position = Request::getInstance()->getInput( 'position' );
+                $video = new VideosModel();
+                $video->post_id = $pk;
+                $video->title = Request::getInstance()->getInput( 'title' );
+                $video->iframe = Request::getInstance()->getInput( 'iframe' );
+                $video->position = Request::getInstance()->getInput( 'position' );
 
-                $mapper->save( $videoGallery );
+                $mapper->save( $video );
                 $isOk = true;
             }
 
@@ -652,24 +652,24 @@ class PostsController extends BaseController {
             if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
                 $errorMsg = 'Permissão Negada';
             } else {
-                $mapper = new VideoGalleryMapper();
+                $mapper = new VideosMapper();
 
-                $videoGallery = new VideoGalleryModel();
-                $videoGallery->post_id = $pk;
+                $video = new VideosModel();
+                $video->post_id = $pk;
 
-                $arrObjProp = get_object_vars( $videoGallery );
+                $arrObjProp = get_object_vars( $video );
 
-                array_walk( $arrObjProp, function( $key, $prop ) use ( $videoGallery ) {
+                array_walk( $arrObjProp, function( $key, $prop ) use ( $video ) {
                     $request = Request::getInstance();
                     if ( isset( $_POST[ $prop ] ) )
-                        $videoGallery->$prop = $request->getInput( $prop );
+                        $video->$prop = $request->getInput( $prop );
                 } );
 
-                if ( ! $videoGallery->id ) {
+                if ( ! $video->id ) {
                     $errorMsg = 'Ocorreu um erro ao processar a requisição (ID do vídeo não foi encontrado). Contate o suporte.';
                     $isOk = false;
                 } else {
-                    $mapper->save( $videoGallery );
+                    $mapper->save( $video );
 
                     // Since this is an in-place edition view, we need not
                     // give the user a success message.

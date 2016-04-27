@@ -182,17 +182,16 @@ class PostsMapper extends Mapper {
     }
 
     /**
-     * @param $model
+     * @param $post
      * @throws Exception
      */
     public function destroy( $post ) {
         self::$_pdo->beginTransaction();
 
         try {
-            // First, we will destroy the gallery images and videos related to the post, if there are any
-            // Populate the gallery images of the post, if there are any
-            self::$_pdo->prepare( 'DELETE FROM galleries WHERE post_id = ?' )->execute( array( $post->id ) );
-            self::$_pdo->prepare( 'DELETE FROM video_galleries WHERE post_id = ?' )->execute( array( $post->id ) );
+            // First, we will destroy the images and videos related to the post, if there are any
+            self::$_pdo->prepare( 'DELETE FROM images WHERE post_id = ?' )->execute( array( $post->id ) );
+            self::$_pdo->prepare( 'DELETE FROM videos WHERE post_id = ?' )->execute( array( $post->id ) );
 
             // Then, we destroy the posts_categories entries
             self::$_pdo->prepare( 'DELETE FROM posts_categories WHERE post_id = ?' )->execute( array( $post-> id ) );
@@ -309,22 +308,6 @@ class PostsMapper extends Mapper {
             echo $e->getMessage();
             return false;
         }
-    }
-
-    public function populatePostGallery( PostsModel $post ) {
-        if ( !is_numeric( $post->id ) )
-            return;
-
-        $stmt = self::$_pdo->prepare(
-            "SELECT id, post_id, image
-               FROM galleries
-              WHERE post_id = :post_id"
-        );
-
-        $stmt->bindParam( ':post_id', $post->id );
-        $stmt->execute();
-
-        $post->galleries = $stmt->fetchAll( PDO::FETCH_CLASS, 'GalleryModel' );
     }
 
     public function save( $post, $overrideNullData = false, $oldPKValue = null ) {
