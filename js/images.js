@@ -539,26 +539,6 @@ var lsmImage = (function () {
 
 
     /**
-     * Finds relevant data of a preview.
-     *
-     * @param {jQueryObject} $preview - The image preview “box”.
-     * @return {object}
-     */
-    function getPreviewData( $preview ) {
-        var obj = {
-            image_id: $preview.attr( 'data-id' ),
-            post_id: lsmConf.pk, // The pk of the post the image belongs to.
-            extension: $preview.attr( 'data-extension' )
-        };
-
-        // Precisamos de outras infos antes de poder compor o path da imagem.
-        obj.imagePath = '../uploads/images/' + obj.post_id + '-' + obj.image_id + '-orig.' + obj.extension;
-
-        return obj;
-    }
-
-
-    /**
      * Insert the cropper with image and shows to the user.
      * @param {object} opts - Options to use when creating/inserting the cropper
      *

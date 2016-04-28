@@ -557,6 +557,7 @@ class PostsController extends BaseController {
         $image->id = H::param( 'image_id', 'POST' );
         $image->post_id = Request::getInstance()->uriParts[ 'pk' ];
         $image->extension = H::param( 'extension', 'POST' );
+        $image->position = H::param( 'position', 'POST' );
 
         $imagesMapper = new ImagesMapper;
         $status = $imagesMapper->destroy( $image );
