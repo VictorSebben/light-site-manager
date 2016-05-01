@@ -13,7 +13,7 @@
         </div>
         <div class="insert-btn-msg">
             <button class="input-submit btn-green" id="btn-insert">Inserir</button>
-            <span id="msg" class="msg"></span>
+            <span id="msg" class="msg err-msg"></span>
         </div>
     </form>
 
@@ -32,10 +32,10 @@
                                 <div class="info">Título: <span id="title-<?= $video->id; ?>" class="title"><?= $video->title; ?></span></div>
                                 <div class="info">Posição: <span id="position-<?= $video->id; ?>" class="position"><?= $video->position; ?></span></div>
                             </div>
-                            <div class="video-preview">
+                            <div id="video-preview-<?= $video->id; ?>" class="video-preview">
                                 <?= $video->getVideoIframe(); ?>
                             </div>
-                            <span class="remove"><button title="Remover" class="btn-red input-submit fa fa-times"></button></span>
+                            <span class="remove"><button title="Remover" data-id="<?= $video->id; ?>" class="btn-remove btn-red input-submit fa fa-times"></button></span>
                         </div>
                         <div>
                             <span class="info">iframe:</span>

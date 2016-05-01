@@ -69,11 +69,10 @@ class VideosMapper extends Mapper {
         try {
             // Adjust the position of the other videos according to
             // the position of the video being removed
-            // TODO POPULATE POST_ID AND POSITION
             $this->_updatePositions( $model, true );
 
             // Call parent method to destroy video
-            parent::save( $model );
+            parent::destroy( $model );
 
             self::$_pdo->commit();
         } catch ( Exception $e ) {

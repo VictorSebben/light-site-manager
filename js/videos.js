@@ -49,10 +49,8 @@ var lsmVideo = ( function () {
 
     function showErrMsgUpdate( msg, fieldId ) {
         // Obter div container]
-        l($('#' + fieldId));
         var field = $( '#' + fieldId ).parent();
-        l( field );
-        var divErr = $( '<div class="err-msg-tooltip">' + msg + '</div>' );
+        var divErr = $( '<div class="err-msg err-msg-tooltip">' + msg + '</div>' );
 
         field.after( divErr );
         divErr.width( divErr.parent().width() );
@@ -148,7 +146,7 @@ var lsmVideo = ( function () {
                         iframe[ 0 ].value = '';
 
                         // Reload items
-                        reloadItems();
+                        reloadPage();
                     } else {
                         showErrMsgInsert( result.error );
                     }
@@ -168,12 +166,21 @@ var lsmVideo = ( function () {
     }
 
     /**
-     * This function will load the items from the database
-     * using ajax
+     * Reload the page
      */
-    function reloadItems() {
-        // TODO sort when item was inserted and when a position was updated
-        l( 'Items reloaded' );
+    function reloadPage() {
+        window.location.href = window.location.href;
+    }
+
+    /**
+     * Reload video preview after the iframe
+     * field is edited.
+     */
+    function reloadPreview( videoId, videoIframe ) {
+        var iframe = $( videoIframe );
+        iframe.attr( 'width', 200 );
+        iframe.attr( 'height', 100 );
+        $( '#video-preview-' + videoId ).html( iframe );
     }
 
     function updateVideo( $obj, videoId ) {
@@ -192,16 +199,23 @@ var lsmVideo = ( function () {
             } )
                 .done( function( result ) {
                     if ( result.isOk ) {
+                        var data = $obj[ 0 ].value;
+
+                        if ( $obj.attr( 'class' ).indexOf( 'iframe' ) !== -1 ) {
+                            data = htmlencode( data );
+                            reloadPreview( videoId, $obj[ 0 ].value );
+                        }
+
                         // Change data-db attribute to reflex
                         // the new value
-                        $obj.parent().attr( 'data-db', $obj[ 0 ].value );
+                        $obj.parent().attr( 'data-db', data );
 
                         // Turn field back into pure text
                         input2text( $obj );
 
                         // If the position changed, we will reload the items
                         if ( $obj.attr( 'data-type' ) === 'position' )
-                            reloadItems();
+                            reloadPage();
                     } else {
                         input2text( $obj );
                         showErrMsgInsert( result.error, $obj.attr( 'id' ) );
@@ -249,17 +263,9 @@ var lsmVideo = ( function () {
         var parent = obj.parent();
         parent.css( 'background-color', '' );
         parent.bind( 'dblclick', text2input );
-
-        var data = parent.attr( 'data-db' );
-
-        if ( obj.attr( 'class' ).indexOf( 'iframe' ) !== -1 ) {
-            data = htmlencode( data );
-        }
-
-        parent.html( data );
+        parent.html( parent.attr( 'data-db' ) );
     }
-// TODO UPDATE PREVIEW ON CHANGE OF THE IFRAME FIELD
-// FIXME ON ESC ON IFRAME FIELD, IT IS TURING CHARS INTO ENTITIES
+
     /*
      * When the user hits ESC, we'll cancel all the open in-place edition fields,
      * and turn them into pure text again
@@ -298,14 +304,82 @@ var lsmVideo = ( function () {
         // (for the textarea fields)
         return false;
     } );
+
+    function destroyVideo( videoId, container ) {
+        var id = videoId;
+        var data = {
+            video_id: id,
+            position: $( '#edit-position-' + id ).val() || $( '#position-' + id ).html()
+        };
+
+        try {
+            $.ajax( {
+                    method: 'POST',
+                    url: window.lsmConf.baseUrl + '/posts/' + $( '#post-id' )[ 0 ].value + '/destroy-video/',
+                    data: data,
+                    dataType: 'json'
+                } )
+                .done( function( result ) {
+                    if ( result.isOk ) {
+                        // Reload
+                        reloadPage();
+                    } else {
+                        var divErr = $( '<div style="display: none;" class="err-msg">' + result.error + '</div>' );
+                        container.before( divErr );
+                        divErr.fadeIn( 'slow' );
+
+                        window.setTimeout( function() {
+                            divErr.fadeOut( 'slow', function () {
+                                divErr.remove();
+                            } );
+                        }, 3000 );
+                    }
+                } )
+                .fail( function ( err ) {
+                    var divErr = $( '<div style="display: none;" class="err-msg">Não foi possível inserir. Contate o suporte!</div>' );
+                    container.before( divErr );
+                    divErr.fadeIn( 'slow' );
+
+                    window.setTimeout( function() {
+                        divErr.fadeOut( 'slow', function () {
+                            divErr.remove();
+                        } );
+                    }, 3000 );
+                } );
+        } catch ( e ) {
+            l( e );
+        }
+    }
+
+    $( '.btn-remove' ).click( function() {
+        // Create message that asks for confirmation
+        var container = $( this ).closest( 'div' );
+
+        var divConfirm = $(
+            '<div class="destroy-confirm" style="display: none;">' +
+                'Deseja realmente remover esse Vídeo? &nbsp;&nbsp;' +
+                '<a data-id="' + $( this ).attr( 'data-id' ) + '" class="destroy-yes">Sim</a> &nbsp;&nbsp; <a class="destroy-cancel">Cancelar</a>' +
+            '</div>'
+        );
+        container.before( divConfirm );
+        divConfirm.fadeIn( 'slow' );
+    } );
+
+    var videoItem = $( '.video-item' );
+    videoItem.on( 'click', '.destroy-yes', function() {
+        var div = $( this ).parent();
+
+        div.fadeOut( 'slow', function() {
+            div.remove();
+        } );
+
+        destroyVideo( $( this ).attr( 'data-id' ), div );
+    } );
+
+    videoItem.on( 'click', '.destroy-cancel', function( evt ) {
+        var div = $( this ).parent();
+        div.fadeOut( 'slow', function() {
+            div.remove();
+        } );
+    } );
 }() );
-
-
-
-// TODO ON CLICKING OUT OF THE INPUT FIELD OR HITTING ENTER, SAVE
-// TODO ON HITTING ESC, CANCEL SAVE
-// TODO TURN FIELD BACK INTO A TEXT FIELD
-// TODO IF POSITION WAS CHANGED, SORT
-// TODO >>> SORTING: SELECT ALL VIDEOS; REMOVE LIST AND ADD LOADING ICON; SORT BY POSITION; REMOVE ICON AND READD LIST ITEMS
-
-// TODO IF IFRAME WAS CHANGED, CHANGE PREVIEW

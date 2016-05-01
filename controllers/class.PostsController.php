@@ -688,4 +688,40 @@ class PostsController extends BaseController {
             }
         }
     }
+
+    public function destroyVideo( $pk ) {
+        // Initialize error message and $isOk flag
+        $errorMsg = '';
+        $isOk = false;
+
+        try {
+            // Validate permission to edit contents.
+            if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
+                $errorMsg = 'Permissão Negada';
+            } else {
+                $mapper = new VideosMapper();
+
+                $video = new VideosModel();
+                $video->post_id = $pk;
+                $video->id = Request::getInstance()->getInput( 'video_id' );
+                $video->position = Request::getInstance()->getInput( 'position' );
+
+                if ( ! $video->id || ! $video->position ) {
+                    $errorMsg = 'Ocorreu um erro ao processar a requisição (ID ou Posição do vídeo não encontradas).';
+                    $isOk = false;
+                } else {
+                    $mapper->destroy( $video );
+                    $isOk = true;
+                }
+            }
+
+            echo json_encode( array( 'isOk' => $isOk, 'error' => $errorMsg ) );
+        } catch ( Exception $e ) {
+            if ( DEBUG ) {
+                echo json_encode( array( 'isOk' => false, 'error' => $e->getMessage() ) );
+            } else {
+                echo json_encode( array( 'isOk' => false, 'error' => 'Não foi possível atualizar o vídeo. Contate o suporte.' ) );
+            }
+        }
+    }
 }
