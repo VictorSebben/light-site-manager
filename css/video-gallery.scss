@@ -138,14 +138,27 @@ table {
         width: 50px;
     }
 
+    .iframe {
+        border-radius: 3px;
+    }
+
     input {
         border-radius: 3px;
         padding: 2px;
+        border: 1px solid #ccc;
+
     }
 
-    textarea {
+    textarea.iframe {
         width: 100%;
         min-height: 70px;
+        border-radius: 3px;
+        background-color: #eee;
+        border: 1px solid #aaa;
+    }
+
+    .title, .position, .iframe {
+        cursor: text;
     }
 
     .err-msg-tooltip {
