@@ -1,0 +1,18 @@
+.contact-item, .contact-msg-text {
+    display: block;
+}
+
+.contact-item {
+    border-radius: 5px;
+    border: 2px solid #ccc;
+    padding: 10px;
+    margin-bottom: 20px;
+
+    .label {
+        color: #777;
+        min-width: 60px;
+        display: inline-block;
+        font-size: 17px;
+        margin-bottom: 5px;
+    }
+}
