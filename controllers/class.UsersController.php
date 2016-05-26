@@ -1,5 +1,17 @@
 <?php
 
+namespace lsm\controllers;
+
+use lsm\models\UsersModel;
+use lsm\mappers\UsersMapper;
+use lsm\libs\H;
+use lsm\libs\Validator;
+use lsm\libs\Request;
+use lsm\libs\Pagination;
+use Exception;
+use PDOException;
+use lsm\exceptions\PermissionDeniedException;
+
 class UsersController extends BaseController {
     /**
      * The Model object.
@@ -18,8 +30,7 @@ class UsersController extends BaseController {
     public function __construct() {
         parent::__construct( 'Users' );
 
-        $mapper_name = 'UsersMapper';
-        $this->_mapper = new $mapper_name();
+        $this->_mapper = new UsersMapper();
     }
 
     public function index() {

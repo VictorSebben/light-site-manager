@@ -1,5 +1,11 @@
 <?php
 
+namespace lsm\mappers;
+
+use PDO;
+use PDOException;
+use Exception;
+
 class CategoriesMapper extends Mapper {
 
     /**

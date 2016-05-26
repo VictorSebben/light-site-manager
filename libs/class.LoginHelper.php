@@ -1,11 +1,17 @@
 <?php
 
+namespace lsm\libs;
+
+use lsm\conf\Base;
+use lsm\mappers\UsersMapper;
+
 class LoginHelper extends Base {
 
     public function chkLogin() {
         if ( ! isset( $_SESSION[ 'userid' ] ) || ! isset( $_SESSION[ 'username' ] ) ) {
             // This if prevents infinite redirections. @TODO: Find a better, more elegant way.
-            if ( ! strstr( $_SERVER[ 'REQUEST_URI' ], 'login/index' ) ) {
+            if ( ! strstr( $_SERVER[ 'REQUEST_URI' ], 'login/index' )
+                && ! strstr( $_SERVER[ 'REQUEST_URI' ], 'login/run' ) ) {
                 header( "Location: {$this->_config[ 'base_url' ]}/login/index" );
             }
         }
@@ -17,7 +23,7 @@ class LoginHelper extends Base {
             $usersMapper = new UsersMapper();
             $usersMapper->selectStmt( 'SELECT status, deleted FROM users WHERE id = :id' );
             $user = $usersMapper->find( $_SESSION[ 'user' ] );
-            if ( ( $user->status == 0 ) || ( $user->deleted == 1 ) ) {
+            if ( ! $user || ( $user->status == 0 ) || ( $user->deleted == 1 ) ) {
                 echo "Usuário inexistente ou inativo";
                 unset( $_SESSION[ 'userid' ] );
                 unset( $_SESSION[ 'username' ] );

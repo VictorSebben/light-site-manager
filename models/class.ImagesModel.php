@@ -1,5 +1,9 @@
 <?php
 
+namespace lsm\models;
+
+use lsm\conf\Base;
+
 class ImagesModel extends BaseModel {
 
     public $id;

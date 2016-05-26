@@ -1,5 +1,15 @@
 <?php
 
+namespace lsm\libs;
+
+use lsm\libs\H;
+use lsm\conf\Base;
+use Exception;
+use PDOException;
+use ReflectionClass;
+use ReflectionMethod;
+use lsm\exceptions\PermissionDeniedException;
+
 class Router extends Base {
 
     /**
@@ -176,7 +186,7 @@ class Router extends Base {
         // in the request object
         Request::getInstance()->setPagParams();
 
-        $ctrl_name = $this->_dashes2camel( $this->_request->uriParts[ 'ctrl' ], true ). 'Controller';
+        $ctrl_name = '\lsm\controllers\\' . $this->_dashes2camel( $this->_request->uriParts[ 'ctrl' ], true ). 'Controller';
         $method_name = $this->_dashes2camel( $this->_request->uriParts[ 'act' ] );
 
         $ref_class = new ReflectionClass( $ctrl_name );

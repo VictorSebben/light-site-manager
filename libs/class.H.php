@@ -1,9 +1,12 @@
 <?php
 
+namespace lsm\libs;
+
 class H {
 
     /**
-     * Helper function to help debugging objects or arrays
+     * Helper function to help debugging objects or arrays.
+     * @param $obj
      */
     public static function ppr( $obj ) {
         echo '<pre>';
@@ -13,6 +16,7 @@ class H {
 
     /**
      * Helper function to help debugging objects or arrays but this time using var_dump.
+     * @param $object
      */
     public static function vd( $object ) {
         echo '<pre>';
@@ -154,6 +158,7 @@ class H {
      * or anything. Be careful when you use this.
      *
      * @param String $paramName - The name of the parameter to find in get, post or request.
+     * @param string $method
      * @return NULL/String - The value as a string or NULL.
      */
     public static function param( $paramName, $method = 'REQUEST' ) {

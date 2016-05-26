@@ -1,5 +1,11 @@
 <?php
 
+namespace lsm\mappers;
+
+use lsm\models\VideosModel;
+use PDO;
+use Exception;
+
 class VideosMapper extends Mapper {
 
     /**

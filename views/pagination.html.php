@@ -13,7 +13,7 @@ if ( $this->pagination->getTotalPages() > 1 ) {
 
     //$pageNum = $this->pagination->getMinLimit();
     $pageNum = $this->pagination->getMinLimit();
-    $end = $pageNum + Pagination::LIM_LINKS * 2;
+    $end = $pageNum + \lsm\libs\Pagination::LIM_LINKS * 2;
     // TODO -> IF GETMINLIM > 1 -> SUM LIM TWICE IN THE END
     while ( ( $pageNum <= $this->pagination->getTotalPages() ) && ( $pageNum <= $end ) ) {
         $className = 'pagination-num';

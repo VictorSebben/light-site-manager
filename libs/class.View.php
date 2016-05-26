@@ -1,6 +1,8 @@
 <?php
 
-class View extends stdClass {
+namespace lsm\libs;
+
+class View extends \stdClass {
 
     /**
      * System configuration.

@@ -1,5 +1,12 @@
 <?php
 
+namespace lsm\mappers;
+
+use lsm\models\RolesModel;
+use PDO;
+use Exception;
+use PDOException;
+
 class RolesMapper extends Mapper {
 
     public function __construct() {
@@ -43,7 +50,7 @@ class RolesMapper extends Mapper {
         $stmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
         $stmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'RolesModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\RolesModel' );
         $roles = $stmt->fetchAll();
         $stmt->closeCursor();
 

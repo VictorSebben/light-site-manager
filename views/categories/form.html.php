@@ -29,7 +29,7 @@
         </div>
 
         <!-- Token field -->
-        <input type="hidden" name="token" value="<?= H::generateToken() ?>">
+        <input type="hidden" name="token" value="<?= \lsm\libs\H::generateToken() ?>">
         <!-- Id field -->
         <input type="hidden" name="id" value="<?= $this->object->id; ?>">
 

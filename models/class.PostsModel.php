@@ -1,5 +1,7 @@
 <?php
 
+namespace lsm\models;
+
 class PostsModel extends BaseModel {
 
     public $id;

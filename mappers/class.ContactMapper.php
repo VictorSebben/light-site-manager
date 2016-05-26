@@ -1,5 +1,10 @@
 <?php
 
+namespace lsm\mappers;
+
+use PDO;
+use Exception;
+
 class ContactMapper extends Mapper {
 
     /**
@@ -70,7 +75,7 @@ class ContactMapper extends Mapper {
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
         $selectStmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $selectStmt->execute();
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'ContactModel' );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\ContactModel' );
         $contacts = $selectStmt->fetchAll();
         $selectStmt->closeCursor();
 

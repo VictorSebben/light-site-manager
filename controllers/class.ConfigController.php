@@ -1,5 +1,11 @@
 <?php
 
+namespace lsm\controllers;
+
+use lsm\libs\View;
+use lsm\mappers\UsersMapper;
+use lsm\models\UsersModel;
+
 class ConfigController {
 
     /**
@@ -12,7 +18,7 @@ class ConfigController {
      */
     protected $_permList = array();
 
-    public function __construct( $model_base_name ) {
+    public function __construct() {
         $this->_view = new View();
 
         /*

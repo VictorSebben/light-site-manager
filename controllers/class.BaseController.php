@@ -1,5 +1,16 @@
 <?php
 
+namespace lsm\controllers;
+
+use lsm\models\BaseModel;
+use lsm\models\UsersModel;
+use lsm\mappers\Mapper;
+use lsm\mappers\UsersMapper;
+use lsm\libs\Url;
+use lsm\libs\View;
+use lsm\libs\Request;
+use lsm\libs\H;
+
 class BaseController {
 
     /**
@@ -36,7 +47,7 @@ class BaseController {
     protected $_user;
 
     public function __construct( $model_base_name ) {
-        $model_name = $model_base_name . 'Model';
+        $model_name = '\lsm\models\\' . $model_base_name . 'Model';
 
         // instantiate Model
         $this->_model = new $model_name;

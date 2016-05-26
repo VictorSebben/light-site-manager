@@ -1,5 +1,12 @@
 <?php
 
+namespace lsm\mappers;
+
+use lsm\models\PostsModel;
+use PDO;
+use Exception;
+use PDOException;
+
 class PostsMapper extends Mapper {
 
     /**
@@ -102,7 +109,7 @@ class PostsMapper extends Mapper {
         $selectStmt->execute();
         // Since the index of posts has info taken from the categories and users
         // tables, we are going to fetch a standard object here, instead of a model object
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'PostsModel' );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\PostsModel' );
         $posts = $selectStmt->fetchAll();
         $selectStmt->closeCursor();
 
@@ -175,7 +182,7 @@ class PostsMapper extends Mapper {
         $stmt = self::$_pdo->prepare( $sql );
         $stmt->bindParam( ':post_id', $post->id, PDO::PARAM_INT );
         $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'CategoriesModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\CategoriesModel' );
 
         $post->categories = $stmt->fetchAll();
         $stmt->closeCursor();
@@ -210,7 +217,7 @@ class PostsMapper extends Mapper {
 
     public function getAllCat() {
         $stmt = self::$_pdo->prepare( 'SELECT * FROM categories' );
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'CategoriesModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\CategoriesModel' );
         $stmt->execute();
         return $stmt->fetchAll();
     }

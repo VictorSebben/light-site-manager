@@ -1,5 +1,9 @@
 <?php
 
+namespace lsm\libs;
+
+use lsm\libs\H;
+
 class Request {
 
     /**

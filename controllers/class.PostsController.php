@@ -1,5 +1,23 @@
 <?php
 
+namespace lsm\controllers;
+
+use lsm\models\PostsModel;
+use lsm\mappers\PostsMapper;
+use lsm\models\ImagesModel;
+use lsm\mappers\ImagesMapper;
+use lsm\mappers\CategoriesMapper;
+use lsm\models\VideosModel;
+use lsm\mappers\VideosMapper;
+use lsm\libs\H;
+use lsm\libs\ImgH;
+use lsm\libs\Pagination;
+use lsm\libs\Validator;
+use lsm\libs\Request;
+use Exception;
+use PDOException;
+use lsm\exceptions\PermissionDeniedException;
+
 class PostsController extends BaseController {
     /**
      * The Model object.
@@ -18,8 +36,7 @@ class PostsController extends BaseController {
     public function __construct() {
         parent::__construct( 'Posts' );
 
-        $mapper_name = 'PostsMapper';
-        $this->_mapper = new $mapper_name();
+        $this->_mapper = new PostsMapper();
     }
 
     public function index( $args = null ) {

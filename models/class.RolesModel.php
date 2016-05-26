@@ -1,5 +1,7 @@
 <?php
 
+namespace lsm\models;
+
 class RolesModel extends BaseModel {
 
     public $id;

@@ -1,5 +1,9 @@
 <?php
 
+namespace lsm\models;
+
+use DateTime;
+
 class BaseModel {
 
     /**
@@ -46,6 +50,7 @@ class BaseModel {
     }
 
     protected function setTableName() {
-        $this->tableName = strtolower( str_replace( 'Model', '', get_class( $this ) ) );
+        $arrName = explode( '\\', get_class( $this ) );
+        $this->tableName = strtolower( str_replace( 'Model', '', array_pop( $arrName ) ) );
     }
 }

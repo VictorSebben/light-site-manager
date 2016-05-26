@@ -1,5 +1,12 @@
 <?php
 
+namespace lsm\mappers;
+
+use lsm\models\UsersModel;
+use PDO;
+use Exception;
+use PDOException;
+
 class UsersMapper extends Mapper {
 
     /**
@@ -23,7 +30,7 @@ class UsersMapper extends Mapper {
 
         $selectStmt->bindParam( ':email', $email, PDO::PARAM_STR, 64 );
         $selectStmt->execute();
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UsersModel' );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'lsm\models\UsersModel' );
         $users = $selectStmt->fetch();
         $selectStmt->closeCursor();
 
@@ -105,7 +112,7 @@ class UsersMapper extends Mapper {
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
         $selectStmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
         $selectStmt->execute();
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'UsersModel' );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\UsersModel' );
         $users = $selectStmt->fetchAll();
         $selectStmt->closeCursor();
 
@@ -152,7 +159,7 @@ class UsersMapper extends Mapper {
         $stmt = self::$_pdo->prepare( $sql );
         $stmt->bindParam( ':user_id', $user->id, PDO::PARAM_INT );
         $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'RolesModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\RolesModel' );
 
         $user->roles = $stmt->fetchAll();
         $stmt->closeCursor();

@@ -17,7 +17,7 @@
         <form id="users-search-form" class="search-form" action="<?= $this->Url->make( 'posts/' ) ?>">
             <div class="form-field">
                 <input placeholder="Pesquisar Posts" title="Pode-se pesquisar por título, chamada ou texto"
-                       id="search" type="text" name="search" value="<?= Request::getInstance()->getInput( 'search', false ); ?>">
+                       id="search" type="text" name="search" value="<?= \lsm\libs\Request::getInstance()->getInput( 'search', false ); ?>">
             </div>
             <input class="input-submit" type="submit" value="Buscar">
             <a href="<?= $this->Url->act( 'index', null, false ); ?>">Limpar pesquisa</a>
@@ -86,7 +86,7 @@
                 </a>
             </td>
             <td>
-                <div class="onoffswitch" title="<?= PostsModel::$statusString[ $post->status ] ?>">
+                <div class="onoffswitch" title="<?= \lsm\models\PostsModel::$statusString[ $post->status ] ?>">
                     <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox"
                            value="<?= $post->id ?>"
                            id="onoffswitch-<?= $post->id ?>" <?= ( $post->status ) ? "checked" : "" ?>>
@@ -114,4 +114,4 @@
 <?php endif; ?>
 
 <!-- Token field -->
-<input id="token" type="hidden" name="token" value="<?= H::generateToken() ?>">
+<input id="token" type="hidden" name="token" value="<?= \lsm\libs\H::generateToken() ?>">

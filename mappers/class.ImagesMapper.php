@@ -1,5 +1,13 @@
 <?php
 
+namespace lsm\mappers;
+
+use lsm\models\ImagesModel;
+use lsm\models\UsersModel;
+use PDO;
+use Exception;
+use PDOException;
+
 class ImagesMapper extends Mapper {
 
     /**
@@ -15,6 +23,8 @@ class ImagesMapper extends Mapper {
 
     /**
      * List all images from a given post.
+     * @param $post_id
+     * @return array|null
      */
     public function index( $post_id ) {
         $sql = "SELECT
@@ -160,7 +170,7 @@ class ImagesMapper extends Mapper {
             return [ 'status' => 'success' ];
         }
         catch ( PDOException $err ) {
-            self::$_pdo->rollback();
+            self::$_pdo->rollBack();
             return [ 'status' => 'error' ];
         }
 
@@ -196,7 +206,7 @@ class ImagesMapper extends Mapper {
             return [ 'status' => 'success' ];
         }
         catch ( PDOException $err ) {
-            self::$_pdo->rollback();
+            self::$_pdo->rollBack();
             return [ 'status' => 'error' ];
         }
     }

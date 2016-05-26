@@ -1,5 +1,12 @@
 <?php
 
+namespace lsm\controllers;
+
+use lsm\libs\Pagination;
+use lsm\mappers\CategoriesMapper;
+use lsm\mappers\ContactMapper;
+use lsm\models\CategoriesModel;
+
 class ContactController extends BaseController {
     /**
      * The Model object.
@@ -18,8 +25,7 @@ class ContactController extends BaseController {
     public function __construct() {
         parent::__construct( 'Contact' );
 
-        $mapper_name = 'ContactMapper';
-        $this->_mapper = new $mapper_name();
+        $this->_mapper = new ContactMapper();
     }
 
     public function index() {

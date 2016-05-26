@@ -1,5 +1,7 @@
 <?php
 
+namespace lsm\conf;
+
 class Base {
     protected $_config;
 

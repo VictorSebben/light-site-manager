@@ -1,5 +1,12 @@
 <?php
 
+namespace lsm\libs;
+
+use lsm\models\ImagesModel;
+use Exception;
+use upload;
+use WideImage\WideImage;
+
 class ImgH {
     private $_dir;
 
@@ -67,7 +74,7 @@ class ImgH {
 
     public function crop( $post_id, $image_id, $extension, $x, $y, $w, $h ) {
 
-        require_once ROOT_DIR . '/vendor/WideImage/WideImage.php';
+        require_once ROOT_DIR . '/vendor/smottt/wideimage/lib/WideImage/WideImage.php';
 
         $base = "{$post_id}-{$image_id}";
         $origPathName = "{$this->_dir}/{$base}-orig.{$extension}";

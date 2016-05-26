@@ -17,7 +17,7 @@
         <form id="users-search-form" class="search-form" action="<?= $this->Url->index( false ); ?>">
             <div class="form-field">
                 <input placeholder="Pesquisar Usuários" title="Pode-se pesquisar por nome ou e-mail"
-                       id="search" type="text" name="search" value="<?= Request::getInstance()->getInput( 'search', false ); ?>">
+                       id="search" type="text" name="search" value="<?= \lsm\libs\Request::getInstance()->getInput( 'search', false ); ?>">
             </div>
             <input class="input-submit" type="submit" value="Buscar">
             <a href="<?= $this->Url->make( 'users/index' ); ?>">Limpar pesquisa</a>
@@ -94,5 +94,5 @@
 <?php endif; ?>
 
 <!-- Token field -->
-<input id="token" type="hidden" name="token" value="<?= H::generateToken() ?>">
+<input id="token" type="hidden" name="token" value="<?= \lsm\libs\H::generateToken() ?>">
 <input id="me-myself-and-i" type="hidden" name="me-myself-and-i" value="<?= $_SESSION[ 'user' ] ?>">

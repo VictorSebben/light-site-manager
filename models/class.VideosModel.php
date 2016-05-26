@@ -1,5 +1,7 @@
 <?php
 
+namespace lsm\models;
+
 class VideosModel extends BaseModel {
 
     public $id;

@@ -1,3 +1,7 @@
+<?php
+use lsm\libs\H;
+?>
+
 <!DOCTYPE html>
 <html>
 <head lang='pt-br'>

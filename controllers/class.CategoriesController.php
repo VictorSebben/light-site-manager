@@ -1,5 +1,18 @@
 <?php
 
+namespace lsm\controllers;
+
+use lsm\libs\View;
+use lsm\models\CategoriesModel;
+use lsm\mappers\CategoriesMapper;
+use lsm\libs\Pagination;
+use lsm\libs\H;
+use lsm\libs\Request;
+use lsm\libs\Validator;
+use Exception;
+use PDOException;
+use lsm\exceptions\PermissionDeniedException;
+
 class CategoriesController extends BaseController {
     /**
      * The Model object.
@@ -18,8 +31,7 @@ class CategoriesController extends BaseController {
     public function __construct() {
         parent::__construct( 'Categories' );
 
-        $mapper_name = 'CategoriesMapper';
-        $this->_mapper = new $mapper_name();
+        $this->_mapper = new CategoriesMapper();
     }
 
     public function index() {

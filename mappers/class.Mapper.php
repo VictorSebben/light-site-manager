@@ -1,5 +1,15 @@
 <?php
 
+namespace lsm\mappers;
+
+use PDO;
+use PDOStatement;
+use lsm\libs\Pagination;
+use lsm\libs\Request;
+use lsm\models\BaseModel;
+use Exception;
+use PDOException;
+
 class Mapper {
 
     /**
@@ -117,7 +127,7 @@ class Mapper {
     }
 
     protected function setModelName() {
-        $this->modelName = str_replace( 'Mapper', 'Model', get_class( $this ) );
+        $this->modelName = str_replace( array( 'Mapper', 'mappers' ), array( 'Model', 'models' ), get_class( $this ) );
     }
 
     /**

@@ -16,7 +16,7 @@
         <form id="users-search-form" class="search-form" action="<?= $this->Url->index(); ?>">
             <div class="form-field">
                 <input placeholder="Pesquisar Categorias" title="Pode-se pesquisar por nome ou descrição"
-                       id="search" type="text" name="search" value="<?= Request::getInstance()->getInput( 'search', false ); ?>">
+                       id="search" type="text" name="search" value="<?= \lsm\libs\Request::getInstance()->getInput( 'search', false ); ?>">
             </div>
             <input class="input-submit" type="submit" value="Buscar">
             <a href="<?= $this->Url->make( 'categories/index' ) ?>">Limpar pesquisa</a>
@@ -80,4 +80,4 @@
 <?php endif; ?>
 
 <!-- Token field -->
-<input id="token" type="hidden" name="token" value="<?= H::generateToken() ?>">
+<input id="token" type="hidden" name="token" value="<?= \lsm\libs\H::generateToken() ?>">

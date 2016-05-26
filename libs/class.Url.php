@@ -1,5 +1,7 @@
 <?php
 
+namespace lsm\libs;
+
 class Url {
 
     /**

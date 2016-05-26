@@ -1,5 +1,9 @@
 <?php
 
+namespace lsm\controllers;
+
+use lsm\models\HomeModel;
+
 class HomeController extends BaseController {
     /**
      * @var HomeModel

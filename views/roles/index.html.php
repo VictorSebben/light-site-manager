@@ -2,10 +2,10 @@
 $msgClass = false;
 
 if ( isset( $_SESSION[ 'success-msg' ] ) ) {
-    $msg = H::flash( 'success-msg' );
+    $msg = \lsm\libs\H::flash( 'success-msg' );
     $msgClass = 'success-msg';
 } else if ( isset( $_SESSION[ 'err-msg' ] ) ) {
-    $msg = H::flash( 'err-msg' );
+    $msg = \lsm\libs\H::flash( 'err-msg' );
     $msgClass = 'err-msg';
 }
 ?>
@@ -28,7 +28,7 @@ if ( isset( $_SESSION[ 'success-msg' ] ) ) {
             </div>
 
             <!-- Token field -->
-            <input type="hidden" name="token" value="<?= H::generateToken() ?>">
+            <input type="hidden" name="token" value="<?= \lsm\libs\H::generateToken() ?>">
 
             <div class="form-field"><input type="submit" class="input-submit" name="submit" value="Criar Role"></div>
         </form>

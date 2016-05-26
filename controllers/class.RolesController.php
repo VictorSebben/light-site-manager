@@ -1,5 +1,17 @@
 <?php
 
+namespace lsm\controllers;
+
+use lsm\mappers\RolesMapper;
+use lsm\models\RolesModel;
+use lsm\libs\Pagination;
+use lsm\libs\H;
+use lsm\libs\Validator;
+use lsm\libs\Request;
+use Exception;
+use PDOException;
+use lsm\exceptions\PermissionDeniedException;
+
 class RolesController extends BaseController {
 
     /**
@@ -14,15 +26,14 @@ class RolesController extends BaseController {
      */
     protected $_model;
 
-    public function __construct( $model_base_name ) {
-        parent::__construct( $model_base_name );
+    public function __construct() {
+        parent::__construct( 'Roles' );
 
         if ( ! $this->_user->hasPrivilege( 'edit_roles' ) ) {
             throw new PermissionDeniedException();
         }
 
-        $mapper_name = $model_base_name . 'Mapper';
-        $this->_mapper = new $mapper_name();
+        $this->_mapper = new RolesMapper();
     }
 
     public function index() {
@@ -83,7 +94,8 @@ class RolesController extends BaseController {
         // form (to choose the permissions), let's create
         // a new validation rule enforcing that the value be
         // a valid permission (one that exists in the DB)
-        $this->_model->rules[ "perms" ] = array(
+        $this->_model->rules[ 'perms' ] = array(
+            'array' => 1,
             'fieldName' => 'permissão',
             'valueIn' => $this->_mapper->getPermissionsArray()
         );
@@ -106,7 +118,7 @@ class RolesController extends BaseController {
             // to insert the permissions in the role_perm table after saving the role
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Role atualizada com sucesso!' );
-            header( 'Location: ' . $this->_url->make( 'roles/' ) );
+            header( 'Location: ' . $this->_url->make( 'roles/index' ) );
         }
     }
 
@@ -123,7 +135,7 @@ class RolesController extends BaseController {
     public function destroy() {
         if ( ! H::checkToken( Request::getInstance()->getInput( 'token' ) ) ) {
             H::flash( 'err-msg', "Não foi possível processar a requisição!" );
-            header( 'Location: ' . $this->_url->make( "roles/" ) );
+            header( 'Location: ' . $this->_url->make( "roles/index" ) );
         }
 
         $role = new RolesModel();
@@ -133,10 +145,10 @@ class RolesController extends BaseController {
             $this->_mapper->destroy( $role );
 
             H::flash( 'success-msg', 'Role removida com sucesso!' );
-            header( 'Location: ' . $this->_url->make( "roles/" ) );
+            header( 'Location: ' . $this->_url->make( "roles/index" ) );
         } catch ( PDOException $e ) {
             H::flash( 'err-msg', "Não foi possível excluir a Role!" );
-            header( 'Location: ' . $this->_url->make( "roles/" ) );
+            header( 'Location: ' . $this->_url->make( "roles/index" ) );
         }
     }
 }

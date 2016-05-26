@@ -1,5 +1,11 @@
 <?php
 
+namespace lsm\libs;
+
+use lsm\mappers\Mapper;
+use lsm\libs\H;
+use PDO;
+
 class Validator {
 
     protected $_source;

@@ -1,5 +1,13 @@
 <?php
 
+namespace lsm\controllers;
+
+use lsm\libs\LoginHelper;
+use lsm\libs\View;
+use lsm\libs\Url;
+use lsm\libs\Request;
+use lsm\libs\H;
+
 class LoginController {
 
     /**

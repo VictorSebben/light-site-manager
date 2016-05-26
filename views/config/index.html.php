@@ -9,7 +9,7 @@
 
         <!--  test if user has permission to manage roles  -->
         <?php if ( $this->editRoles ) : ?>
-        <li><a href="<?= $this->Url->make( 'roles/' ) ?>">Gerenciar Roles</a></li>
+        <li><a href="<?= $this->Url->make( 'roles/index' ) ?>">Gerenciar Roles</a></li>
         <?php endif; ?>
     </ul>
 </div>

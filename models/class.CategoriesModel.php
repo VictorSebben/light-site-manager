@@ -1,5 +1,7 @@
 <?php
 
+namespace lsm\models;
+
 class CategoriesModel extends BaseModel {
 
     public $id;

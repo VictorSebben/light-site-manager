@@ -1,5 +1,7 @@
 <?php
 
+namespace lsm\models;
+
 class UsersModel extends BaseModel {
 
     public $id;

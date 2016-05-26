@@ -1,5 +1,7 @@
 <?php
 
+namespace lsm\models;
+
 class ContactModel extends BaseModel {
 
     public $id;

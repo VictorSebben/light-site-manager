@@ -1,5 +1,10 @@
 <?php
 
+namespace lsm\libs;
+
+use lsm\conf\Base;
+use lsm\libs\H;
+
 class Pagination extends Base {
 
     private $_limit;

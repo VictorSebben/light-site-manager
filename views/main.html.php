@@ -12,8 +12,8 @@
     <script>
         window.lsmConf = {
             baseUrl: '<?= "{$this->_config[ 'base_url' ]}"; ?>',
-            ctrl: '<?= Request::getInstance()->uriParts[ 'ctrl' ] ?>',
-            pk: '<?= Request::getInstance()->uriParts[ 'pk' ] ?>'
+            ctrl: '<?= \lsm\libs\Request::getInstance()->uriParts[ 'ctrl' ] ?>',
+            pk: '<?= \lsm\libs\Request::getInstance()->uriParts[ 'pk' ] ?>'
         };
     </script>
 </head>
@@ -26,7 +26,7 @@
             <a id="btn-open-config" href="#"><?= $_SESSION[ 'username' ] ?></a>
             <div class="nav-config" id="nav-config">
                 <ul>
-                    <li><a href="<?= $this->Url->make( "config/" ) ?>">Configuração</a></li>
+                    <li><a href="<?= $this->Url->make( "config/index" ) ?>">Configuração</a></li>
                     <li><a href="<?= $this->Url->make( '?logout' ) ?>">Sair</a></li>
                 </ul>
             </div>

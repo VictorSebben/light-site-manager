@@ -28,14 +28,14 @@
             <div class="form-field">
                 <label for="status-active">Ativo</label>
                 <div class="input-field">
-                    <input id="status-active" type="radio" name="status" value="<?= UsersModel::STATUS_ACTIVE ?>"
+                    <input id="status-active" type="radio" name="status" value="<?= \lsm\models\UsersModel::STATUS_ACTIVE ?>"
                         <?= ( $this->object->status ) ? 'checked' : '' ?>>
                 </div>
             </div>
             <div class="form-field">
                 <label for="status-inactive">Inativo</label>
                 <div class="input-field">
-                    <input id="status-inactive" type="radio" name="status" value="<?= UsersModel::STATUS_INACTIVE ?>"
+                    <input id="status-inactive" type="radio" name="status" value="<?= \lsm\models\UsersModel::STATUS_INACTIVE ?>"
                         <?= ( $this->object->id && ! $this->object->status ) ? 'checked' : '' ?>>
                 </div>
             </div>
@@ -62,7 +62,7 @@
         </div>
 
         <!-- Token field -->
-        <input type="hidden" name="token" value="<?= H::generateToken() ?>">
+        <input type="hidden" name="token" value="<?= \lsm\libs\H::generateToken() ?>">
         <!-- Id field -->
         <input type="hidden" name="id" value="<?= $this->object->id ?>">
 
