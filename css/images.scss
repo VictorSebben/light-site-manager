@@ -1,33 +1,35 @@
 .images-wrapper .row1 {
+
     border: 2px solid #DDF0FD;
     background-color: #fff;
     margin-bottom: 20px;
     padding: 10px;
-}
-.images-wrapper .row1 [type='file'] {
-    display: none;
-}
-.images-wrapper .row1 .col1 {
-    width: 30%;
-    float: left;
-}
-.images-wrapper .row1 .col1 [for='img'] {
-    /* Setting height here automatically causes the bg image to be centered vertically. */
-    background: transparent url('../img/icons/ic_file_upload_black_36px.svg') no-repeat right center;
-    line-height: 40px;
-    display: block;
-    cursor: pointer;
-}
-.images-wrapper .row1 .col2 {
-    width: 68%;
-    float: right;
-    line-height: 40px;
-    text-align: center;
-}
-.images-wrapper .row1 .col2 img {
-    vertical-align: middle;
-    margin-right: 10px;
-    width: 26px;
+
+    .row1 [type='file'] {
+        display: none;
+    }
+    .row1 .col1 {
+        width: 30%;
+        float: left;
+    }
+    .row1 .col1 [for='img'] {
+        /* Setting height here automatically causes the bg image to be centered vertically. */
+        background: transparent url('../img/icons/ic_file_upload_black_36px.svg') no-repeat right center;
+        line-height: 40px;
+        display: block;
+        cursor: pointer;
+    }
+    .row1 .col2 {
+        width: 68%;
+        float: right;
+        line-height: 40px;
+        text-align: center;
+    }
+    .row1 .col2 img {
+        vertical-align: middle;
+        margin-right: 10px;
+        width: 26px;
+    }
 }
 
 .image-list-wrap .preview-wrap {
@@ -40,6 +42,7 @@
 .image-list-wrap .tbl {
     display: table;
 }
+
 .image-list-wrap .tblcell {
     display: table-cell;
     vertical-align: middle;
@@ -47,13 +50,6 @@
     height: 128px;
     text-align: center;
     background-color: #f9f9f9;
-
-    /*
-    border-left: 1px solid #bababa;
-    border-top: 1px solid #bababa;
-    border-right: 1px solid #bababa;
-    border-bottom: 1px solid #bababa;
-    */
     border-radius: 4px 4px 0 0;
 }
 .image-list-wrap .preview {
@@ -97,10 +93,6 @@
     color: #e42626; /* red */
 }
 
-
-
-
-
 .preview-wrap .remove-confirm {
     position: absolute;
     z-index: 1;
@@ -136,9 +128,6 @@
     border-left: 1px solid #aaa;
     color: #bf2424;
 }
-
-
-
 
 .image-crop-wrap {
     display: none;
