@@ -40,7 +40,7 @@ class ImagesMapper extends Mapper {
         $stmt = self::$_pdo->prepare( $sql );
         $stmt->bindParam( ':post_id', $post_id, PDO::PARAM_INT );
         $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'ImagesModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\ImagesModel' );
         $images = $stmt->fetchAll();
 
         return is_array( $images) ? $images : NULL;
@@ -243,7 +243,7 @@ class ImagesMapper extends Mapper {
 
         $selectStmt->bindParam( ':post_id', $post_id, PDO::PARAM_INT );
         $selectStmt->execute();
-        $selectStmt->setFetchMode( PDO::FETCH_CLASS, 'ImagesModel' );
+        $selectStmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\classes\ImagesModel' );
         $users = $selectStmt->fetch();
         $selectStmt->closeCursor();
 
