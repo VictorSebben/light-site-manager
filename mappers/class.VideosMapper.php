@@ -26,7 +26,7 @@ class VideosMapper extends Mapper {
         );
 
         $stmt->execute();
-        $stmt->setFetchMode( PDO::FETCH_CLASS, 'VideosModel' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, 'lsm\models\VideosModel' );
         $videos = $stmt->fetchAll();
         $stmt->closeCursor();
 

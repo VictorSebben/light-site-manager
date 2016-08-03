@@ -1,12 +1,17 @@
 {
-    "name": "superbits/light-site-manager",
+    "name": "lsm/light-site-manager",
     "description": "Light-weight site and blog manager written in PHP.",
     "require": {
         "verot/class.upload.php": "dev-master",
-        "ckeditor/ckeditor": "4.*"
+        "ckeditor/ckeditor": "4.*",
+        "smottt/wideimage": "1.1.2"
     },
     "license": "GPLv3",
     "authors": [
+        {
+            "name": "Fernando Basso",
+            "email": "fernandobasso.br@gmail.com"
+        },
         {
             "name": "Victor Sebben",
             "email": "victorhfsebben@gmail.com"

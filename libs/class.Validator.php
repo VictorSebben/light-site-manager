@@ -28,6 +28,8 @@ class Validator {
     //
     const NUMERIC = 1;
     const NUMERIC_INT = 2;
+    const DATE = 3;
+    const TIME = 4;
 
     public function __construct() {
         $this->_source = array();
@@ -93,7 +95,14 @@ class Validator {
         // other rules for data validation
         $validationRules = isset( $rules[ 'rules' ] ) ? explode( '|', $rules[ 'rules' ] ) : array();
 
-        $this->validate( $value, $fieldName, $validationRules, $type, $valueIn );
+        // Check if the field is mandatory and no data is set in the input array
+        // (this generally means that no checkboxes were checked by the user)
+        if ( in_array( 'required', $validationRules ) && empty( $value ) ) {
+            $this->addError( ucfirst( $fieldName ) . ' é obrigatório.' );
+            return;
+        } else if ( $value ) {
+            $this->validate( $value, $fieldName, $validationRules, $type, $valueIn );
+        }
     }
 
     protected function checkArray( $item, array $rules ) {
@@ -117,9 +126,11 @@ class Validator {
         }
 
         foreach ( $this->_source[ $item ] as $value ) {
-            $value = filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
+            if ( $value ) {
+                $value = filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
 
-            $this->validate( $value, $fieldName, $validationRules, $type, $valueIn );
+                $this->validate( $value, $fieldName, $validationRules, $type, $valueIn );
+            }
         }
     }
 
@@ -139,6 +150,16 @@ class Validator {
                 $this->addError( ucfirst( $fieldName ) . " deve ser um número inteiro." );
             } else if ( $type === self::NUMERIC && ! is_numeric( $value ) ) {
                 $this->addError( ucfirst( $fieldName ) . " deve ser um número." );
+            } else if ( $type === self::DATE ) {
+                $dt = \DateTime::createFromFormat( 'd/m/Y', $value );
+                if ( $dt === false ) {
+                    $this->addError( ucfirst( $fieldName ) . " deve ser uma data válida." );
+                }
+            } else if ( $type === self::TIME ) {
+                $tm = \DateTime::createFromFormat( 'H:i', $value );
+                if ( $tm === false ) {
+                    $this->addError( ucfirst( $fieldName ) . " deve ser um horário válido." );
+                }
             }
         }
 
@@ -149,10 +170,7 @@ class Validator {
 
         foreach ( $rules as $rule )
         {
-            if ( $rule == 'required' && empty( $value ) ) {
-                $this->addError( ucfirst( $fieldName ) . ' é obrigatório.' );
-                break;
-            } else if ( $rule == 'password' ) {
+            if ( $rule == 'password' ) {
                 $this->checkPassword( $value );
             } else {
                 $rule = explode( ':', $rule );

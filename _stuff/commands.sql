@@ -266,3 +266,14 @@ INSERT INTO contact (name, email, phone, message, status)
   VALUES ('Victor Sebben', 'victor@example.com', '5533444433', 'Hello. Fubar. Lorem ipsum dolor sit amet.', 1),
     ('Foo Bar', 'fubar@example.com', '5533443333', 'Hi. I agree that lorem ipsum.', 0),
     ('Fooson Barson', 'fooson@example.com', '55123123', 'Hello. Is everything OK?', 1);
+
+CREATE TABLE agenda (
+  id SERIAL PRIMARY KEY,
+  date DATE,
+  time TIME WITHOUT TIME ZONE,
+  description TEXT,
+  venue VARCHAR(64),
+  city VARCHAR(64),
+  created_at TIMESTAMP WITHOUT TIME ZONE,
+  updated_at TIMESTAMP WITHOUT TIME ZONE
+);

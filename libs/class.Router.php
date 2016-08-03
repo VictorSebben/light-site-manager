@@ -186,7 +186,15 @@ class Router extends Base {
         // in the request object
         Request::getInstance()->setPagParams();
 
-        $ctrl_name = '\lsm\controllers\\' . $this->_dashes2camel( $this->_request->uriParts[ 'ctrl' ], true ). 'Controller';
+        $modules = include 'modules/modules.php';
+
+        if ( in_array( $this->_request->uriParts[ 'ctrl' ], $modules ) ) {
+            $ns = "\\lsm\\modules\\{$this->_request->uriParts[ 'ctrl' ]}\\";
+        } else {
+            $ns = '\lsm\controllers\\';
+        }
+
+        $ctrl_name = $ns . $this->_dashes2camel( $this->_request->uriParts[ 'ctrl' ], true ). 'Controller';
         $method_name = $this->_dashes2camel( $this->_request->uriParts[ 'act' ] );
 
         $ref_class = new ReflectionClass( $ctrl_name );
