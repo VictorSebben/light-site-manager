@@ -5,27 +5,27 @@
     margin-bottom: 20px;
     padding: 10px;
 
-    .row1 [type='file'] {
+    [type='file'] {
         display: none;
     }
-    .row1 .col1 {
+    .col1 {
         width: 30%;
         float: left;
     }
-    .row1 .col1 [for='img'] {
+    .col1 [for='img'] {
         /* Setting height here automatically causes the bg image to be centered vertically. */
         background: transparent url('../img/icons/ic_file_upload_black_36px.svg') no-repeat right center;
         line-height: 40px;
         display: block;
         cursor: pointer;
     }
-    .row1 .col2 {
+    .col2 {
         width: 68%;
         float: right;
         line-height: 40px;
         text-align: center;
     }
-    .row1 .col2 img {
+    .col2 img {
         vertical-align: middle;
         margin-right: 10px;
         width: 26px;
