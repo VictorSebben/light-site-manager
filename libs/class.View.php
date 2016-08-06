@@ -86,12 +86,18 @@ class View extends \stdClass {
      */
     public $flashMsgClass;
 
+    public $modules;
+
     public function __construct( $templateName = 'main.html.php' ) {
         $this->Url = new Url();
 
         $this->_config = include CONF_DIR . 'inc.appconfig.php';
 
+        $this->modules = array();
+
         if ( $templateName ) {
+            $this->modules = include 'modules/modules.php';
+
             $this->_template = 'views/' . $templateName;
         } else {
             $this->_template = null;
@@ -133,8 +139,8 @@ class View extends \stdClass {
     /**
      * Includes a view.
      */
-    public function render( $path, $pathPaginationFile = null ) {
-        $this->_file = "views/{$path}.html.php";
+    public function render( $path, $pathPaginationFile = null, $basePath = 'views' ) {
+        $this->_file = "{$basePath}/{$path}.html.php";
 
         if ( $pathPaginationFile ) {
             $this->_pagFile = "views/{$pathPaginationFile}.html.php";
@@ -176,8 +182,7 @@ class View extends \stdClass {
              && $request->pagParams[ 'dir' ] == 'ASC' ) {
             $dir = 'DESC';
             $arrow = '<span class="fa fa-caret-up"></span>';
-        }
-        else {
+        } else {
             $dir = 'ASC';
             $arrow = '<span class="fa fa-caret-down"></span>';
         }

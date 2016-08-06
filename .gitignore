@@ -26,6 +26,10 @@ composer.lock
 
 /test.php
 
+# Let's ignore module files, except for the configuration file
+modules/*
+!modules/example_modules.php
+
 # It seems wiki for the project is a separate thing on bitbucket,
 # so, let's clone it as a separate project.
 wiki/

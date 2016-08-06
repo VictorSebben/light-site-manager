@@ -124,7 +124,7 @@ class PostsController extends BaseController {
         } else {
             $this->_model->title = $request->getInput( 'title' );
             $this->_model->intro = $request->getInput( 'intro' );
-            $this->_model->post_text = $request->getInput( 'post-text' );
+            $this->_model->post_text = $_POST[ 'post-text' ];
             $this->_model->status = $request->getInput( 'status' );
             $this->_model->user_id = $_SESSION[ 'user' ];
 
@@ -215,7 +215,7 @@ class PostsController extends BaseController {
             $this->_model->id = $id;
             $this->_model->title = $request->getInput( 'title' );
             $this->_model->intro = $request->getInput( 'intro' );
-            $this->_model->post_text = $request->getInput( 'post-text' );
+            $this->_model->post_text = $_POST[ 'post-text' ];
             $this->_model->status = $request->getInput( 'status' );
             $this->_model->user_id = $_SESSION[ 'user' ];
 

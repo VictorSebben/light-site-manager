@@ -332,6 +332,11 @@ input {
         display: inline;
     }
 
+    .input-date, .input-time {
+        display: inline-block;
+        width: 170px;
+    }
+
     input {
         width: 50%;
     }

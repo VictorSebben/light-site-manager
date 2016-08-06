@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2a812f70fd7de4dbc4ee2769176a1f2e",
+    "hash": "1592a161d56637ece1b3cc419f1891b9",
+    "content-hash": "0e048a32d9b55e43012e67dd39a99564",
     "packages": [
         {
             "name": "ckeditor/ckeditor",
@@ -12,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ckeditor/ckeditor-releases.git",
-                "reference": "a55e90c4e4114c40169b054bbeb2190c3a62a055"
+                "reference": "e3d4dba95343f1b33d8d9a08b78cd080efa0cdc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ckeditor/ckeditor-releases/zipball/a55e90c4e4114c40169b054bbeb2190c3a62a055",
-                "reference": "a55e90c4e4114c40169b054bbeb2190c3a62a055",
+                "url": "https://api.github.com/repos/ckeditor/ckeditor-releases/zipball/e3d4dba95343f1b33d8d9a08b78cd080efa0cdc1",
+                "reference": "e3d4dba95343f1b33d8d9a08b78cd080efa0cdc1",
                 "shasum": ""
             },
             "type": "library",
@@ -45,7 +46,42 @@
                 "text",
                 "wysiwyg"
             ],
-            "time": "2016-02-04 17:41:24"
+            "time": "2016-05-12 15:38:49"
+        },
+        {
+            "name": "smottt/wideimage",
+            "version": "1.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smottt/WideImage.git",
+                "reference": "9235ee96b5cdbc83a4c3ab7b51ce2fdd82c561ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smottt/WideImage/zipball/9235ee96b5cdbc83a4c3ab7b51ce2fdd82c561ca",
+                "reference": "9235ee96b5cdbc83a4c3ab7b51ce2fdd82c561ca",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "WideImage": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0",
+                "LGPL-2.1"
+            ],
+            "description": "An open-source PHP library for image manipulation. (With namespaces, PHP 5.3+)",
+            "homepage": "http://wideimage.sourceforge.net",
+            "time": "2016-05-16 20:00:28"
         },
         {
             "name": "verot/class.upload.php",
@@ -53,12 +89,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/verot/class.upload.php.git",
-                "reference": "f1c6e3c3d54b42171c4fdb67c8087c553a9e8d07"
+                "reference": "62bc7ec3b18f2a3eb7eb99e4feca843b2481a41b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/verot/class.upload.php/zipball/f1c6e3c3d54b42171c4fdb67c8087c553a9e8d07",
-                "reference": "f1c6e3c3d54b42171c4fdb67c8087c553a9e8d07",
+                "url": "https://api.github.com/repos/verot/class.upload.php/zipball/62bc7ec3b18f2a3eb7eb99e4feca843b2481a41b",
+                "reference": "62bc7ec3b18f2a3eb7eb99e4feca843b2481a41b",
                 "shasum": ""
             },
             "require": {
@@ -86,7 +122,7 @@
                 "gd",
                 "upload"
             ],
-            "time": "2016-02-14 22:52:12"
+            "time": "2016-04-11 21:46:02"
         }
     ],
     "packages-dev": [],

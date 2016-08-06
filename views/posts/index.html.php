@@ -14,7 +14,7 @@
     <button id="btn-delete" name="btn-delete" class="input-submit btn-red">Excluir</button>
 
     <div class="search" title="Pode usar parte do nome ou email">
-        <form id="users-search-form" class="search-form" action="<?= $this->Url->make( 'posts/' ) ?>">
+        <form id="users-search-form" class="search-form" action="<?= $this->Url->index( false ) ?>">
             <div class="form-field">
                 <input placeholder="Pesquisar Posts" title="Pode-se pesquisar por título, chamada ou texto"
                        id="search" type="text" name="search" value="<?= \lsm\libs\Request::getInstance()->getInput( 'search', false ); ?>">

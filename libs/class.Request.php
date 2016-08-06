@@ -127,39 +127,40 @@ class Request {
      *
      * @param string $name
      * @param bool|true $post
+     * @param int
      * @return string
      */
-    public function getInput( $name = "", $post = true ) {
+    public function getInput( $name = "", $post = true, $filter = FILTER_SANITIZE_SPECIAL_CHARS ) {
         $input = null;
-
+        // FIXME filter xss attacks
         if ( $name != "" ) {
             // $_POST
             if ( $post ) {
                 if ( isset( $_POST[ $name ] ) ) {
                     // if field was a checkbox, $input will be an array
                     if ( is_array( $_POST[ $name ] ) ) {
-                        $input = array_map( function ( $value ) {
-                            return filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
+                        $input = array_map( function ( $value ) use ( $filter ) {
+                            return filter_var( $value, $filter );
                         }, $_POST[ $name ] );
                     } else {
-                        $input = filter_input( INPUT_POST, $name, FILTER_SANITIZE_SPECIAL_CHARS );
+                        $input = filter_input( INPUT_POST, $name, $filter );
                     }
                 }
             } // $_GET
             else if ( isset( $_GET[ $name ] ) ) {
                 if ( is_array( $_GET[ $name ] ) ) {
-                    $input = array_map( function ( $value ) {
-                        return filter_var( $value, FILTER_SANITIZE_SPECIAL_CHARS );
+                    $input = array_map( function ( $value ) use ( $filter ) {
+                        return filter_var( $value, $filter );
                     }, $_GET[ $name ] );
                 } else {
-                    $input = filter_input( INPUT_GET, $name, FILTER_SANITIZE_SPECIAL_CHARS );
+                    $input = filter_input( INPUT_GET, $name, $filter );
                 }
             }
         } else {
             if ( $post ) {
-                $input = filter_var_array( $_POST, FILTER_SANITIZE_SPECIAL_CHARS );
+                $input = filter_var_array( $_POST, $filter );
             } else {
-                $input = filter_var_array( $_GET, FILTER_SANITIZE_SPECIAL_CHARS );
+                $input = filter_var_array( $_GET, $filter );
             }
         }
 

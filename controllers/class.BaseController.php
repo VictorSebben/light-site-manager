@@ -46,8 +46,8 @@ class BaseController {
      */
     protected $_user;
 
-    public function __construct( $model_base_name ) {
-        $model_name = '\lsm\models\\' . $model_base_name . 'Model';
+    public function __construct( $model_base_name, $modelNS = '\lsm\models\\' ) {
+        $model_name = $modelNS . $model_base_name . 'Model';
 
         // instantiate Model
         $this->_model = new $model_name;
