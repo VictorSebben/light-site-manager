@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1592a161d56637ece1b3cc419f1891b9",
-    "content-hash": "0e048a32d9b55e43012e67dd39a99564",
+    "hash": "7fe26badb069e42cb1df4cfec6f50e07",
+    "content-hash": "7176f9d31d6cb0aa4c02715f28906d1e",
     "packages": [
         {
             "name": "ckeditor/ckeditor",
@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ckeditor/ckeditor-releases.git",
-                "reference": "e3d4dba95343f1b33d8d9a08b78cd080efa0cdc1"
+                "reference": "b889d7d3071a7a9d691e2e89170c745159f9f8c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ckeditor/ckeditor-releases/zipball/e3d4dba95343f1b33d8d9a08b78cd080efa0cdc1",
-                "reference": "e3d4dba95343f1b33d8d9a08b78cd080efa0cdc1",
+                "url": "https://api.github.com/repos/ckeditor/ckeditor-releases/zipball/b889d7d3071a7a9d691e2e89170c745159f9f8c9",
+                "reference": "b889d7d3071a7a9d691e2e89170c745159f9f8c9",
                 "shasum": ""
             },
             "type": "library",
@@ -46,7 +46,7 @@
                 "text",
                 "wysiwyg"
             ],
-            "time": "2016-05-12 15:38:49"
+            "time": "2016-07-13 13:57:11"
         },
         {
             "name": "smottt/wideimage",
@@ -82,55 +82,12 @@
             "description": "An open-source PHP library for image manipulation. (With namespaces, PHP 5.3+)",
             "homepage": "http://wideimage.sourceforge.net",
             "time": "2016-05-16 20:00:28"
-        },
-        {
-            "name": "verot/class.upload.php",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/verot/class.upload.php.git",
-                "reference": "62bc7ec3b18f2a3eb7eb99e4feca843b2481a41b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/verot/class.upload.php/zipball/62bc7ec3b18f2a3eb7eb99e4feca843b2481a41b",
-                "reference": "62bc7ec3b18f2a3eb7eb99e4feca843b2481a41b",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=4"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "src/class.upload.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPLv2"
-            ],
-            "authors": [
-                {
-                    "name": "Colin Verot",
-                    "email": "colin@verot.net"
-                }
-            ],
-            "description": "This PHP class uploads files and manipulates images very easily.",
-            "homepage": "http://www.verot.net/php_class_upload.htm",
-            "keywords": [
-                "gd",
-                "upload"
-            ],
-            "time": "2016-04-11 21:46:02"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "verot/class.upload.php": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

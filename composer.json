@@ -2,7 +2,6 @@
     "name": "lsm/light-site-manager",
     "description": "Light-weight site and blog manager written in PHP.",
     "require": {
-        "verot/class.upload.php": "dev-master",
         "ckeditor/ckeditor": "4.*",
         "smottt/wideimage": "1.1.2"
     },

@@ -4,7 +4,6 @@ namespace lsm\libs;
 
 use lsm\models\ImagesModel;
 use Exception;
-use upload;
 use WideImage\WideImage;
 
 class ImgH {
@@ -37,38 +36,20 @@ class ImgH {
             throw new Exception( 'Erro ao fazer upload de arquivo!' );
         }
 
-        // TODO: Stop using class.upload.php and use wide image to resize and crop the image.
+        // Get WideImage to crop images
+        require_once ROOT_DIR . '/vendor/smottt/wideimage/lib/WideImage/WideImage.php';
 
-        // Instantiate the upload class
-        $upload = new upload( "{$this->_dir}/{$prefixName}-orig.{$ext}" );
-        if ( ! $upload->uploaded ) {
-            throw new Exception( 'Erro ao fazer upload de arquivo!' );
-        }
+        // Instantiate WideImage with original picture
+        $wi_orig = WideImage::load( "{$this->_dir}/{$prefixName}-orig.{$ext}" );
 
-        // If the image is larger than 1000px x 800px, resize it on the larger side,
-        // keeping the ration. The purpose of this is to
-        $upload->image_resize = true;
-        $upload->image_ratio = true;
-        //$upload->image_ratio_no_zoom_in = true;
-        $upload->image_x = 180;
-        $upload->image_y = 120;
-        $upload->file_new_name_body = "{$prefixName}-thumb";
+        $wi_large = $wi_orig->resize( 900, 600 );
+        $wi_large->saveToFile( "{$this->_dir}/{$prefixName}-large.{$ext}" );
 
-        $upload->process( "{$this->_dir}/" );
+        $wi_mid = $wi_orig->resize( 720, 480 );
+        $wi_mid->saveToFile( "{$this->_dir}/{$prefixName}-mid.{$ext}" );
 
-        if ( ! $upload->processed ) {
-            if ( DEBUG ) {
-                throw new Exception( $upload->error );
-            } else {
-                throw new Exception( 'Erro ao realizar upload de arquivo!' );
-            }
-        }
-
-        // TODO: How will we check this other processing?
-        $upload->image_x = 900;
-        $upload->image_y = 600;
-        $upload->file_new_name_body = "{$prefixName}-large";
-        $upload->process( "{$this->_dir}" );
+        $wi_thumb = $wi_large->resize( 180, 120 );
+        $wi_thumb->saveToFile( "{$this->_dir}/{$prefixName}-thumb.{$ext}" );
     }
 
 
@@ -85,6 +66,9 @@ class ImgH {
         // and the crop selection itself has a proper aspect ratio set.
         $wi_large = $wi_orig->crop($x, $y, $w, $h);
         $wi_large->saveToFile( "{$this->_dir}/{$base}-large.{$extension}" );
+
+        $wi_mid = $wi_orig->resize( 720, 480 );
+        $wi_mid->saveToFile( "{$this->_dir}/{$base}-mid.{$extension}" );
 
         $wi_thumb = $wi_large->resize( 180, 120 );
         $wi_thumb->saveToFile( "{$this->_dir}/{$base}-thumb.{$extension}" );
