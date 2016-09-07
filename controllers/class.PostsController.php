@@ -618,7 +618,7 @@ class PostsController extends BaseController {
 
         $videosMapper = new VideosMapper();
 
-        $this->_view->objectList = $videosMapper->index();
+        $this->_view->objectList = $videosMapper->index( $pk );
         $this->_view->object = $this->_mapper->find( $pk );
 
         $this->_view->addExtraLink( 'css/video-gallery.css' );

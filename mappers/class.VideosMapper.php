@@ -18,13 +18,15 @@ class VideosMapper extends Mapper {
         );
     }
 
-    public function index() {
+    public function index( $pk ) {
         $stmt = self::$_pdo->prepare(
             "SELECT id, post_id, iframe, title, position
                FROM videos
+              WHERE post_id = :post_id
               ORDER BY position"
         );
 
+        $stmt->bindParam( 'post_id', $pk, PDO::PARAM_INT );
         $stmt->execute();
         $stmt->setFetchMode( PDO::FETCH_CLASS, 'lsm\models\VideosModel' );
         $videos = $stmt->fetchAll();
