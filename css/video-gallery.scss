@@ -46,7 +46,7 @@ table {
             width: 65px;
         }
 
-        #insert-iframe {
+        #insert-url {
             width: 450px;
         }
     }
@@ -125,9 +125,9 @@ table {
         float: right;
     }
 
-    .iframe {
-        height: 70px;
+    .url {
         background-color: #eee;
+        padding: 5px;
     }
 
     input.title {
@@ -138,7 +138,7 @@ table {
         width: 50px;
     }
 
-    .iframe {
+    .url {
         border-radius: 3px;
     }
 
@@ -149,15 +149,14 @@ table {
 
     }
 
-    textarea.iframe {
+    input.url {
         width: 100%;
-        min-height: 70px;
         border-radius: 3px;
         background-color: #eee;
         border: 1px solid #aaa;
     }
 
-    .title, .position, .iframe {
+    .title, .position, .url {
         cursor: text;
     }
 

@@ -6,7 +6,7 @@
         <div class="video-info form-field">
             <input placeholder="Título" type="text" id="insert-title" name="title">
             <input placeholder="Posição" type="text" id="insert-position" name="position">
-            <input placeholder="iframe" type="text" id="insert-iframe" name="iframe">
+            <input placeholder="Url" type="text" id="insert-url" name="url">
         </div>
         <div id="video-preview" class="video-preview">
             <span id="insert-preview" class="preview">Preview</span>
@@ -33,13 +33,13 @@
                                 <div class="info">Posição: <span id="position-<?= $video->id; ?>" class="position"><?= $video->position; ?></span></div>
                             </div>
                             <div id="video-preview-<?= $video->id; ?>" class="video-preview">
-                                <?= $video->getVideoIframe(); ?>
+                                <?= $video->getVideoIframe(200, 100); ?>
                             </div>
                             <span class="remove"><button title="Remover" data-id="<?= $video->id; ?>" class="btn-remove btn-red input-submit fa fa-times"></button></span>
                         </div>
                         <div>
-                            <span class="info">iframe:</span>
-                            <div id="iframe-<?= $video->id; ?>" class="iframe"><?= $video->iframe; ?></div>
+                            <span class="info">Url:</span>
+                            <div id="url-<?= $video->id; ?>" class="url"><?= $video->url; ?></div>
                         </div>
 
                         <input type="hidden" class="video-id" value="<?= $video->id ?>" name="id-<?= $video->id ?>">

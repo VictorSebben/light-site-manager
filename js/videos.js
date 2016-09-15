@@ -8,6 +8,22 @@
 var lsmVideo = ( function () {
     var l = console.log.bind(console);
 
+    function assembleIframe( url, width, height ) {
+        if ( /vimeo/.exec( url ) ) {
+            url = url.split( '/' );
+            return '<iframe src="https://player.vimeo.com/video/' + url[ url.length - 1 ]
+                + '" width="' + width + '" height="' + height
+                + '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+        } else if ( /youtube/.exec( url ) ) {
+            url = url.split( '=' );
+            return '<iframe width="' + width + '" height="' + height
+                + '" src="https://www.youtube.com/embed/' + url[ url.length - 1 ]
+                + '" frameborder="0" allowfullscreen></iframe>';
+        }
+
+        return 'Preview';
+    }
+
     function htmlencode(str) {
         return str.replace(/[&<>"']/g, function($0) {
             return "&" + {"&":"amp", "<":"#60", ">":"#62", '"':"#34", "'":"#39"}[$0] + ";";
@@ -30,11 +46,11 @@ var lsmVideo = ( function () {
         }, 3000 );
     }
 
-    function validateInsert( title, pos, iframe ) {
+    function validateInsert( title, pos, url ) {
         var errMsg = '';
 
-        if ( title === '' || iframe === '' ) {
-            errMsg += 'Preencha todos os campos (Título, Posição e iframe)!';
+        if ( title === '' || url === '' ) {
+            errMsg += 'Preencha todos os campos (Título, Posição e Url)!';
         } else if ( pos !== '' && pos != parseInt( pos, 10 ) ) {
             errMsg += 'A posição deve ser um número!';
         }
@@ -69,10 +85,10 @@ var lsmVideo = ( function () {
         var msgMap = {
             title: 'Título',
             position: 'Posição',
-            iframe: 'iframe'
+            url: 'Url'
         };
 
-        if ( ( item.type === 'title' || item.type === 'iframe' )
+        if ( ( item.type === 'title' || item.type === 'url' )
             && ( ! item.val ) ) {
             showErrMsgUpdate( 'Campo ' + msgMap[ item.type ] + ' deve conter um texto.', item.id );
             return false;
@@ -84,23 +100,19 @@ var lsmVideo = ( function () {
         return true;
     }
 
-    $( '#insert-iframe' ).blur( function ( evt ) {
-        var iframe = $( this ).val();
+    $( '#insert-url' ).blur( function ( evt ) {
+        var url = $( this ).val();
         var preview = $( '#video-preview' );
 
-        // If the field is empty or it is not an iframe tag,
-        // just put back the default preview text
-        if ( ! iframe
-            || iframe.indexOf( '<iframe' ) == -1 ) {
+        // If the field is empty, just put back the default preview text
+        if ( ! url ) {
             preview.html( '<span id="insert-preview" class="preview">Preview</span>' );
         }
 
         // Else, show video preview
         else {
-            iframe = $( iframe );
-            iframe.attr( 'width', 250 );
-            iframe.attr( 'height', 130 );
-            preview.html( iframe );
+            // Create iframe tag using url
+            preview.html( assembleIframe( url, 250, 130 ) );
         }
     } );
 
@@ -109,9 +121,9 @@ var lsmVideo = ( function () {
 
         var title = $( '#insert-title' );
         var position = $( '#insert-position' );
-        var iframe = $( '#insert-iframe' );
+        var url = $( '#insert-url' );
 
-        if ( ! validateInsert( title[ 0 ].value, position[ 0 ].value, iframe[ 0 ].value ) ) {
+        if ( ! validateInsert( title[ 0 ].value, position[ 0 ].value, url[ 0 ].value ) ) {
             return;
         }
 
@@ -122,7 +134,7 @@ var lsmVideo = ( function () {
         // Get fields.
         var title = $( '#insert-title' );
         var position = $( '#insert-position' );
-        var iframe = $( '#insert-iframe' );
+        var url = $( '#insert-url' );
 
         //
         // Send ajax request to insert video
@@ -134,7 +146,7 @@ var lsmVideo = ( function () {
                 data: {
                     title: title[ 0 ].value,
                     position: position[ 0 ].value,
-                    iframe: iframe[ 0 ].value
+                    url: url[ 0 ].value
                 },
                 dataType: 'json'
             } )
@@ -143,7 +155,7 @@ var lsmVideo = ( function () {
                         // Clean fields
                         title[ 0 ].value = '';
                         position[ 0 ].value = '';
-                        iframe[ 0 ].value = '';
+                        url[ 0 ].value = '';
 
                         // Reload items
                         reloadPage();
@@ -155,7 +167,7 @@ var lsmVideo = ( function () {
                     // Clean fields
                     title[ 0 ].value = '';
                     position[ 0 ].value = '';
-                    iframe[ 0 ].value = '';
+                    url[ 0 ].value = '';
 
                     // Show error message
                     showErrMsgInsert( 'Não foi possível inserir. Contate o suporte!' );
@@ -173,14 +185,11 @@ var lsmVideo = ( function () {
     }
 
     /**
-     * Reload video preview after the iframe
+     * Reload video preview after the url
      * field is edited.
      */
-    function reloadPreview( videoId, videoIframe ) {
-        var iframe = $( videoIframe );
-        iframe.attr( 'width', 200 );
-        iframe.attr( 'height', 100 );
-        $( '#video-preview-' + videoId ).html( iframe );
+    function reloadPreview( videoId, url ) {
+        $( '#video-preview-' + videoId ).html( assembleIframe( url, 200, 100 ) );
     }
 
     function updateVideo( $obj, videoId ) {
@@ -201,7 +210,7 @@ var lsmVideo = ( function () {
                     if ( result.isOk ) {
                         var data = $obj[ 0 ].value;
 
-                        if ( $obj.attr( 'class' ).indexOf( 'iframe' ) !== -1 ) {
+                        if ( $obj.attr( 'class' ).indexOf( 'url' ) !== -1 ) {
                             data = htmlencode( data );
                             reloadPreview( videoId, $obj[ 0 ].value );
                         }
@@ -232,7 +241,7 @@ var lsmVideo = ( function () {
         }
     }
 
-    var editable = $( '.title, .position, .iframe' );
+    var editable = $( '.title, .position, .url' );
 
     editable.bind( 'dblclick', text2input );
 
@@ -250,11 +259,7 @@ var lsmVideo = ( function () {
         // if the user double clicks again
         $( this ).unbind( 'dblclick' );
 
-        if ( fieldId.indexOf( 'iframe' ) !== -1 ) {
-            $( this ).html( '<textarea data-type="' + fieldClass + '" id="edit-' + fieldId + '" class="editable ' + fieldClass + '" name="' + fieldId + '">' + old + '</textarea>' );
-        } else {
-            $( this ).html( '<input data-type="' + fieldClass + '" id="edit-' + fieldId + '" class="editable ' + fieldClass + '" value="' + old + '" name="' + fieldId + '">' );
-        }
+        $( this ).html( '<input data-type="' + fieldClass + '" id="edit-' + fieldId + '" class="editable ' + fieldClass + '" value="' + old + '" name="' + fieldId + '">' );
 
         $( '#edit-' + fieldId ).focus();
     }

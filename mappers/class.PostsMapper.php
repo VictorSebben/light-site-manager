@@ -44,7 +44,7 @@ class PostsMapper extends Mapper {
 
         // validate $params[ 'dir' ] to make sure it contains a valid value
         if ( $params[ 'dir' ] !== 'ASC' && $params[ 'dir' ] !== 'DESC' ) {
-            $params[ 'dir' ] = 'ASC';
+            $params[ 'dir' ] = 'DESC';
         }
 
         $ord = 'id';

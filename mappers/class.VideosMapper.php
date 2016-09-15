@@ -14,13 +14,13 @@ class VideosMapper extends Mapper {
     public function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT id, post_id, iframe, position FROM videos WHERE id = ?"
+            "SELECT id, post_id, url, video_id, video_provider, position FROM videos WHERE id = ?"
         );
     }
 
     public function index( $pk ) {
         $stmt = self::$_pdo->prepare(
-            "SELECT id, post_id, iframe, title, position
+            "SELECT id, post_id, url, video_id, video_provider, title, position
                FROM videos
               WHERE post_id = :post_id
               ORDER BY position"

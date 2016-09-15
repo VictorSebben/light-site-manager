@@ -640,9 +640,13 @@ class PostsController extends BaseController {
                 $mapper = new VideosMapper();
 
                 $video = new VideosModel();
+
+                // Extract video ID and provider from the URL
+                $video->setUrlProviderFromUrl( Request::getInstance()->getInput( 'url' ) );
+
                 $video->post_id = $pk;
+                $video->url = Request::getInstance()->getInput( 'url' );
                 $video->title = Request::getInstance()->getInput( 'title' );
-                $video->iframe = Request::getInstance()->getInput( 'iframe' );
                 $video->position = Request::getInstance()->getInput( 'position' );
 
                 $mapper->save( $video );
@@ -665,6 +669,8 @@ class PostsController extends BaseController {
         $errorMsg = '';
         $isOk = false;
 
+        $request = Request::getInstance();
+
         try {
             // Validate permission to edit contents
             if ( ! $this->_user->hasPrivilege( 'edit_contents' ) ) {
@@ -675,18 +681,21 @@ class PostsController extends BaseController {
                 $video = new VideosModel();
                 $video->post_id = $pk;
 
-                $arrObjProp = get_object_vars( $video );
-
-                array_walk( $arrObjProp, function( $key, $prop ) use ( $video ) {
-                    $request = Request::getInstance();
-                    if ( isset( $_POST[ $prop ] ) )
-                        $video->$prop = $request->getInput( $prop );
-                } );
-
-                if ( ! $video->id ) {
+                if ( ! $_POST[ 'id' ] ) {
                     $errorMsg = 'Ocorreu um erro ao processar a requisição (ID do vídeo não foi encontrado). Contate o suporte.';
                     $isOk = false;
                 } else {
+                    $video->id = $request->getInput( 'id' );
+
+                    if ( isset( $_POST[ 'title' ] ) )
+                        $video->title = $request->getInput( 'title' );
+                    if ( isset( $_POST[ 'url' ] ) ) {
+                        $video->setUrlProviderFromUrl( $request->getInput( 'url' ) );
+                        $video->url = $request->getInput( 'url' );
+                    }
+                    if ( isset( $_POST[ 'position' ] ) )
+                        $video->position = $request->getInput( 'position' );
+
                     $mapper->save( $video );
 
                     // Since this is an in-place edition view, we need not
