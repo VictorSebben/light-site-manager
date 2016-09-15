@@ -67,7 +67,7 @@ class ImgH {
         $wi_large = $wi_orig->crop($x, $y, $w, $h);
         $wi_large->saveToFile( "{$this->_dir}/{$base}-large.{$extension}" );
 
-        $wi_mid = $wi_orig->resize( 720, 480 );
+        $wi_mid = $wi_large->resize( 720, 480 );
         $wi_mid->saveToFile( "{$this->_dir}/{$base}-mid.{$extension}" );
 
         $wi_thumb = $wi_large->resize( 180, 120 );
