@@ -228,7 +228,6 @@ class PostsController extends BaseController {
                     // Flash error messages
                     H::flash( 'err-msg', "Categoria inválida: {$catId}" );
                     header( 'Location: ' . $this->_url->create() );
-                    exit;
                 }
                 $this->_model->categories[] = $category;
             }, $categories );

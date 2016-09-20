@@ -109,7 +109,7 @@ class Mapper {
     }
 
     public function find( $id ) {
-        $this->selectStmt()->execute( array( $id ) );
+        $this->selectStmt()->execute( array( ':id' => $id ) );
         $this->selectStmt()->setFetchMode( PDO::FETCH_CLASS, $this->modelName );
         $object = $this->selectStmt()->fetch();
         $this->selectStmt()->closeCursor();

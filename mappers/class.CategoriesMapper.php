@@ -14,7 +14,7 @@ class CategoriesMapper extends Mapper {
     function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT id, name, description, img_w, img_h FROM categories WHERE id = ?"
+            "SELECT id, name, description, img_w, img_h FROM categories WHERE id = :id"
         );
     }
 
@@ -55,7 +55,8 @@ class CategoriesMapper extends Mapper {
         // Set number of records in the pagination object
         $this->_setNumRecordsPagn();
 
-        $sql = "SELECT c.id, name, description, count(pc.*) AS posts_count
+        // COUNT(pc.*) doesn't work in mariadb.
+        $sql = "SELECT c.id, name, description, count(pc.post_id) AS posts_count
                   FROM categories c
                   LEFT JOIN posts_categories pc ON c.id = pc.category_id
                  WHERE TRUE ";
@@ -63,8 +64,8 @@ class CategoriesMapper extends Mapper {
         // Search category by either name or description
         if ( $this->request->pagParams[ 'search' ] != null ) {
             if ( self::$_db === 'pgsql' ) {
-                $sql .= 'AND unaccent(name) ILIKE unaccent(:search)
-                          OR unaccent(description) ILIKE unaccent(:search) ';
+                $sql .= 'AND LIKE :search
+                          OR description LIKE :search ';
             } else {
                 $sql .= 'AND name ILIKE :search
                           OR description ILIKE :search ';

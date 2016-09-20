@@ -18,7 +18,7 @@ class PostsMapper extends Mapper {
             "SELECT p.id, title, intro, 
                     image, p.status, post_text
                FROM posts p
-              WHERE p.id = ?"
+              WHERE p.id = :id"
         );
     }
 
@@ -235,7 +235,7 @@ class PostsMapper extends Mapper {
 
         try {
             $this->_selectStmt = self::$_pdo->prepare(
-                "SELECT id, status FROM posts WHERE id = ?"
+                "SELECT id, status FROM posts WHERE id = :id"
             );
             $post = $this->find( $id );
 

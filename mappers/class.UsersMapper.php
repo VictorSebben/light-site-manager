@@ -15,7 +15,7 @@ class UsersMapper extends Mapper {
     function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT id, name, email, status FROM users WHERE id = ?"
+            "SELECT id, name, email, status FROM users WHERE id = :id"
         );
     }
 
@@ -232,7 +232,7 @@ class UsersMapper extends Mapper {
 
         try {
             $this->_selectStmt = self::$_pdo->prepare(
-                "SELECT id, status FROM users WHERE id = ?"
+                "SELECT id, status FROM users WHERE id = :id"
             );
             $user = $this->find( $userId );
 
