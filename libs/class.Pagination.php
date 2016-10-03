@@ -51,7 +51,7 @@ class Pagination extends Base {
         $this->_url = new Url();
 
         // Default: x per page
-        $this->_limit = 2; // TODO TEST
+        $this->_limit = 5; // TODO TEST
     }
 
     public function getLimit() {
