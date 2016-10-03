@@ -57,6 +57,7 @@ class PostsController extends BaseController {
         $this->_view->categories = $this->_mapper->getAllCat();
 
         $this->_view->addExtraLink( 'css/colorbox.css' );
+        $this->_view->addExtraLink( 'css/posts.css' );
 
         $this->_view->addExtraScript( 'js/list.js' );
         $this->_view->addExtraScript( 'js/post.js' );

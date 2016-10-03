@@ -19,6 +19,15 @@
                 <input placeholder="Pesquisar Posts" title="Pode-se pesquisar por título, chamada ou texto"
                        id="search" type="text" name="search" value="<?= \lsm\libs\Request::getInstance()->getInput( 'search', false ); ?>">
             </div>
+            <div class="form-field">
+                <select class="search-category" title="Pesquisar por Categoria" id="search-category" name="search-category">
+                    <option value="">Categoria</option>
+                <?php foreach ($this->categories as $category) : ?>
+                    <option <?= ( \lsm\libs\Request::getInstance()->getInput( 'search-category', false ) == $category->id )
+                        ? 'selected' : ''; ?> value="<?= $category->id; ?>"><?= $category->name; ?></option>
+                <?php endforeach; ?>
+                </select>
+            </div>
             <input class="input-submit" type="submit" value="Buscar">
             <a href="<?= $this->Url->act( 'index', null, false ); ?>">Limpar pesquisa</a>
         </form>

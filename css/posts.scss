@@ -1,0 +1,13 @@
+.search-category {
+    color: #555;
+    padding: 3px 0;
+    width: 90px;
+}
+
+select.search-category option {
+    color: #111;
+}
+
+select.search-category option:first-child {
+    color: #555;
+}
