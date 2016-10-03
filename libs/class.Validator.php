@@ -292,11 +292,11 @@ class Validator {
                 $errorMsg .= '<li>pelo menos um dígito.</li>';
             }
 
-//            if ( ! $arrRules[ 'schar' ] ) {
-//                $errorMsg .= '<li>pelo menos um dos seguintes caracteres: '
-//                    . '\', ", @, #, $, %, &, *, (, ), -, _, +, =, ´, `, ^, ~, <, >, '
-//                    . '/, \\, ?, !, :, ;, |, [, ], {, }, ç, Ç, ¨</li>';
-//            }
+            if ( ! $arrRules[ 'schar' ] ) {
+                $errorMsg .= '<li>pelo menos um dos seguintes caracteres: '
+                    . '\', ", @, #, $, %, &, *, (, ), -, _, +, =, ´, `, ^, ~, <, >, '
+                    . '/, \\, ?, !, :, ;, |, [, ], {, }, ç, Ç, ¨</li>';
+            }
 
             $errorMsg .= '</ul>';
 
