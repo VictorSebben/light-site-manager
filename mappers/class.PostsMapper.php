@@ -73,15 +73,9 @@ class PostsMapper extends Mapper {
 
         // Search category by either name or description
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            if ( self::$_db === 'pgsql' ) {
-                $sql .= 'AND (unaccent(title) ILIKE unaccent(:search)
-                          OR unaccent(intro) ILIKE unaccent(:search)
-                          OR unaccent(post_text) ILIKE unaccent(:search)) ';
-            } else {
-                $sql .= 'AND (title ILIKE :search
-                          OR intro ILIKE :search
-                          OR post_text ILIKE :search) ';
-            }
+            $sql .= 'AND (title ILIKE :search
+                      OR intro ILIKE :search
+                      OR post_text ILIKE :search) ';
         }
 
         $filterCat = ( $catId || ( isset( $_GET[ 'search-category' ] ) && $_GET[ 'search-category' ] ) );

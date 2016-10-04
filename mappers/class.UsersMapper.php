@@ -90,13 +90,8 @@ class UsersMapper extends Mapper {
                  WHERE deleted = 0 ";
 
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            if ( self::$_db === 'pgsql' ) {
-                $sql .= 'AND unaccent(name) ILIKE unaccent(:search)
-                          OR unaccent(email) ILIKE unaccent(:search) ';
-            } else {
-                $sql .= 'AND name ILIKE :search
-                          OR email ILIKE :search ';
-            }
+            $sql .= 'AND name ILIKE :search
+                      OR email ILIKE :search ';
         }
 
         $sql .= " ORDER BY {$ord} {$params['dir']}

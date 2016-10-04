@@ -51,15 +51,9 @@ class ContactMapper extends Mapper {
 
         // Search category by either name or description
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            if ( self::$_db === 'pgsql' ) {
-                $sql .= 'AND unaccent(name) ILIKE unaccent(:search)
-                          OR unaccent(email) ILIKE unaccent(:search)
-                          OR unaccent(message) ILIKE unaccent(:search) ';
-            } else {
-                $sql .= 'AND name ILIKE :search
-                          OR email ILIKE :search
-                          OR unaccent(message) ILIKE unaccent(:search) ';
-            }
+            $sql .= 'AND name ILIKE :search
+                      OR email ILIKE :search
+                      OR message ILIKE :search ';
         }
 
         $sql .= " ORDER BY {$ord} {$params['dir']}
