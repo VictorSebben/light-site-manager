@@ -69,5 +69,12 @@
 
 <script src="vendor/ckeditor/ckeditor/ckeditor.js" type="text/javascript"></script>
 <script>
-    CKEDITOR.replace( 'post-editor' );
+    CKEDITOR.replace(
+        'post-editor',
+        {
+            basicEntities: false,
+            htmlEncodeOutput: false,
+            entities: false
+        }
+    );
 </script>
