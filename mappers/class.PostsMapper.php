@@ -283,6 +283,10 @@ class PostsMapper extends Mapper {
         self::$_pdo->beginTransaction();
 
         try {
+            // First, we will destroy the images and videos related to the post, if there are any
+            $sqlImgs = 'DELETE FROM images WHERE post_id IN (';
+            $sqlVideos = 'DELETE FROM videos WHERE post_id IN (';
+
             // SQL to delete posts_categories entries
             $sqlCat = 'DELETE FROM posts_categories WHERE post_id IN (';
 
@@ -290,12 +294,24 @@ class PostsMapper extends Mapper {
             $sql = 'DELETE FROM posts WHERE id IN (';
 
             foreach ( $postIds as $id ) {
+                $sqlImgs .= '?, ';
+                $sqlVideos .= '?, ';
                 $sqlCat .= '?, ';
                 $sql .= '?, ';
             }
 
             $sql = trim( $sql, ', ' ) . ')';
             $sqlCat = trim( $sqlCat, ', ' ) . ')';
+            $sqlImgs = trim( $sqlImgs, ', ' ) . ')';
+            $sqlVideos = trim ( $sqlVideos, ', ' ) . ')';
+
+            $stmt = self::$_pdo->prepare( $sqlImgs );
+            $stmt->execute( $postIds );
+            $stmt->closeCursor();
+
+            $stmt = self::$_pdo->prepare( $sqlVideos );
+            $stmt->execute( $postIds );
+            $stmt->closeCursor();
 
             $stmt = self::$_pdo->prepare( $sqlCat );
             $stmt->execute( $postIds );
