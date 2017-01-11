@@ -285,15 +285,16 @@ ALTER TABLE videos ADD COLUMN url VARCHAR(400);
 CREATE TABLE series (
   id SERIAL PRIMARY KEY,
   title VARCHAR(200),
+  status SMALLINT NOT NULL DEFAULT 0,
   created_at TIMESTAMP WITHOUT TIME ZONE,
   updated_at TIMESTAMP WITHOUT TIME ZONE
 );
 
 CREATE TABLE series_posts (
   series_id INT NOT NULL,
-  posts_id INT NOT NULL,
+  post_id INT NOT NULL,
   position INT,
-  PRIMARY KEY (series_id, posts_id),
+  PRIMARY KEY (series_id, post_id),
   FOREIGN KEY (series_id) REFERENCES series(id),
-  FOREIGN KEY (posts_id) REFERENCES posts(id)
+  FOREIGN KEY (post_id) REFERENCES posts(id)
 );
