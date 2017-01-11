@@ -281,3 +281,19 @@ CREATE TABLE agenda (
 ALTER TABLE videos RENAME COLUMN iframe TO video_id;
 ALTER TABLE videos ADD COLUMN video_provider VARCHAR(100);
 ALTER TABLE videos ADD COLUMN url VARCHAR(400);
+
+CREATE TABLE series (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(200),
+  created_at TIMESTAMP WITHOUT TIME ZONE,
+  updated_at TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE TABLE series_posts (
+  series_id INT NOT NULL,
+  posts_id INT NOT NULL,
+  position INT,
+  PRIMARY KEY (series_id, posts_id),
+  FOREIGN KEY (series_id) REFERENCES series(id),
+  FOREIGN KEY (posts_id) REFERENCES posts(id)
+);
