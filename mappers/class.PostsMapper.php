@@ -190,13 +190,18 @@ class PostsMapper extends Mapper {
      * @param $post
      * @throws Exception
      */
+    // TODO Allow destruction of posts based on array of ids: delegate to specific functions
+    // TODO Destroy series_posts as well
+    // TODO Have a paremeter to either control transaction here or not: in the series_posts routine, it's going to be handled outside
     public function destroy( $post ) {
         self::$_pdo->beginTransaction();
 
         try {
-            // First, we will destroy the images and videos related to the post, if there are any
+            // First, we will destroy the images and videos related to the post, if there are any,
+            // as well as series_posts entries (if the post is related to a series)
             self::$_pdo->prepare( 'DELETE FROM images WHERE post_id = ?' )->execute( array( $post->id ) );
             self::$_pdo->prepare( 'DELETE FROM videos WHERE post_id = ?' )->execute( array( $post->id ) );
+            self::$_pdo->prepare( 'DELETE FROM series_posts WHERE post_id = ?' )->execute( array( $post->id ) );
 
             // Then, we destroy the posts_categories entries
             self::$_pdo->prepare( 'DELETE FROM posts_categories WHERE post_id = ?' )->execute( array( $post-> id ) );
@@ -211,6 +216,58 @@ class PostsMapper extends Mapper {
             self::$_pdo->rollBack();
             throw new Exception( $e->getMessage() );
         }
+    }
+
+    /**
+     * @param $postIds
+     * @throws PDOException
+     */
+    // FIXME destroy series_posts
+    public function destroyMany( $postIds ) {
+        // First, we will destroy the images and videos related to the post, if there are any
+        $sqlImgs = 'DELETE FROM images WHERE post_id IN (';
+        $sqlVideos = 'DELETE FROM videos WHERE post_id IN (';
+        $sqlSeries = 'DELETE FROM series_posts WHERE post_id IN (';
+
+        // SQL to delete posts_categories entries
+        $sqlCat = 'DELETE FROM posts_categories WHERE post_id IN (';
+
+        // SQL to delete posts
+        $sql = 'DELETE FROM posts WHERE id IN (';
+
+        foreach ( $postIds as $id ) {
+            $sqlImgs .= '?, ';
+            $sqlVideos .= '?, ';
+            $sqlCat .= '?, ';
+            $sqlSeries .= '?, ';
+            $sql .= '?, ';
+        }
+
+        $sql       = trim( $sql, ', ' ) . ')';
+        $sqlCat    = trim( $sqlCat, ', ' ) . ')';
+        $sqlImgs   = trim( $sqlImgs, ', ' ) . ')';
+        $sqlVideos = trim ( $sqlVideos, ', ' ) . ')';
+        $sqlSeries = trim ( $sqlSeries, ', ' ) . ')';
+
+        $stmt = self::$_pdo->prepare( $sqlImgs );
+        $stmt->execute( $postIds );
+        $stmt->closeCursor();
+
+        $stmt = self::$_pdo->prepare( $sqlVideos );
+        $stmt->execute( $postIds );
+        $stmt->closeCursor();
+
+        $stmt = self::$_pdo->prepare( $sqlCat );
+        $stmt->execute( $postIds );
+        $stmt->closeCursor();
+
+        $stmt = self::$_pdo->prepare( $sqlSeries );
+        $stmt->execute( $postIds );
+        $stmt->closeCursor();
+
+        $stmt = self::$_pdo->prepare( $sql );
+        $stmt->execute( $postIds );
+        $stmt->closeCursor();
     }
 
     public function getAllCat() {
@@ -283,50 +340,17 @@ class PostsMapper extends Mapper {
         self::$_pdo->beginTransaction();
 
         try {
-            // First, we will destroy the images and videos related to the post, if there are any
-            $sqlImgs = 'DELETE FROM images WHERE post_id IN (';
-            $sqlVideos = 'DELETE FROM videos WHERE post_id IN (';
-
-            // SQL to delete posts_categories entries
-            $sqlCat = 'DELETE FROM posts_categories WHERE post_id IN (';
-
-            // SQL to delete posts
-            $sql = 'DELETE FROM posts WHERE id IN (';
-
-            foreach ( $postIds as $id ) {
-                $sqlImgs .= '?, ';
-                $sqlVideos .= '?, ';
-                $sqlCat .= '?, ';
-                $sql .= '?, ';
-            }
-
-            $sql = trim( $sql, ', ' ) . ')';
-            $sqlCat = trim( $sqlCat, ', ' ) . ')';
-            $sqlImgs = trim( $sqlImgs, ', ' ) . ')';
-            $sqlVideos = trim ( $sqlVideos, ', ' ) . ')';
-
-            $stmt = self::$_pdo->prepare( $sqlImgs );
-            $stmt->execute( $postIds );
-            $stmt->closeCursor();
-
-            $stmt = self::$_pdo->prepare( $sqlVideos );
-            $stmt->execute( $postIds );
-            $stmt->closeCursor();
-
-            $stmt = self::$_pdo->prepare( $sqlCat );
-            $stmt->execute( $postIds );
-            $stmt->closeCursor();
-
-            $stmt = self::$_pdo->prepare( $sql );
-            $stmt->execute( $postIds );
-            $stmt->closeCursor();
+            $this->destroyMany( $postIds );
 
             // If everything worked out, commit transaction and return true
             self::$_pdo->commit();
             return true;
         } catch ( PDOException $e ) {
             self::$_pdo->rollBack();
-            echo $e->getMessage();
+            if ( DEBUG )
+                echo $e->getMessage();
+            else
+                echo 'Não foi possível processar a requisição: contate o suporte';
             return false;
         }
     }
