@@ -41,6 +41,7 @@
                 <li><a href='<?= $this->Url->make( 'users/index/' ); ?>'>Usuários</a>
                 <li><a href='<?= $this->Url->make( 'categories/index/' ); ?>'>Categorias</a></li>
                 <li><a href='<?= $this->Url->make( 'posts/index/') ; ?>'>Posts</a></li>
+                <li><a href='<?= $this->Url->make( 'series/index/' ); ?>'>Séries</a></li>
                 <li><a href='<?= $this->Url->make( 'contact/index/' ); ?>'>Contatos</a></li>
                 <?php foreach ( $this->modules as $label => $module ) : ?>
                     <li><a href="<?= $this->Url->make( "{$module}/index" ) ?>"><?= $label ?></a></li>
