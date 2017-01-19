@@ -16,7 +16,7 @@ class SeriesMapper extends Mapper {
     function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT id, title, status FROM series WHERE id = ?"
+            "SELECT id, title, intro, status FROM series WHERE id = ?"
         );
     }
 
@@ -46,13 +46,13 @@ class SeriesMapper extends Mapper {
         // Set number of records in the pagination object
         $this->_setNumRecordsPagn();
 
-        $sql = "SELECT id, title, status
+        $sql = "SELECT id, title, intro, status
                   FROM series
                  WHERE TRUE ";
 
-        // Search series by title
+        // Search series by title or intro
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $sql .= 'AND title ILIKE :search ';
+            $sql .= 'AND (title ILIKE :search OR intro ILIKE :search)';
         }
 
         $sql .= " ORDER BY {$ord} {$params['dir']}
@@ -83,7 +83,7 @@ class SeriesMapper extends Mapper {
                  WHERE TRUE ";
 
         if ( $this->request->pagParams['search'] != null ) {
-            $sql .= 'AND title ~* :search ';
+            $sql .= 'AND (title ILIKE :search OR intro ILIKE :search) ';
         }
 
         $selectStmt = self::$_pdo->prepare( $sql );

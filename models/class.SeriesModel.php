@@ -6,6 +6,7 @@ class SeriesModel extends BaseModel {
 
     public $id;
     public $title;
+    public $intro;
     public $status;
 
     public $tableName;
@@ -24,7 +25,8 @@ class SeriesModel extends BaseModel {
         $this->tableName = 'series';
 
         $this->rules = array(
-            'title' => array( 'fieldName' => 'Título', 'rules' => 'max:200' ),
+            'title' => array( 'fieldName' => 'título', 'rules' => 'max:200' ),
+            'intro' => array( 'fieldName' => 'chamada', 'rules' => 'max:200' ),
             'status' => array( 'fieldName' => 'status', 'valueIn' => array( self::STATUS_INACTIVE, self::STATUS_ACTIVE ) )
         );
     }

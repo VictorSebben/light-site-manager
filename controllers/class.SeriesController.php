@@ -67,6 +67,7 @@ class SeriesController extends BaseController {
         $inputData = H::flashInput();
         if ( $inputData ) {
             $series->title = $inputData[ 'title' ];
+            $series->intro = $inputData[ 'intro' ];
             $series->status = $inputData[ 'status' ];
         }
 
@@ -98,6 +99,7 @@ class SeriesController extends BaseController {
             header( 'Location: ' . $this->_url->create() );
         } else {
             $this->_model->title = $request->getInput( 'title' );
+            $this->_model->intro = $request->getInput( 'intro' );
             $this->_model->status = $request->getInput( 'status' );
 
             $this->_mapper->save( $this->_model );
@@ -125,6 +127,7 @@ class SeriesController extends BaseController {
         if ( $inputData ) {
             $series = new SeriesModel();
             $series->title = $inputData[ 'title' ];
+            $series->intro = $inputData[ 'intro' ];
             $series->status = $inputData[ 'status' ];
 
             $this->_view->object = $series;
@@ -157,6 +160,7 @@ class SeriesController extends BaseController {
         } else {
             $this->_model->id = $id;
             $this->_model->title = $request->getInput( 'title' );
+            $this->_model->intro = $request->getInput( 'intro' );
             $this->_model->status = $request->getInput( 'status' );
 
             $this->_mapper->save( $this->_model );

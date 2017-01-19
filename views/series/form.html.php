@@ -11,8 +11,14 @@
         <div class="form-field">
             <label for="title">Título</label>
             <div class="input-field">
-                <input id="title" type="text" name="title" maxlength="64" required
+                <input id="title" type="text" name="title" maxlength="200" required
                        value="<?= $this->object->title; ?>">
+            </div>
+        </div>
+        <div class="form-field">
+            <label for="intro">Chamada</label>
+            <div class="input-field">
+                <input id="intro" type="text" name="intro" maxlength="200" value="<?= $this->object->intro; ?>">
             </div>
         </div>
         <div class="form-field-radio">

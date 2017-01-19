@@ -298,3 +298,5 @@ CREATE TABLE series_posts (
   FOREIGN KEY (series_id) REFERENCES series(id),
   FOREIGN KEY (post_id) REFERENCES posts(id)
 );
+
+ALTER TABLE series ADD COLUMN intro TEXT;

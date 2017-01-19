@@ -39,6 +39,7 @@
         <tr>
             <th><input id="toggle-all" type="checkbox" name="toggle-all" title="Selecionar todos"></th>
             <th><?= $this->makeOrderByLink( 'Título', 'title' ); ?></th>
+            <th><?= $this->makeOrderByLink( 'Chamada', 'intro' ); ?></th>
             <th>Status</th>
             <?php if ( $this->editContents ) : ?>
                 <th>Editar</th>
@@ -51,6 +52,7 @@
             <tr>
                 <td><input type="checkbox" class="list-item" name="li[]" value="<?= $series->id ?>"></td>
                 <td><?= $series->title; ?></td>
+                <td><?= $series->intro; ?></td>
                 <td>
                     <div class="onoffswitch" title="<?= \lsm\models\SeriesModel::$statusString[ $series->status ] ?>">
                         <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox"
