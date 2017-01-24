@@ -61,15 +61,30 @@ class PostsMapper extends Mapper {
             }
         }
 
+        if ( ! $catId && ( isset( $_GET[ 'search-category' ] ) && $_GET[ 'search-category' ] ) ) {
+            $catId = $this->request->getInput( 'search-category', false );
+        }
+
+        $seriesId = null;
+        if ( isset( $_GET[ 'search-series' ] ) && $_GET[ 'search-series' ] ) {
+            $seriesId = $this->request->getInput( 'search-series', false );
+        }
+
         // Set number of records in the pagination object
-        $this->_setNumRecordsPagn( $catId );
+        $this->_setNumRecordsPagn( $catId, $seriesId );
 
         $sql = "SELECT DISTINCT 
                        id, user_id, title, intro, post_text,
                        image, image_caption, status
                   FROM posts p
-                  LEFT JOIN posts_categories pc ON pc.post_id = p.id
-                 WHERE TRUE ";
+                  LEFT JOIN posts_categories pc ON pc.post_id = p.id";
+
+        if ( $seriesId ) {
+            $sql .= ' JOIN series_posts sp ON sp.post_id = p.id
+                           AND sp.series_id = :series ';
+        }
+
+        $sql .= ' WHERE TRUE ';
 
         // Search category by either name or description
         if ( $this->request->pagParams[ 'search' ] != null ) {
@@ -78,12 +93,8 @@ class PostsMapper extends Mapper {
                       OR post_text ILIKE :search) ';
         }
 
-        $filterCat = ( $catId || ( isset( $_GET[ 'search-category' ] ) && $_GET[ 'search-category' ] ) );
         if ( $catId ) {
             $sql .= 'AND category_id = :cat ';
-        } else if ( $filterCat ) {
-            $sql .= ' AND category_id = :cat ';
-            $catId = $this->request->getInput( 'search-category', false );
         }
 
         $sql .= " ORDER BY {$ord} {$params['dir']}
@@ -97,7 +108,11 @@ class PostsMapper extends Mapper {
             $selectStmt->bindParam( ':search', $search );
         }
 
-        if ( $filterCat ) {
+        if ( $seriesId ) {
+            $selectStmt->bindParam( ':series', $seriesId, PDO::PARAM_INT );
+        }
+
+        if ( $catId ) {
             $selectStmt->bindParam( ':cat', $catId, PDO::PARAM_STR );
         }
 
@@ -132,12 +147,19 @@ class PostsMapper extends Mapper {
 
     /**
      * @param $catId
+     * @param $seriesId
      */
-    protected function _setNumRecordsPagn( $catId ) {
+    protected function _setNumRecordsPagn( $catId, $seriesId ) {
         $sql = "SELECT count(DISTINCT p.id) AS count
                   FROM posts p
-                  LEFT JOIN posts_categories pc ON pc.post_id = p.id
-                 WHERE TRUE ";
+                  LEFT JOIN posts_categories pc ON pc.post_id = p.id ";
+
+        if ( $seriesId ) {
+            $sql .= " JOIN series_posts sp ON sp.post_id = p.id
+                           AND sp.series_id = :series ";
+        }
+
+        $sql .= ' WHERE TRUE ';
 
         if ( $this->request->pagParams['search'] != null ) {
             $sql .= 'AND title ~* :search
@@ -157,6 +179,10 @@ class PostsMapper extends Mapper {
 
         if ( $catId ) {
             $selectStmt->bindParam( ':cat', $catId, PDO::PARAM_STR );
+        }
+
+        if ( $seriesId ) {
+            $selectStmt->bindParam( ':series', $seriesId, PDO::PARAM_INT );
         }
 
         $selectStmt->execute();
@@ -273,6 +299,13 @@ class PostsMapper extends Mapper {
     public function getAllCat() {
         $stmt = self::$_pdo->prepare( 'SELECT * FROM categories' );
         $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\CategoriesModel' );
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function getAllSeries() {
+        $stmt = self::$_pdo->prepare( 'SELECT id, title FROM series' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\SeriesModel' );
         $stmt->execute();
         return $stmt->fetchAll();
     }

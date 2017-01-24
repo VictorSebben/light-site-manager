@@ -28,6 +28,15 @@
                 <?php endforeach; ?>
                 </select>
             </div>
+            <div class="form-field">
+                <select class="search-series" title="Pesquisar por Série" id="search-series" name="search-series">
+                    <option value="">Série</option>
+                    <?php foreach ($this->series as $series) : ?>
+                        <option <?= ( \lsm\libs\Request::getInstance()->getInput( 'search-series', false ) == $series->id )
+                            ? 'selected' : ''; ?> value="<?= $series->id; ?>"><?= $series->title; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
             <input class="input-submit" type="submit" value="Buscar">
             <a href="<?= $this->Url->act( 'index', null, false ); ?>">Limpar pesquisa</a>
         </form>

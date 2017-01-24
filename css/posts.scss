@@ -1,13 +1,31 @@
-.search-category {
+.search-category, .search-series {
     color: #555;
     padding: 3px 0;
     width: 90px;
 }
 
-select.search-category option {
+select.search-category option, select.search-series option {
     color: #111;
 }
 
-select.search-category option:first-child {
+select.search-category option:first-child, select.search-series option:first-child {
     color: #555;
+}
+
+.console .search {
+    display: block;
+    float: none;
+    border: 1px #999 solid;
+    padding: 10px;
+    border-radius: 3px;
+    margin: 15px 0 0 10px;
+
+    input {
+        margin-right: 5px;
+    }
+
+    select {
+        padding: 0;
+        margin-right: 5px;
+    }
 }
