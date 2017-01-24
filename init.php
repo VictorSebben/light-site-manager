@@ -15,7 +15,9 @@ require_once( 'conf/class.Base.php' );
 spl_autoload_extensions( '.php' );
 spl_autoload_register( function ( $class ) {
     $class = str_replace( array( 'lsm\\', '\\' ), array( '', '/' ), $class );
-    require preg_replace( '@([^/]+)$@', 'class.$1.php', $class );
+    $file = preg_replace( '@([^/]+)$@', 'class.$1.php', $class );
+    if ( file_exists( $file ) )
+        require $file;
 }, true );
 
 require __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
