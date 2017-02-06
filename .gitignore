@@ -13,6 +13,7 @@ tags
 # Ignore our .css files (for admin and site) since we'll only commit .scss ones.
 /css/*.css
 !/css/colorbox.css
+!/css/jquery-ui.min.css
 
 # Sass stuff.
 .sass-cache/

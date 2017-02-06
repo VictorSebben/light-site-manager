@@ -290,13 +290,11 @@ CREATE TABLE series (
   updated_at TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TABLE series_posts (
-  series_id INT NOT NULL,
-  post_id INT NOT NULL,
-  position INT,
-  PRIMARY KEY (series_id, post_id),
-  FOREIGN KEY (series_id) REFERENCES series(id),
-  FOREIGN KEY (post_id) REFERENCES posts(id)
-);
-
 ALTER TABLE series ADD COLUMN intro TEXT;
+
+ALTER TABLE posts ADD COLUMN series_id INT;
+ALTER TABLE posts
+ADD CONSTRAINT posts_series_fkey FOREIGN KEY (series_id)
+REFERENCES series (id);
+
+ALTER TABLE posts ADD COLUMN position INT;

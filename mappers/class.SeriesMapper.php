@@ -46,7 +46,8 @@ class SeriesMapper extends Mapper {
         // Set number of records in the pagination object
         $this->_setNumRecordsPagn();
 
-        $sql = "SELECT id, title, intro, status
+        $sql = "SELECT id, title, intro, status,
+                       (SELECT COUNT(*) FROM posts WHERE series_id = series.id) AS count_posts
                   FROM series
                  WHERE TRUE ";
 
@@ -95,13 +96,45 @@ class SeriesMapper extends Mapper {
         $selectStmt->closeCursor();
     }
 
-    public function deleteAjax( $seriesIds ) {
+    /**
+     * @param $seriesIds
+     * @param $actionPosts
+     * @return bool
+     */
+    public function deleteAjax( $seriesIds, $actionPosts ) {
         self::$_pdo->beginTransaction();
 
+        $strIdsPdo = implode( ',', array_map( function( $value ) { return '?'; }, $seriesIds ) );
+
         try {
+            if ( $actionPosts === SeriesModel::DISSOCIATE_POSTS ) {
+
+                $stmt = self::$_pdo->prepare(
+                    "UPDATE POSTS SET series_id = NULL WHERE series_id IN ({$strIdsPdo})"
+                );
+                $stmt->execute( $seriesIds );
+                $stmt->closeCursor();
+            } else if ( $actionPosts === SeriesModel::DELETE_POSTS ) {
+
+                // Find posts related to all the series
+                $stmt = self::$_pdo->prepare( "SELECT id FROM posts WHERE series_id IN ({$strIdsPdo})" );
+                $stmt->execute( $seriesIds );
+
+                $postIds = $stmt->fetchAll( PDO::FETCH_OBJ );
+                $postIds = array_map( function( $post ) {
+                    return $post->id;
+                }, $postIds );
+
+                $stmt->closeCursor();
+
+                if ( count( $postIds ) ) {
+                    $postsMapper = new PostsMapper();
+                    $postsMapper->destroyMany( $postIds );
+                }
+            }
+
             // SQL do delete agenda items
-            $sql = 'DELETE FROM series WHERE id IN (' .
-                implode( ',', array_map( function( $value ) { return '?'; }, $seriesIds ) ) . ')';
+            $sql = "DELETE FROM series WHERE id IN ({$strIdsPdo})";
 
             $stmt = self::$_pdo->prepare( $sql );
             $stmt->execute( $seriesIds );
@@ -123,35 +156,34 @@ class SeriesMapper extends Mapper {
      * Otherwise, they will be merely disassociated.
      *
      * @param SeriesModel $series
-     * @param bool $destroyPosts
+     * @param $actionPosts
      * @throws Exception
      */
-    public function destroy( $series, $destroyPosts = false ) {
+    public function destroy( $series, $actionPosts = SeriesModel::DISSOCIATE_POSTS ) {
         self::$_pdo->beginTransaction();
 
         try {
-            // If $destroyPosts, remove posts related to the series
-            if ( $destroyPosts ) {
-                // First of all, we need to find the posts related to the series (series_posts entries)
-                $stmt = self::$_pdo->prepare( 'SELECT post_id FROM series_posts WHERE series_id = :series_id' );
+            if ( $actionPosts == SeriesModel::DISSOCIATE_POSTS ) {
+
+                $stmt = self::$_pdo->prepare( 'UPDATE POSTS SET series_id = NULL WHERE series_id = :series_id' );
                 $series_id = $series->id;
                 $stmt->bindParam( ':series_id', $series_id, PDO::PARAM_INT );
                 $stmt->execute();
-                $stmt->setFetchMode( PDO::FETCH_ASSOC );
-                $postIds = array_map( function( $series ) {
-                    return $series[ 'post_id' ];
-                }, $stmt->fetchAll() );
                 $stmt->closeCursor();
+
+            } else if ( $actionPosts == SeriesModel::DELETE_POSTS ) {
+
+                // First of all, we need to find the posts related to the series, so that we
+                // can call the PostsMapper::destroyMany() method, that will do all the required
+                // actions to properly remove the posts
+                $postIds = array_map( function( $post ) {
+                    return $post->id;
+                }, $this->getRelatedPosts( $series->id ) );
 
                 if ( count( $postIds ) ) {
                     $postsMapper = new PostsMapper();
                     $postsMapper->destroyMany( $postIds );
                 }
-            } else {
-                // If the user does not want to remove the posts, let us simply
-                // remove the series_posts entries, so that the posts will be disassociated from
-                // the series that we are deleting
-                $this->removeSeriesPosts( $series->id );
             }
 
             parent::destroy( $series );
@@ -163,11 +195,16 @@ class SeriesMapper extends Mapper {
         }
     }
 
-    private function removeSeriesPosts( $seriesId ) {
-        $stmt = self::$_pdo->prepare( 'DELETE FROM series_posts WHERE series_id = :series_id' );
-        $stmt->bindParam( ':series_id', $seriesId  );
+    public function getRelatedPosts( $seriesId ) {
+        $stmt = self::$_pdo->prepare( 'SELECT * FROM posts WHERE series_id = :series_id' );
+        $stmt->bindParam( ':series_id', $seriesId, PDO::PARAM_INT );
         $stmt->execute();
+
+        $posts = $stmt->fetchAll( PDO::FETCH_CLASS, 'lsm\models\PostsModel' );
+
         $stmt->closeCursor();
+
+        return $posts;
     }
 
     public function toggleStatus( $id ) {

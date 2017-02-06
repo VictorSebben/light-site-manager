@@ -19,6 +19,10 @@ class SeriesModel extends BaseModel {
         self::STATUS_INACTIVE => 'Despublicada'
     ];
 
+    const DELETE_POSTS = 1;       // Action on delete series: delete posts associated
+    const DISSOCIATE_POSTS = 0;   // Action on delete series: dissociate posts
+    const NO_POSTS = -1;          // The Series contains no posts associated
+
     public function __construct() {
         parent::__construct();
 

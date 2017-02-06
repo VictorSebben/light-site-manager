@@ -58,6 +58,10 @@ span {
     margin: 0 auto;
 }
 
+#dialog {
+    display: none;
+}
+
 .main-header {
     background-color: darken($color-bg1, 2%);
     padding: 30px 0;
@@ -359,8 +363,6 @@ input {
 
     .form-h-check {
         border-top: 1px dotted #777;
-        border-bottom: 1px dotted #777;
-        border-collapse: collapse;
         padding: 20px 0;
 
         h3 {
@@ -387,7 +389,13 @@ input {
         }
     }
 
+    .form-h-check.last {
+        border-bottom: 1px dotted #777;
+    }
 
+    .select-field select {
+        width: 150px;
+    }
 }
 
 .btn-edit {

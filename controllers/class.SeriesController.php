@@ -46,8 +46,11 @@ class SeriesController extends BaseController {
         $this->_view->pagination = $pagination;
         $this->_view->objectList = $this->_mapper->index();
 
+        $this->_view->addExtraScript( 'js/jquery-ui/jquery-ui.min.js' );
         $this->_view->addExtraScript( 'js/list.js' );
         $this->_view->addExtraScript( 'js/series.js' );
+
+        $this->_view->addExtraLink( 'js/jquery-ui/jquery-ui.min.css' );
 
         $this->prepareFlashMsg( $this->_view );
 
@@ -180,6 +183,12 @@ class SeriesController extends BaseController {
             throw new Exception( 'Erro: Série não encontrada!' );
         }
 
+        // Find posts related to the series. If there are posts, we will ask
+        // the user if she wants to remove them or just disassociate them
+        $this->_view->posts = $this->_mapper->getRelatedPosts( $id );
+
+        $this->_view->addExtraLink( 'css/delete-series.css' );
+        $this->prepareFlashMsg( $this->_view );
         $this->_view->render( 'series/delete' );
     }
 
@@ -191,15 +200,29 @@ class SeriesController extends BaseController {
         if ( ! H::checkToken( Request::getInstance()->getInput( 'token' ) ) ) {
             H::flash( 'err-msg', "Não foi possível processar a requisição!" );
             header( 'Location: ' . $this->_url->make( "series/index" ) );
+            exit;
         }
 
         $id = Request::getInstance()->getInput( 'id' );
+
+        // Test if there are posts associated with the series.
+        // If there are, test if the user chose an option on the radio buttons
+        $actionPosts = SeriesModel::NO_POSTS;
+        $posts = $this->_mapper->getRelatedPosts( $id );
+        if ( count( $posts ) ) {
+            if ( ! isset( $_POST[ 'action-posts' ] ) ) {
+                H::flash( 'err-msg', 'Você deve selecionar alguma ação a ser feita com o posts relacionados à Série!' );
+                header( 'Location: ' . $this->_url->delete( $id ) );
+            } else {
+                $actionPosts = $_POST[ 'action-posts' ];
+            }
+        }
 
         $series = new SeriesModel();
         $series->id = $id;
 
         try {
-            $this->_mapper->destroy( $series, true );
+            $this->_mapper->destroy( $series, $actionPosts );
 
             H::flash( 'success-msg', 'Série removida com sucesso!' );
             header( 'Location: ' . $this->_url->index() );
@@ -323,6 +346,8 @@ class SeriesController extends BaseController {
         // Get array os Post IDs
         $items = $_POST[ 'items' ];
 
+        $actionPosts = intval( $_POST[ 'action-posts' ] );
+
         try {
             // Validate token
             if ( ! H::checkToken( $token ) ) {
@@ -333,7 +358,7 @@ class SeriesController extends BaseController {
                 $errorMsg = 'Permissão negada.';
             } // No problems occurred: we can carry through with the request
             else {
-                if ( $this->_mapper->deleteAjax( $items ) ) {
+                if ( $this->_mapper->deleteAjax( $items, $actionPosts ) ) {
                     $isOk = true;
 
                     // If everything worked out, we are going to redirect the user

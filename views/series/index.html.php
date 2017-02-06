@@ -25,6 +25,8 @@
     </div>
 </div>
 
+<div id="dialog" title="Remover Séries"></div>
+
 <h2 id="area-header">Séries</h2>
 
 <?php if ( $this->flashMsg ): ?>
@@ -72,6 +74,7 @@
                         <a class="input-submit btn-delete" href="<?= $this->Url->delete( $series->id ); ?>">Excluir</a>
                     </td>
                 <?php endif; ?>
+                <input type="hidden" id="count-posts-<?= $series->id; ?>" value="<?= $series->count_posts ?>">
             </tr>
         <?php endforeach; ?>
         </tbody>
