@@ -2,6 +2,7 @@
 
 namespace lsm\mappers;
 
+use lsm\libs\H;
 use lsm\models\PostsModel;
 use PDO;
 use Exception;
@@ -15,7 +16,7 @@ class PostsMapper extends Mapper {
     function __construct() {
         parent::__construct();
         $this->_selectStmt = self::$_pdo->prepare(
-            "SELECT p.id, title, intro, 
+            "SELECT p.id, title, intro, series_id, position,
                     image, p.status, post_text
                FROM posts p
               WHERE p.id = ?"
@@ -74,27 +75,26 @@ class PostsMapper extends Mapper {
         $this->_setNumRecordsPagn( $catId, $seriesId );
 
         $sql = "SELECT DISTINCT 
-                       id, user_id, title, intro, post_text,
-                       image, image_caption, status
+                       p.id, user_id, p.title, p.intro, post_text,
+                       image, image_caption, p.status
                   FROM posts p
-                  LEFT JOIN posts_categories pc ON pc.post_id = p.id";
+                  LEFT JOIN posts_categories pc ON pc.post_id = p.id
+                  LEFT JOIN series s ON s.id = p.series_id
+                 WHERE TRUE ";
 
-        if ( $seriesId ) {
-            $sql .= ' JOIN series_posts sp ON sp.post_id = p.id
-                           AND sp.series_id = :series ';
-        }
-
-        $sql .= ' WHERE TRUE ';
-
-        // Search category by either name or description
+        // Search post by either name or description
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $sql .= 'AND (title ILIKE :search
-                      OR intro ILIKE :search
+            $sql .= 'AND (p.title ILIKE :search
+                      OR p.intro ILIKE :search
                       OR post_text ILIKE :search) ';
         }
 
         if ( $catId ) {
             $sql .= 'AND category_id = :cat ';
+        }
+
+        if ( $seriesId ) {
+            $sql .= 'AND series_id = :series ';
         }
 
         $sql .= " ORDER BY {$ord} {$params['dir']}
@@ -108,12 +108,12 @@ class PostsMapper extends Mapper {
             $selectStmt->bindParam( ':search', $search );
         }
 
-        if ( $seriesId ) {
-            $selectStmt->bindParam( ':series', $seriesId, PDO::PARAM_INT );
-        }
-
         if ( $catId ) {
             $selectStmt->bindParam( ':cat', $catId, PDO::PARAM_STR );
+        }
+
+        if ( $seriesId ) {
+            $selectStmt->bindParam( ':series', $seriesId, PDO::PARAM_INT );
         }
 
         $lim = $this->pagination->getLimit();
@@ -152,14 +152,9 @@ class PostsMapper extends Mapper {
     protected function _setNumRecordsPagn( $catId, $seriesId ) {
         $sql = "SELECT count(DISTINCT p.id) AS count
                   FROM posts p
-                  LEFT JOIN posts_categories pc ON pc.post_id = p.id ";
-
-        if ( $seriesId ) {
-            $sql .= " JOIN series_posts sp ON sp.post_id = p.id
-                           AND sp.series_id = :series ";
-        }
-
-        $sql .= ' WHERE TRUE ';
+                  LEFT JOIN posts_categories pc ON pc.post_id = p.id
+                  LEFT JOIN series s ON s.id = p.series_id
+                 WHERE TRUE ";
 
         if ( $this->request->pagParams['search'] != null ) {
             $sql .= 'AND title ~* :search
@@ -169,6 +164,10 @@ class PostsMapper extends Mapper {
 
         if ( $catId ) {
             $sql .= 'AND pc.category_id = :cat ';
+        }
+
+        if ( $seriesId ) {
+            $sql .= 'AND s.id = :series ';
         }
 
         $selectStmt = self::$_pdo->prepare($sql);
@@ -213,24 +212,25 @@ class PostsMapper extends Mapper {
     }
 
     /**
-     * @param $post
+     * @param $post PostsModel
      * @throws Exception
      */
-    // TODO Allow destruction of posts based on array of ids: delegate to specific functions
-    // TODO Destroy series_posts as well
-    // TODO Have a paremeter to either control transaction here or not: in the series_posts routine, it's going to be handled outside
     public function destroy( $post ) {
         self::$_pdo->beginTransaction();
 
         try {
-            // First, we will destroy the images and videos related to the post, if there are any,
-            // as well as series_posts entries (if the post is related to a series)
+            // First, we will destroy the images and videos related to the post, if there are any
             self::$_pdo->prepare( 'DELETE FROM images WHERE post_id = ?' )->execute( array( $post->id ) );
             self::$_pdo->prepare( 'DELETE FROM videos WHERE post_id = ?' )->execute( array( $post->id ) );
-            self::$_pdo->prepare( 'DELETE FROM series_posts WHERE post_id = ?' )->execute( array( $post->id ) );
 
             // Then, we destroy the posts_categories entries
             self::$_pdo->prepare( 'DELETE FROM posts_categories WHERE post_id = ?' )->execute( array( $post-> id ) );
+
+            // Find the post: if series_id is set, we have to adjust the positions
+            $post = $this->find( $post->id );
+            if ( $post->series_id ) {
+                $this->_updatePositions( $post, true );
+            }
 
             // Finally, destroy the post itself
             parent::destroy( $post );
@@ -248,12 +248,10 @@ class PostsMapper extends Mapper {
      * @param $postIds
      * @throws PDOException
      */
-    // FIXME destroy series_posts
     public function destroyMany( $postIds ) {
         // First, we will destroy the images and videos related to the post, if there are any
         $sqlImgs = 'DELETE FROM images WHERE post_id IN (';
         $sqlVideos = 'DELETE FROM videos WHERE post_id IN (';
-        $sqlSeries = 'DELETE FROM series_posts WHERE post_id IN (';
 
         // SQL to delete posts_categories entries
         $sqlCat = 'DELETE FROM posts_categories WHERE post_id IN (';
@@ -265,15 +263,18 @@ class PostsMapper extends Mapper {
             $sqlImgs .= '?, ';
             $sqlVideos .= '?, ';
             $sqlCat .= '?, ';
-            $sqlSeries .= '?, ';
             $sql .= '?, ';
+
+            $post = $this->find( $id );
+            if ( $post->series_id ) {
+                $this->_updatePositions( $post, true );
+            }
         }
 
         $sql       = trim( $sql, ', ' ) . ')';
         $sqlCat    = trim( $sqlCat, ', ' ) . ')';
         $sqlImgs   = trim( $sqlImgs, ', ' ) . ')';
         $sqlVideos = trim ( $sqlVideos, ', ' ) . ')';
-        $sqlSeries = trim ( $sqlSeries, ', ' ) . ')';
 
         $stmt = self::$_pdo->prepare( $sqlImgs );
         $stmt->execute( $postIds );
@@ -284,10 +285,6 @@ class PostsMapper extends Mapper {
         $stmt->closeCursor();
 
         $stmt = self::$_pdo->prepare( $sqlCat );
-        $stmt->execute( $postIds );
-        $stmt->closeCursor();
-
-        $stmt = self::$_pdo->prepare( $sqlSeries );
         $stmt->execute( $postIds );
         $stmt->closeCursor();
 
@@ -388,6 +385,12 @@ class PostsMapper extends Mapper {
         }
     }
 
+    /**
+     * @param PostsModel $post
+     * @param bool $overrideNullData
+     * @param null $oldPKValue
+     * @throws Exception
+     */
     public function save( $post, $overrideNullData = false, $oldPKValue = null ) {
         // Start transaction: in case anything goes wrong when inserting,
         // we cancel everything
@@ -397,6 +400,10 @@ class PostsMapper extends Mapper {
             // If it is an update, let's delete the old entries for posts_categories
             if ( $post->id ) {
                 self::$_pdo->prepare( "DELETE FROM posts_categories WHERE post_id = ?" )->execute( array( $post->id ) );
+            }
+
+            if ( intval( $post->series_id ) ) {
+                $this->_updatePositions( $post, false );
             }
 
             // Call parent method to save post
@@ -425,6 +432,110 @@ class PostsMapper extends Mapper {
             // Router class
             self::$_pdo->rollBack();
             throw new Exception( $e->getMessage() );
+        }
+    }
+
+    /**
+     * @param PostsModel $model
+     * @param bool $destroy
+     * @throws Exception
+     */
+    protected function _updatePositions( PostsModel $model, $destroy = false ) {
+        if ( ! $model->series_id ) {
+            throw new Exception( 'Error at PostsMapper::_updatePositions(): No Series id specified!' );
+        }
+
+        // Get rowCount (to see how many posts there are in this series)
+        $stmt = self::$_pdo->prepare( 'SELECT id FROM posts WHERE series_id = :series_id' );
+        $stmt->bindParam( ':series_id', $model->series_id, PDO::PARAM_INT );
+        $stmt->execute();
+
+        $rowCount = $stmt->rowCount();
+
+        $stmt->closeCursor();
+
+        // Get the previous position of the object
+        $stmt = self::$_pdo->prepare( 'SELECT position FROM posts WHERE id = :id' );
+        $stmt->bindParam( ':id', $model->id );
+        $stmt->execute();
+
+        $oldPosition = $stmt->fetch( PDO::FETCH_OBJ )->position;
+
+        $stmt->closeCursor();
+
+        // When a new posts is being inserted, or when it is a post that did not have series
+        // and position set yet, just set the position to what the user specified, incrementing
+        // the ones from that particular position on, or just set to the last position
+        // in case the user did not specify a position or set it to 0
+        if ( ( ! $model->id ) || ( ! $oldPosition ) ) {
+            // If no position was specified or it was greater than what should be the last position,
+            // set it to the last position
+            if ( ! $model->position || ( $model->position > ( $rowCount + 1 ) ) ) {
+                $model->position = $rowCount + 1;
+            }
+
+            $sql = "UPDATE posts SET position = position + 1
+                     WHERE position >= :position
+                       AND series_id = :series_id ";
+
+            $stmt = self::$_pdo->prepare( $sql );
+            $stmt->bindParam( ':position', $model->position, PDO::PARAM_INT );
+            $stmt->bindParam( ':series_id', $model->series_id, PDO::PARAM_INT );
+            $stmt->execute();
+            $stmt->closeCursor();
+        }
+
+        // Update or Delete
+        else {
+            // Destroy
+            if ( $destroy ) {
+                $sql = "UPDATE posts SET position = position - 1
+                         WHERE position >= :position
+                           AND series_id = :series_id";
+
+                $stmt = self::$_pdo->prepare( $sql );
+                $stmt->bindParam( ':position', $model->position, PDO::PARAM_INT );
+                $stmt->bindParam( ':series_id', $model->series_id, PDO::PARAM_INT );
+                $stmt->execute();
+                $stmt->closeCursor();
+            }
+
+            // Update: we will need to check the model's previous position in the DB.
+            // If it changed, we will process all the changes
+            else {
+                // If no position was specified or it was greater than what should be the last position,
+                // set it to the last position
+                if ( ! $model->position || ( $model->position > ( $rowCount ) ) ) {
+                    $model->position = $rowCount;
+                }
+
+                if ( $oldPosition == $model->position ) {
+                    return;
+                }
+
+                // Lower to Upper position, i.g. 5 to 1
+                if ( $model->position < $oldPosition ) {
+                    // Increment the positions of the posts whose position is greater than
+                    // or equal to the new position and lesser than the old position
+                    $sql = 'UPDATE posts SET position = position + 1
+                             WHERE position >= :new_position
+                               AND position < :old_position
+                               AND series_id = :series_id';
+                } // Upper to Lower position, i.g. 1 to 5
+                else {
+                    $sql = 'UPDATE posts SET position = position - 1
+                             WHERE position > :old_position
+                               AND position <= :new_position
+                               AND series_id = :series_id';
+                }
+
+                $stmt = self::$_pdo->prepare( $sql );
+                $stmt->bindParam( ':new_position', $model->position, PDO::PARAM_INT );
+                $stmt->bindParam( ':old_position', $oldPosition, PDO::PARAM_INT );
+                $stmt->bindParam( ':series_id', $model->series_id, PDO::PARAM_INT );
+                $stmt->execute();
+                $stmt->closeCursor();
+            }
         }
     }
 }

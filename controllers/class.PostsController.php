@@ -2,6 +2,7 @@
 
 namespace lsm\controllers;
 
+use lsm\mappers\SeriesMapper;
 use lsm\models\PostsModel;
 use lsm\mappers\PostsMapper;
 use lsm\models\ImagesModel;
@@ -77,7 +78,10 @@ class PostsController extends BaseController {
         $post = new PostsModel();
 
         // Populate categories for the select field
-        $this->_view->objectList = $this->_mapper->getAllCat();
+        $this->_view->categories = $this->_mapper->getAllCat();
+
+        // Populate series for the select field
+        $this->_view->series = $this->_mapper->getAllSeries();
 
         // Check if there is input data (we are redirecting the user back to the form
         // with an error message after he tried to submit it), in which case we will
@@ -88,6 +92,8 @@ class PostsController extends BaseController {
             $post->intro = $inputData[ 'intro' ];
             $post->post_text = $inputData[ 'post-text' ];
             $post->status = $inputData[ 'status' ];
+            $post->series_id = $inputData[ 'series' ] ?? null;
+            $post->position = $inputData[ 'position' ];
 
             if ( isset( $inputData[ 'cat' ] ) ) {
                 array_map( function( $catId ) use ( $post ) {
@@ -130,6 +136,17 @@ class PostsController extends BaseController {
             $this->_model->status = $request->getInput( 'status' );
             $this->_model->user_id = $_SESSION[ 'user' ];
 
+            $this->_model->series_id = null;
+            $this->_model->position = null;
+
+            if ( intval( $_POST[ 'series' ] ) ) {
+                $series = ( new SeriesMapper() )->find( $request->getInput( 'series' ) );
+                if ( is_object( $series ) ) {
+                    $this->_model->series_id = $series->id;
+                    $this->_model->position = intval( $request->getInput( 'position' ) );
+                }
+            }
+
             // Let us make sure no error will occur if the user changed the hidden id's manually
             // and duplicated one
             $categories = array_unique( $request->getInput( 'cat' ) );
@@ -159,7 +176,10 @@ class PostsController extends BaseController {
         $this->_mapper->initCategories( $this->_view->object );
 
         // Populate categories for the select field
-        $this->_view->objectList = $this->_mapper->getAllCat();
+        $this->_view->categories = $this->_mapper->getAllCat();
+
+        // Populate series for the select field
+        $this->_view->series = $this->_mapper->getAllSeries();
 
         if ( ! ( $this->_view->object instanceof PostsModel ) ) {
             throw new Exception( 'Erro: Post não encontrado!' );
@@ -171,20 +191,19 @@ class PostsController extends BaseController {
         // error message, putting back the data she had typed
         $inputData = H::flashInput();
         if ( $inputData ) {
-            $post = new PostsModel();
-            $post->title = $inputData[ 'title' ];
-            $post->intro = $inputData[ 'intro' ];
-            $post->post_text = $inputData[ 'post-text' ];
-            $post->status = $inputData[ 'status' ];
+            $this->_view->object->title = $inputData[ 'title' ];
+            $this->_view->object->intro = $inputData[ 'intro' ];
+            $this->_view->object->post_text = $inputData[ 'post-text' ];
+            $this->_view->object->status = $inputData[ 'status' ];
+            $this->_view->object->series_id = $inputData[ 'series' ] ?? null;
+            $this->_view->object->position = $inputData[ 'position' ];
 
             if ( isset( $inputData[ 'cat' ] ) ) {
-                array_map( function( $catId ) use ( $post ) {
+                array_map( function( $catId ) {
                     $category = ( new CategoriesMapper() )->find( $catId );
-                    $post->categories[] = $category;
+                    $this->_view->object->categories[] = $category;
                 }, $inputData[ 'cat' ] );
             }
-
-            $this->_view->object = $post;
         }
 
         $this->_view->addExtraScript( 'js/lsmhelper.js' );
@@ -220,6 +239,17 @@ class PostsController extends BaseController {
             $this->_model->post_text = $_POST[ 'post-text' ];
             $this->_model->status = $request->getInput( 'status' );
             $this->_model->user_id = $_SESSION[ 'user' ];
+
+            $this->_model->series_id = null;
+            $this->_model->position = null;
+
+            if ( intval( $_POST[ 'series' ] ) ) {
+                $series = ( new SeriesMapper() )->find( $request->getInput( 'series' ) );
+                if ( is_object( $series ) ) {
+                    $this->_model->series_id = $series->id;
+                    $this->_model->position = intval( $request->getInput( 'position' ) );
+                }
+            }
 
             // Let us make sure no error will occur if the user changed the hidden id's manually
             // and duplicated one
@@ -268,6 +298,7 @@ class PostsController extends BaseController {
         if ( ! H::checkToken( Request::getInstance()->getInput( 'token' ) ) ) {
             H::flash( 'err-msg', "Não foi possível processar a requisição!" );
             header( 'Location: ' . $this->_url->make( "posts/index" ) );
+            exit;
         }
 
         $id = Request::getInstance()->getInput( 'id' );

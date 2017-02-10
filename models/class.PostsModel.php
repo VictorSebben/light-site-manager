@@ -2,6 +2,10 @@
 
 namespace lsm\models;
 
+use lsm\libs\Validator;
+use lsm\mappers\PostsMapper;
+use lsm\libs\H;
+
 class PostsModel extends BaseModel {
 
     public $id;
@@ -12,6 +16,7 @@ class PostsModel extends BaseModel {
     public $image;
     public $image_caption;
     public $status;
+    public $series_id;
 
     /**
      * @var UsersModel
@@ -23,6 +28,17 @@ class PostsModel extends BaseModel {
      * @var array
      */
     public $categories = array();
+
+    /**
+     * @var SeriesModel
+     */
+    public $series;
+
+    /**
+     * Position of the post in the series
+     * @var int
+     */
+    public $position;
 
     /**
      * Array of gallery images associated with the post.
@@ -50,7 +66,14 @@ class PostsModel extends BaseModel {
             'image' => array( 'fieldName' => 'imagem', 'rules' => 'max:80' ),
             'image_caption' => array( 'fieldName' => 'legenda da imagem', 'rules' => 'max:100' ),
             'status' => array( 'fieldName' => 'status', 'valueIn' => array( self::STATUS_INACTIVE, self::STATUS_ACTIVE ) ),
+            'position' => array( 'fieldName' => 'posição', 'type' => Validator::NUMERIC_INT ),
+            'series' => array(
+                'fieldName' => 'série',
+                'valueIn' => array_map( function ( $series ) { return $series->id; }, ( new PostsMapper() )->getAllSeries() )
+            )
         );
+
+        $this->series = new SeriesModel();
     }
 
     public function hasCat( $catId ) {

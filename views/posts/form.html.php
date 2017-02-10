@@ -11,7 +11,7 @@
         <div class="form-field">
             <label for="title">Título</label>
             <div class="input-field">
-                <input id="title" type="text" name="title" maxlength="64" required
+                <input id="title" type="text" name="title" maxlength="64"
                        value="<?= $this->object->title; ?>">
             </div>
         </div>
@@ -22,10 +22,29 @@
                        value="<?= $this->object->intro; ?>">
             </div>
         </div>
+        <div class="form-field">
+            <label for="series">Série</label>
+            <div id="series" class="select-field">
+                <select name="series" id="series">
+                    <option value=""></option>
+                    <?php foreach ( $this->series as $series ) : ?>
+                    <option <?= ( $series->id == $this->object->series_id ) ? 'selected' : '' ?> value="<?= $series->id; ?>"><?= $series->title; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        <!-- TODO Position will be invisible, and only show w hen Série is selected -->
+        <div class="form-field">
+            <label for="position">Posição</label>
+            <div class="input-field">
+                <input id="position" type="text" name="position"
+                       value="<?= $this->object->position; ?>">
+            </div>
+        </div>
         <div class="form-h-check">
             <h3>Categorias</h3>
             <ul>
-                <?php foreach ( $this->objectList as $cat ): ?>
+                <?php foreach ( $this->categories as $cat ) : ?>
                 <li>
                     <label for="cat-<?= $cat->id; ?>"><?= $cat->name; ?></label>
                     <input type="checkbox" id="cat-<?= $cat->id; ?>" name="cat[]" value="<?= $cat->id; ?>"

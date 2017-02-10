@@ -243,7 +243,7 @@ class Validator {
     /**
      * @param $errorMsg
      */
-    protected function addError( $errorMsg ) {
+    public function addError( $errorMsg ) {
         $this->errors[] = $errorMsg;
     }
 
