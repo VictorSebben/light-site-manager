@@ -108,6 +108,8 @@ class PostsController extends BaseController {
         $this->prepareFlashMsg( $this->_view );
 
         $this->_view->addExtraScript( 'js/lsmhelper.js' );
+        $this->_view->addExtraScript( 'js/posts_form.js' );
+        $this->_view->addExtraLink( 'css/posts-form.css' );
 
         $this->_view->render( 'posts/form' );
     }
@@ -207,6 +209,8 @@ class PostsController extends BaseController {
         }
 
         $this->_view->addExtraScript( 'js/lsmhelper.js' );
+        $this->_view->addExtraScript( 'js/posts_form.js' );
+        $this->_view->addExtraLink( 'css/posts-form.css' );
 
         $this->prepareFlashMsg( $this->_view );
 

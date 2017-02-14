@@ -24,7 +24,7 @@
         </div>
         <div class="form-field">
             <label for="series">Série</label>
-            <div id="series" class="select-field">
+            <div id="series-div" class="select-field">
                 <select name="series" id="series">
                     <option value=""></option>
                     <?php foreach ( $this->series as $series ) : ?>
@@ -33,8 +33,7 @@
                 </select>
             </div>
         </div>
-        <!-- TODO Position will be invisible, and only show w hen Série is selected -->
-        <div class="form-field">
+        <div id="position-div" class="form-field">
             <label for="position">Posição</label>
             <div class="input-field">
                 <input id="position" type="text" name="position"
