@@ -20,7 +20,7 @@ class SeriesMapper extends Mapper {
         );
     }
 
-    public function index() {
+    public function index( $catId = null ) {
 
         // set additional parameters for the pagination
         // in the request object
@@ -43,12 +43,18 @@ class SeriesMapper extends Mapper {
             }
         }
 
-        // Set number of records in the pagination object
-        $this->_setNumRecordsPagn();
+        if ( ! $catId && ( isset( $_GET[ 'search-category' ] ) && $_GET[ 'search-category' ] ) ) {
+            $catId = $this->request->getInput( 'search-category', false );
+        }
 
-        $sql = "SELECT id, title, intro, status,
-                       (SELECT COUNT(*) FROM posts WHERE series_id = series.id) AS count_posts
-                  FROM series
+        // Set number of records in the pagination object
+        $this->_setNumRecordsPagn( $catId );
+
+        $sql = "SELECT DISTINCT 
+                       id, title, intro, status,
+                       (SELECT COUNT(*) FROM posts WHERE series_id = s.id) AS count_posts
+                  FROM series s
+                  LEFT JOIN series_categories sc ON sc.series_id = s.id
                  WHERE TRUE ";
 
         // Search series by title or intro
@@ -56,15 +62,25 @@ class SeriesMapper extends Mapper {
             $sql .= 'AND (title ILIKE :search OR intro ILIKE :search)';
         }
 
+        if ( $catId ) {
+            $sql .= 'AND category_id = :cat ';
+        }
+
         $sql .= " ORDER BY {$ord} {$params['dir']}
                   LIMIT :lim
                  OFFSET :offset ";
 
         $selectStmt = self::$_pdo->prepare( $sql );
+
         if ( $this->request->pagParams[ 'search' ] != null ) {
             $search = "%{$this->request->pagParams[ 'search' ]}%";
             $selectStmt->bindParam( ':search', $search );
         }
+
+        if ( $catId ) {
+            $selectStmt->bindParam( ':cat', $catId, PDO::PARAM_STR );
+        }
+
         $lim = $this->pagination->getLimit();
         $selectStmt->bindParam( ':lim', $lim, PDO::PARAM_INT );
         $selectStmt->bindParam( ':offset', $offset, PDO::PARAM_INT );
@@ -75,22 +91,38 @@ class SeriesMapper extends Mapper {
 
         if ( ! is_array( $series ) ) return null;
 
+        array_map( function( $seriesObj ) {
+            $this->initCategories( $seriesObj );
+            return $seriesObj;
+        }, $series );
+
         return $series;
     }
 
-    protected function _setNumRecordsPagn() {
-        $sql = "SELECT count(*) AS count
-                  FROM series
+    protected function _setNumRecordsPagn( $catId ) {
+        $sql = "SELECT count(DISTINCT s.id) AS count
+                  FROM series s
+                  LEFT JOIN series_categories sc ON sc.series_id = s.id
                  WHERE TRUE ";
 
         if ( $this->request->pagParams['search'] != null ) {
             $sql .= 'AND (title ILIKE :search OR intro ILIKE :search) ';
         }
 
+        if ( $catId ) {
+            $sql .= 'AND sc.category_id = :cat ';
+        }
+
         $selectStmt = self::$_pdo->prepare( $sql );
+
         if ( $this->request->pagParams['search'] != null ) {
             $selectStmt->bindParam( ':search', $this->request->pagParams['search'] );
         }
+
+        if ( $catId ) {
+            $selectStmt->bindParam( ':cat', $catId, PDO::PARAM_STR );
+        }
+
         $selectStmt->execute();
         $this->pagination->numRecords = $selectStmt->fetch( PDO::FETCH_OBJ )->count;
         $selectStmt->closeCursor();
@@ -110,7 +142,7 @@ class SeriesMapper extends Mapper {
             if ( $actionPosts === SeriesModel::DISSOCIATE_POSTS ) {
 
                 $stmt = self::$_pdo->prepare(
-                    "UPDATE POSTS SET series_id = NULL WHERE series_id IN ({$strIdsPdo})"
+                    "UPDATE posts SET series_id = NULL WHERE series_id IN ({$strIdsPdo})"
                 );
                 $stmt->execute( $seriesIds );
                 $stmt->closeCursor();
@@ -132,6 +164,13 @@ class SeriesMapper extends Mapper {
                     $postsMapper->destroyMany( $postIds );
                 }
             }
+
+            // SQL to delete series_categories entries
+            $sqlCat = "DELETE FROM series_categories WHERE series_id IN ({$strIdsPdo})";
+
+            $stmt = self::$_pdo->prepare( $sqlCat );
+            $stmt->execute( $seriesIds );
+            $stmt->closeCursor();
 
             // SQL do delete agenda items
             $sql = "DELETE FROM series WHERE id IN ({$strIdsPdo})";
@@ -185,6 +224,9 @@ class SeriesMapper extends Mapper {
                     $postsMapper->destroyMany( $postIds );
                 }
             }
+
+            // Destroy the series_categories entries
+            self::$_pdo->prepare( 'DELETE FROM series_categories WHERE series_id = ?' )->execute( array( $series-> id ) );
 
             parent::destroy( $series );
 
@@ -257,6 +299,71 @@ class SeriesMapper extends Mapper {
         } catch ( Exception $e ) {
             echo $e->getMessage();
             return false;
+        }
+    }
+
+    /**
+     * @param SeriesModel $series
+     * @throws Exception
+     */
+    public function initCategories( SeriesModel $series ) {
+        $series->categories = array();
+
+        if ( ! $series->id ) {
+            throw new Exception( "Could not retrieve categories for series: series id not specified!" );
+        }
+
+        $sql = "SELECT c.* 
+                  FROM categories c
+                  JOIN series_categories sc ON sc.category_id = c.id
+                 WHERE sc.series_id = :series_id";
+
+        $stmt = self::$_pdo->prepare( $sql );
+        $stmt->bindParam( ':series_id', $series->id, PDO::PARAM_INT );
+        $stmt->execute();
+        $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\CategoriesModel' );
+
+        $series->categories = $stmt->fetchAll();
+        $stmt->closeCursor();
+    }
+
+    public function save( $series, $overrideNullData = false, $oldPKValue = null ) {
+        // Start transaction: in case anything goes wrong when inserting,
+        // we cancel everything
+        self::$_pdo->beginTransaction();
+
+        try {
+            // If it is an update, let's delete the old entries for series_categories
+            if ( $series->id ) {
+                self::$_pdo->prepare( "DELETE FROM series_categories WHERE series_id = ?" )->execute( array( $series->id ) );
+            }
+
+            // Call parent method to save post
+            parent::save( $series, $overrideNullData, $oldPKValue );
+
+            // If it is an insert operation, we have to retrieve the last inserted id
+            if ( ! $series->id ) {
+                $series->id = self::$_pdo->lastInsertId( 'series_id_seq' );
+            }
+
+            // Insert new values for series_categories
+            $stmt = self::$_pdo->prepare( "INSERT INTO series_categories (series_id, category_id) VALUES (:series_id, :category_id)" );
+
+            // Save entries for posts_categories
+            foreach ( $series->categories as $category ) {
+                $stmt->bindParam( ':series_id', $series->id, PDO::PARAM_INT );
+                $stmt->bindParam( ':category_id', $category->id, PDO::PARAM_STR );
+                $stmt->execute();
+                $stmt->closeCursor();
+            }
+
+            self::$_pdo->commit();
+        } catch ( Exception $e ) {
+            // If something went wrong, rollback transaction
+            // and throw a new exception to be caught by the
+            // Router class
+            self::$_pdo->rollBack();
+            throw new Exception( $e->getMessage() );
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace lsm\controllers;
 
+use lsm\mappers\CategoriesMapper;
 use lsm\models\SeriesModel;
 use lsm\mappers\SeriesMapper;
 use lsm\libs\Pagination;
@@ -37,6 +38,8 @@ class SeriesController extends BaseController {
         // Load result of edit_contents permission test
         $this->_view->editContents = $this->_user->hasPrivilege( 'edit_contents' );
 
+        $args = (array) $args;
+
         // instantiate Pagination object and
         // pass it to the Mapper
         $pagination = new Pagination();
@@ -44,7 +47,9 @@ class SeriesController extends BaseController {
 
         // load series objects array for use in the view
         $this->_view->pagination = $pagination;
-        $this->_view->objectList = $this->_mapper->index();
+        $this->_view->objectList = $this->_mapper->index( array_pop( $args ) );
+
+        $this->_view->categories = $this->_mapper->getAllCat();
 
         $this->_view->addExtraScript( 'js/jquery-ui/jquery-ui.min.js' );
         $this->_view->addExtraScript( 'js/list.js' );
@@ -63,6 +68,9 @@ class SeriesController extends BaseController {
         }
 
         $series = new SeriesModel();
+
+        // Populate categories for the select field
+        $this->_view->categories = $this->_mapper->getAllCat();
 
         // Check if there is input data (we are redirecting the user back to the form
         // with an error message after he tried to submit it), in which case we will
@@ -105,6 +113,20 @@ class SeriesController extends BaseController {
             $this->_model->intro = $request->getInput( 'intro' );
             $this->_model->status = $request->getInput( 'status' );
 
+            // Let us make sure no error will occur if the user changed the hidden id's manually
+            // and duplicated one
+            $categories = array_unique( $request->getInput( 'cat' ) );
+            array_map( function( $catId ) {
+                $category = ( new CategoriesMapper() )->find( $catId );
+                if ( ! $category ) {
+                    // Flash error messages
+                    H::flash( 'err-msg', "Categoria inválida: {$catId}" );
+                    header( 'Location: ' . $this->_url->create() );
+                    exit;
+                }
+                $this->_model->categories[] = $category;
+            }, $categories );
+
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Série criada com sucesso!' );
             header( 'Location: ' . $this->_url->index() );
@@ -117,6 +139,10 @@ class SeriesController extends BaseController {
         }
 
         $this->_view->object = $this->_mapper->find( $id );
+        $this->_mapper->initCategories( $this->_view->object );
+
+        // Populate categories for the select field
+        $this->_view->categories = $this->_mapper->getAllCat();
 
         if ( ! ( $this->_view->object instanceof SeriesModel ) ) {
             throw new Exception( 'Erro: Série não encontrada!' );
@@ -132,6 +158,13 @@ class SeriesController extends BaseController {
             $series->title = $inputData[ 'title' ];
             $series->intro = $inputData[ 'intro' ];
             $series->status = $inputData[ 'status' ];
+
+            if ( isset( $inputData[ 'cat' ] ) ) {
+                array_map( function( $catId ) use ( $series ) {
+                    $category = ( new CategoriesMapper() )->find( $catId );
+                    $series->categories[] = $category;
+                }, $inputData[ 'cat' ] );
+            }
 
             $this->_view->object = $series;
         }
@@ -165,6 +198,20 @@ class SeriesController extends BaseController {
             $this->_model->title = $request->getInput( 'title' );
             $this->_model->intro = $request->getInput( 'intro' );
             $this->_model->status = $request->getInput( 'status' );
+
+            // Let us make sure no error will occur if the user changed the hidden id's manually
+            // and duplicated one
+            $categories = array_unique( $request->getInput( 'cat' ) );
+            array_map( function( $catId ) {
+                $category = ( new CategoriesMapper() )->find( $catId );
+                if ( ! $category ) {
+                    // Flash error messages
+                    H::flash( 'err-msg', "Categoria inválida: {$catId}" );
+                    header( 'Location: ' . $this->_url->create() );
+                    exit;
+                }
+                $this->_model->categories[] = $category;
+            }, $categories );
 
             $this->_mapper->save( $this->_model );
             H::flash( 'success-msg', 'Série atualizada com sucesso!' );

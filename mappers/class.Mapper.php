@@ -413,4 +413,15 @@ class Mapper {
         $stmt->execute();
         $stmt->closeCursor();
     }
+
+    /**
+     * Helper function that returns all categories
+     * @return array
+     */
+    public function getAllCat() {
+        $stmt = self::$_pdo->prepare( 'SELECT * FROM categories' );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\CategoriesModel' );
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }

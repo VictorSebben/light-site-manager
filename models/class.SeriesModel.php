@@ -9,6 +9,12 @@ class SeriesModel extends BaseModel {
     public $intro;
     public $status;
 
+    /**
+     * Array to hold CategoriesModel objects.
+     * @var array
+     */
+    public $categories = array();
+
     public $tableName;
 
     const STATUS_ACTIVE = 1;
@@ -33,5 +39,15 @@ class SeriesModel extends BaseModel {
             'intro' => array( 'fieldName' => 'chamada', 'rules' => 'max:200' ),
             'status' => array( 'fieldName' => 'status', 'valueIn' => array( self::STATUS_INACTIVE, self::STATUS_ACTIVE ) )
         );
+    }
+
+    public function hasCat( $catId ) {
+        if ( ! is_array( $this->categories ) ) {
+            return false;
+        }
+
+        return in_array( $catId, array_map( function( $cat ) {
+            return $cat->id;
+        }, $this->categories ) );
     }
 }

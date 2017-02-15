@@ -362,8 +362,12 @@ input {
     }
 
     .form-h-check {
+        display: table;
+        width: 100%;
         border-top: 1px dotted #777;
+        border-bottom: 1px dotted #777;
         padding: 20px 0;
+        margin-top: 20px;
 
         h3 {
             margin: 0;
@@ -376,16 +380,19 @@ input {
         label {
             font-weight: normal;
             font-size: $font-size1 + 1;
-            width: 20%;
+            display: table-cell;
+            width: auto;
         }
 
         input {
             width: auto;
             vertical-align: middle;
+            display: table-cell;
         }
 
         li {
             line-height: 30px;
+            display: table-row;
         }
     }
 

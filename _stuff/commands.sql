@@ -298,3 +298,11 @@ ADD CONSTRAINT posts_series_fkey FOREIGN KEY (series_id)
 REFERENCES series (id);
 
 ALTER TABLE posts ADD COLUMN position INT;
+
+CREATE TABLE series_categories (
+  series_id INT NOT NULL,
+  category_id VARCHAR(32) NOT NULL,
+  PRIMARY KEY (series_id, category_id),
+  FOREIGN KEY (series_id) REFERENCES series(id),
+  FOREIGN KEY (category_id) REFERENCES categories(id)
+);

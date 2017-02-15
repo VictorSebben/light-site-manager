@@ -293,13 +293,6 @@ class PostsMapper extends Mapper {
         $stmt->closeCursor();
     }
 
-    public function getAllCat() {
-        $stmt = self::$_pdo->prepare( 'SELECT * FROM categories' );
-        $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\CategoriesModel' );
-        $stmt->execute();
-        return $stmt->fetchAll();
-    }
-
     public function getAllSeries() {
         $stmt = self::$_pdo->prepare( 'SELECT id, title FROM series' );
         $stmt->setFetchMode( PDO::FETCH_CLASS, '\lsm\models\SeriesModel' );
