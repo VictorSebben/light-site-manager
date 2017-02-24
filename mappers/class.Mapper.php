@@ -24,7 +24,7 @@ class Mapper {
      *
      * @var string
      */
-    protected static $_db;
+    public static $db;
 
     /**
      * Prepared statement to be executed by PDO.
@@ -93,7 +93,7 @@ class Mapper {
                     $arrAttrs
                 );
 
-                self::$_db = $db_config[ 'driver' ];
+                self::$db = $db_config[ 'driver' ];
             } catch ( PDOException $e ) {
                 die( $e->getMessage() );
             }

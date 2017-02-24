@@ -306,3 +306,6 @@ CREATE TABLE series_categories (
   FOREIGN KEY (series_id) REFERENCES series(id),
   FOREIGN KEY (category_id) REFERENCES categories(id)
 );
+
+ALTER TABLE posts ADD COLUMN slug VARCHAR(200);
+CREATE UNIQUE INDEX posts_slug_idx ON posts (slug);

@@ -17,6 +17,7 @@ class PostsModel extends BaseModel {
     public $image_caption;
     public $status;
     public $series_id;
+    public $slug;
 
     /**
      * @var UsersModel
@@ -62,7 +63,7 @@ class PostsModel extends BaseModel {
         $this->rules = array(
             'cat' => array( 'fieldName' => 'categorias', 'rules' => 'required', 'array' => true ),
             'title' => array( 'fieldName' => 'título', 'rules' => 'required|max:200|min:3' ),
-            'intro' => array( 'fieldName' => 'chamada', 'rules' => 'required|max:200|min:3' ),
+            'intro' => array( 'fieldName' => 'chamada', 'rules' => 'required|max:500|min:3' ),
             'image' => array( 'fieldName' => 'imagem', 'rules' => 'max:80' ),
             'image_caption' => array( 'fieldName' => 'legenda da imagem', 'rules' => 'max:100' ),
             'status' => array( 'fieldName' => 'status', 'valueIn' => array( self::STATUS_INACTIVE, self::STATUS_ACTIVE ) ),

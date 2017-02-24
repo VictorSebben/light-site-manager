@@ -2,6 +2,7 @@
 
 namespace lsm\controllers;
 
+use lsm\mappers\Mapper;
 use lsm\mappers\SeriesMapper;
 use lsm\models\PostsModel;
 use lsm\mappers\PostsMapper;
@@ -137,6 +138,7 @@ class PostsController extends BaseController {
             $this->_model->post_text = $_POST[ 'post-text' ];
             $this->_model->status = $request->getInput( 'status' );
             $this->_model->user_id = $_SESSION[ 'user' ];
+            $this->_model->slug = $this->_enforceSlugUniqueness( H::str2Url( $this->_model->title ) );
 
             $this->_model->series_id = null;
             $this->_model->position = null;
@@ -243,6 +245,7 @@ class PostsController extends BaseController {
             $this->_model->post_text = $_POST[ 'post-text' ];
             $this->_model->status = $request->getInput( 'status' );
             $this->_model->user_id = $_SESSION[ 'user' ];
+            $this->_model->slug = $this->_enforceSlugUniqueness( H::str2Url( $this->_model->title ) );
 
             $this->_model->series_id = null;
             $this->_model->position = null;
@@ -273,6 +276,42 @@ class PostsController extends BaseController {
             H::flash( 'success-msg', 'Post atualizado com sucesso!' );
             header( 'Location: ' . $this->_url->index() );
         }
+    }
+
+    /**
+     * This function checks for the uniqueness of the post's slug, made from
+     * the title. If there already is a post with the same title/slug, throw error
+     * @param $slug string
+     * @return string
+     */
+    private function _enforceSlugUniqueness( $slug ) {
+        $sql = 'SELECT slug FROM posts WHERE slug ';
+
+        if ( Mapper::$db == 'pgsql' ) {
+            $sql .= " ~*";
+        } else if ( Mapper::$db == 'mysql' ) {
+            $sql .= " REGEXP";
+        }
+        $sql .= ' :slug';
+
+        $posts = $this->_mapper->rawQuery( $sql, array( "^{$slug}(-[0-9]{0,})?$" ) );
+
+        // If there are no slugs with the same name, return original slug
+        if ( ! is_array( $posts ) || ! count( $posts ) ) {
+            return $slug;
+        }
+
+        // If there already are slugs with the same name, add a sequential number
+        // to the end of the slug
+        $lastPost = array_pop( $posts );
+
+        $lastSlugPart = array_pop( explode( '-', $lastPost[ 'slug' ] ) );
+
+        if ( ! is_numeric( $lastSlugPart ) ) {
+            return "{$slug}-1";
+        }
+
+        return "{$slug}-" . ++$lastSlugPart;
     }
 
     public function show( $id ) {

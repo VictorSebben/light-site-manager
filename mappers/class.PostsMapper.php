@@ -23,6 +23,24 @@ class PostsMapper extends Mapper {
         );
     }
 
+    public function findBySlug( $slug ) {
+        $stmt = self::$_pdo->prepare(
+            'SELECT id, title, intro, series_id,
+                    position, image, status, post_text
+             FROM posts
+             WHERE slug = ?
+             ORDER BY slug'
+        );
+        $stmt->execute( array( $slug ) );
+        $stmt->setFetchMode( PDO::FETCH_CLASS, $this->modelName );
+        $posts = $stmt->fetchAll();
+        $stmt->closeCursor();
+
+        if ( !is_array( $posts ) ) return null;
+
+        return $posts;
+    }
+
     /**
      * @param $id
      * @return mixed|null
