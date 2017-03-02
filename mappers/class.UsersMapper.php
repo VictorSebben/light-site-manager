@@ -90,8 +90,13 @@ class UsersMapper extends Mapper {
                  WHERE deleted = 0 ";
 
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $sql .= 'AND name ILIKE :search
-                      OR email ILIKE :search ';
+            if ( self::$db == 'pgsql' ) {
+                $sql .= 'AND (name ILIKE :search
+                              OR email ILIKE :search) ';
+            } else {
+                $sql .= 'AND (name LIKE :search
+                              OR email LIKE :search) ';
+            }
         }
 
         $sql .= " ORDER BY {$ord} {$params['dir']}
@@ -122,13 +127,19 @@ class UsersMapper extends Mapper {
                  WHERE deleted = 0 ";
 
         if ( $this->request->pagParams['search'] != null ) {
-            $sql .= 'AND name ~* :search
-                      OR email ~* :search ';
+            if ( self::$db == 'pgsql' ) {
+                $sql .= 'AND (name ILIKE :search
+                              OR email ILIKE :search) ';
+            } else {
+                $sql .= 'AND (name LIKE :search
+                              OR email LIKE :search) ';
+            }
         }
 
         $selectStmt = self::$_pdo->prepare($sql);
-        if ( $this->request->pagParams['search'] != null ) {
-            $selectStmt->bindParam( ':search', $this->request->pagParams['search'] );
+        if ( $this->request->pagParams[ 'search' ] != null ) {
+            $search = "%{$this->request->pagParams[ 'search' ]}%";
+            $selectStmt->bindParam( ':search', $search );
         }
         $selectStmt->execute();
         $this->pagination->numRecords = $selectStmt->fetch( PDO::FETCH_OBJ )->count;

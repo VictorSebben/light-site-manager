@@ -62,25 +62,39 @@ class ImagesMapper extends Mapper {
         // SQL deals with the fact that if images table is empty and therefore the ‘position’
         // column is null (max(position) returns null), we make it 0 + 1. Otherwise, we make
         // it “max(position) + 1”.
+
+        $sqlPos = "SELECT COALESCE(MAX(position), 0) AS maxpos FROM images WHERE post_id = :post_id";
+        $stmtPos = self::$_pdo->prepare($sqlPos);
+        $stmtPos->bindParam( ':post_id', $image->post_id, PDO::PARAM_INT );
+        $stmtPos->execute();
+
+        // The next available position for the images of the current post.
+        $nextPos = $stmtPos->fetch( PDO::FETCH_ASSOC )['maxpos'] + 1;
+
         $sql = "INSERT INTO images (
                   post_id
                 , extension
                 , position
-                , created_at)
-                (SELECT
-                      :post_id
-                    , :extension
-                    , COALESCE(MAX(position), 0) + 1
-                    , CURRENT_TIMESTAMP
-                    FROM images
-                    WHERE post_id = :post_id)
-                    RETURNING id, extension, position";
+                , created_at) VALUES (
+                    :post_id
+                  , :extension
+                  , :position
+                  , CURRENT_TIMESTAMP
+                )";
 
         $stmt = self::$_pdo->prepare( $sql );
         $stmt->bindParam( ':post_id', $image->post_id );
         $stmt->bindParam( ':extension', $image->extension );
+        $stmt->bindParam( ':position', $nextPos );
         $stmt->execute();
-        return $stmt->fetch( PDO::FETCH_ASSOC );
+
+        $lastId = self::$_pdo->lastInsertId();
+
+        $sqlNewImage = "SELECT id, post_id, position, caption, extension
+                        FROM images WHERE id = {$lastId}";
+        $stmtNewImage = self::$_pdo->prepare( $sqlNewImage );
+        $stmtNewImage->execute();
+        return $stmtNewImage->fetch( PDO::FETCH_ASSOC );
     }
 
 

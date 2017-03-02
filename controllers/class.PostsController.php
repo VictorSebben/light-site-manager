@@ -292,7 +292,7 @@ class PostsController extends BaseController {
         } else if ( Mapper::$db == 'mysql' ) {
             $sql .= " REGEXP";
         }
-        $sql .= ' :slug';
+        $sql .= ' ?';
 
         $posts = $this->_mapper->rawQuery( $sql, array( "^{$slug}(-[0-9]{0,})?$" ) );
 

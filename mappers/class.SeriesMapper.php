@@ -58,8 +58,12 @@ class SeriesMapper extends Mapper {
                  WHERE TRUE ";
 
         // Search series by title or intro
-        if ( $this->request->pagParams[ 'search' ] != null ) {
-            $sql .= 'AND (title ILIKE :search OR intro ILIKE :search)';
+        if ( $this->request->pagParams['search'] != null ) {
+            if ( self::$db == 'pgsql' ) {
+                $sql .= 'AND (title ILIKE :search OR intro ILIKE :search) ';
+            } else {
+                $sql .= 'AND (title LIKE :search OR intro LIKE :search) ';
+            }
         }
 
         if ( $catId ) {
@@ -106,7 +110,11 @@ class SeriesMapper extends Mapper {
                  WHERE TRUE ";
 
         if ( $this->request->pagParams['search'] != null ) {
-            $sql .= 'AND (title ILIKE :search OR intro ILIKE :search) ';
+            if ( self::$db == 'pgsql' ) {
+                $sql .= 'AND (title ILIKE :search OR intro ILIKE :search) ';
+            } else {
+                $sql .= 'AND (title LIKE :search OR intro LIKE :search) ';
+            }
         }
 
         if ( $catId ) {
@@ -116,7 +124,8 @@ class SeriesMapper extends Mapper {
         $selectStmt = self::$_pdo->prepare( $sql );
 
         if ( $this->request->pagParams['search'] != null ) {
-            $selectStmt->bindParam( ':search', $this->request->pagParams['search'] );
+            $search = "%{$this->request->pagParams[ 'search' ]}%";
+            $selectStmt->bindParam( ':search', $search );
         }
 
         if ( $catId ) {

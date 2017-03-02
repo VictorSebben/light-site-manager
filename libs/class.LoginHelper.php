@@ -21,7 +21,7 @@ class LoginHelper extends Base {
             // Validate if user can really use the system (if user has been deleted or
             // set as inactive, any functionality will be disallowed
             $usersMapper = new UsersMapper();
-            $usersMapper->selectStmt( 'SELECT status, deleted FROM users WHERE id = :id' );
+            $usersMapper->selectStmt( 'SELECT status, deleted FROM users WHERE id = ?' );
             $user = $usersMapper->find( $_SESSION[ 'user' ] );
             if ( ! $user || ( $user->status == 0 ) || ( $user->deleted == 1 ) ) {
                 echo "Usuário inexistente ou inativo";

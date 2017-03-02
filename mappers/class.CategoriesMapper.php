@@ -55,15 +55,20 @@ class CategoriesMapper extends Mapper {
         // Set number of records in the pagination object
         $this->_setNumRecordsPagn();
 
-        $sql = "SELECT c.id, name, description, count(pc.*) AS posts_count
+        $sql = "SELECT c.id, name, description, count(pc.post_id) AS posts_count
                   FROM categories c
                   LEFT JOIN posts_categories pc ON c.id = pc.category_id
                  WHERE TRUE ";
 
         // Search category by either name or description
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $sql .= 'AND name ILIKE :search
-                      OR description ILIKE :search ';
+            if ( self::$db == 'pgsql' ) {
+                $sql .= 'AND (name ILIKE :search
+                              OR description ILIKE :search) ';
+            } else {
+                $sql .= 'AND (name LIKE :search
+                              OR description LIKE :search) ';
+            }
         }
 
         $sql .= "GROUP BY c.id, name, description";
@@ -95,14 +100,20 @@ class CategoriesMapper extends Mapper {
                   FROM categories
                  WHERE TRUE ";
 
-        if ( $this->request->pagParams['search'] != null ) {
-            $sql .= 'AND name ~* :search
-                      OR description ~* :search ';
+        if ( $this->request->pagParams[ 'search' ] != null ) {
+            if ( self::$db == 'pgsql' ) {
+                $sql .= 'AND (name ILIKE :search
+                              OR description ILIKE :search) ';
+            } else {
+                $sql .= 'AND (name LIKE :search
+                              OR description LIKE :search) ';
+            }
         }
 
         $selectStmt = self::$_pdo->prepare($sql);
-        if ( $this->request->pagParams['search'] != null ) {
-            $selectStmt->bindParam( ':search', $this->request->pagParams['search'] );
+        if ( $this->request->pagParams[ 'search' ] != null ) {
+            $search = "%{$this->request->pagParams[ 'search' ]}%";
+            $selectStmt->bindParam( ':search', $search );
         }
         $selectStmt->execute();
         $this->pagination->numRecords = $selectStmt->fetch( PDO::FETCH_OBJ )->count;

@@ -102,9 +102,15 @@ class PostsMapper extends Mapper {
 
         // Search post by either name or description
         if ( $this->request->pagParams[ 'search' ] != null ) {
-            $sql .= 'AND (p.title ILIKE :search
-                      OR p.intro ILIKE :search
-                      OR post_text ILIKE :search) ';
+            if ( self::$db == 'pgsql' ) {
+                $sql .= 'AND (p.title ILIKE :search
+                              OR p.intro ILIKE :search
+                              OR p.post_text ILIKE :search) ';
+            } else {
+                $sql .= 'AND (p.title LIKE :search
+                              OR p.intro LIKE :search
+                              OR p.post_text LIKE :search) ';
+            }
         }
 
         if ( $catId ) {
@@ -175,9 +181,15 @@ class PostsMapper extends Mapper {
                  WHERE TRUE ";
 
         if ( $this->request->pagParams['search'] != null ) {
-            $sql .= 'AND title ~* :search
-                      OR intro ~* :search
-                      OR post_text ~* :search ';
+            if ( self::$db == 'pgsql' ) {
+                $sql .= 'AND (p.title ILIKE :search
+                              OR p.intro ILIKE :search
+                              OR p.post_text ILIKE :search) ';
+            } else {
+                $sql .= 'AND (p.title LIKE :search
+                              OR p.intro LIKE :search
+                              OR p.post_text LIKE :search) ';
+            }
         }
 
         if ( $catId ) {
@@ -191,7 +203,8 @@ class PostsMapper extends Mapper {
         $selectStmt = self::$_pdo->prepare($sql);
 
         if ( $this->request->pagParams['search'] != null ) {
-            $selectStmt->bindParam( ':search', $this->request->pagParams['search'] );
+            $search = "%{$this->request->pagParams[ 'search' ]}%";
+            $selectStmt->bindParam( ':search', $search );
         }
 
         if ( $catId ) {
