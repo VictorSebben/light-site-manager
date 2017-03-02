@@ -309,3 +309,6 @@ CREATE TABLE series_categories (
 
 ALTER TABLE posts ADD COLUMN slug VARCHAR(200);
 CREATE UNIQUE INDEX posts_slug_idx ON posts (slug);
+
+ALTER TABLE series ADD COLUMN slug VARCHAR(200);
+CREATE UNIQUE INDEX series_slug_idx ON series (slug);

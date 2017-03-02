@@ -8,6 +8,7 @@ class SeriesModel extends BaseModel {
     public $title;
     public $intro;
     public $status;
+    public $slug;
 
     /**
      * Array to hold CategoriesModel objects.

@@ -3,6 +3,7 @@
 namespace lsm\controllers;
 
 use lsm\mappers\CategoriesMapper;
+use lsm\mappers\Mapper;
 use lsm\models\SeriesModel;
 use lsm\mappers\SeriesMapper;
 use lsm\libs\Pagination;
@@ -112,6 +113,7 @@ class SeriesController extends BaseController {
             $this->_model->title = $request->getInput( 'title' );
             $this->_model->intro = $request->getInput( 'intro' );
             $this->_model->status = $request->getInput( 'status' );
+            $this->_model->slug = $this->_enforceSlugUniqueness( H::str2Url( $this->_model->title ) );
 
             // Let us make sure no error will occur if the user changed the hidden id's manually
             // and duplicated one
@@ -198,6 +200,7 @@ class SeriesController extends BaseController {
             $this->_model->title = $request->getInput( 'title' );
             $this->_model->intro = $request->getInput( 'intro' );
             $this->_model->status = $request->getInput( 'status' );
+            $this->_model->title = $this->_enforceSlugUniqueness( H::str2Url( $this->_model->title ) );
 
             // Let us make sure no error will occur if the user changed the hidden id's manually
             // and duplicated one
@@ -217,6 +220,42 @@ class SeriesController extends BaseController {
             H::flash( 'success-msg', 'Série atualizada com sucesso!' );
             header( 'Location: ' . $this->_url->index() );
         }
+    }
+
+    /**
+     * This function checks for the uniqueness of the post's slug, made from
+     * the title. If there already is a post with the same title/slug, throw error
+     * @param $slug string
+     * @return string
+     */
+    private function _enforceSlugUniqueness( $slug ) {
+        $sql = 'SELECT slug FROM series WHERE slug ';
+
+        if ( Mapper::$db == 'pgsql' ) {
+            $sql .= " ~*";
+        } else if ( Mapper::$db == 'mysql' ) {
+            $sql .= " REGEXP";
+        }
+        $sql .= ' ?';
+
+        $series = $this->_mapper->rawQuery( $sql, array( "^{$slug}(-[0-9]{0,})?$" ) );
+
+        // If there are no slugs with the same name, return original slug
+        if ( ! is_array( $series ) || ! count( $series ) ) {
+            return $slug;
+        }
+
+        // If there already are slugs with the same name, add a sequential number
+        // to the end of the slug
+        $lastSeries = array_pop( $series );
+
+        $lastSlugPart = array_pop( explode( '-', $lastSeries[ 'slug' ] ) );
+
+        if ( ! is_numeric( $lastSlugPart ) ) {
+            return "{$slug}-1";
+        }
+
+        return "{$slug}-" . ++$lastSlugPart;
     }
 
     public function delete( $id ) {
