@@ -36,7 +36,7 @@ class SeriesModel extends BaseModel {
 
         $this->rules = array(
             'title' => array( 'fieldName' => 'título', 'rules' => 'max:200' ),
-            'intro' => array( 'fieldName' => 'chamada', 'rules' => 'max:200' ),
+            'intro' => array( 'fieldName' => 'chamada', 'rules' => 'max:500' ),
             'status' => array( 'fieldName' => 'status', 'valueIn' => array( self::STATUS_INACTIVE, self::STATUS_ACTIVE ) )
         );
     }
